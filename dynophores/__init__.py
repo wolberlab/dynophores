@@ -4,7 +4,7 @@ Dynamic pharmacophore modeling of molecular interactions
 """
 
 # Add imports here
-from .dynophores import *
+from .api import *
 
 # Handle versioneer
 from ._version import get_versions
