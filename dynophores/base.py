@@ -19,33 +19,12 @@ class Dynophore:
         Dynophore name.
     superfeatures : list of dynophores.base.Superfeature
         Dynophore superfeatures.
-
-    Examples
-    --------
-    >>> from pathlib import Path
-    >>> from dynophores.base import Dynophore
-    >>> dynophore_path = Path(__name__).parent / 'dynophores' / 'tests' / 'data' / ''
-    >>> dynophore = Dynophore()
-    >>> dynophore.from_file(dynophore_path)
     """
 
     def __init__(self):
 
         self.id = None
         self.superfeatures = []
-
-    @property
-    def n_frames(self):
-        """
-        Get dynophore's number of frames.
-
-        Returns
-        -------
-        int
-            Number of frames.
-        """
-
-        pass
 
     @property
     def superfeatures_occurrences(self):
@@ -58,7 +37,12 @@ class Dynophore:
             Occurrences (0=no, 1=yes) of a superfeature (columns) in each frame (row).
         """
 
-        pass
+        occurrence_superfeatures = pd.DataFrame(
+            [superfeature.occurrences for superfeature in self.superfeatures],
+            index=[superfeature.id for superfeature in self.superfeatures]
+        ).transpose()
+
+        return occurrence_superfeatures
 
     @property
     def envpartners_occurrences(self):
@@ -71,7 +55,7 @@ class Dynophore:
             For each superfeature, occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
         """
 
-        pass
+        return self._get_envpartners_data(type='occurrences')
 
     @property
     def envpartners_distances(self):
@@ -85,27 +69,69 @@ class Dynophore:
 
         """
 
-        pass
+        return self._get_envpartners_data(type='distances')
 
     @property
-    def count(self, relative=False):
+    def n_superfeatures(self):
         """
-        Get number of frames in which each superfeature occurs, including the superfeatures' environmental partners
-        occurrences.
+        Get dynophore's number of superfeatures.
 
-        Parameters
-        ----------
-        relative : bool
-            Absolute (default) or relative count.
+        Returns
+        -------
+        int
+            Number of superfeatures.
+        """
+
+        return len(self.superfeatures)
+
+    @property
+    def n_frames(self):
+        """
+        Get dynophore's number of frames.
+
+        Returns
+        -------
+        int
+            Number of frames.
+        """
+
+        return len(self.superfeatures[0].occurrences)
+
+    @property
+    def count(self):
+        """
+        Get number of frames in which each dynophore occurs, including the superfeatures and superfeatures'
+        environmental partners occurrences.
 
         Returns
         -------
         pandas.DataFrame
-            Superfeatures count: The DataFrame shows interaction (yes/no) for superfeatures (rows) to each single
+            Dynophore count: The DataFrame shows interaction (yes/no) for superfeatures (rows) to each single
             environmental partner as well as any environmental partner (columns).
         """
 
-        pass
+        dynophore_count = pd.DataFrame(
+            {superfeature.id: superfeature.count for superfeature in self.superfeatures}
+        )
+        dynophore_count.fillna(0, inplace=True)
+        dynophore_count = dynophore_count.astype('int32')
+
+        return dynophore_count
+
+    @property
+    def frequency(self):
+        """
+        Get frequency of frames in which each dynophore occurs, including the superfeatures and superfeatures'
+        environmental partners occurrences.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dynophore frequency: The DataFrame shows interaction (yes/no) for superfeatures (rows) to each single
+            environmental partner as well as any environmental partner (columns).
+        """
+
+        return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
     def from_file(self, dynophore_path):
         """
@@ -117,46 +143,78 @@ class Dynophore:
             Path to folder with dynophore data.
         """
 
-        # Get all files
+        # Get all files and filename components
         dynophore_files = [file for file in dynophore_path.glob('*')]
-
-        # Get filename components
         dynophore_files_components = [self._get_file_components(i) for i in dynophore_files]
 
-        # Initialize dynophore
-        self.id = dynophore_files_components[0]['dynophore_id']
-
         # Iterate over superfeatures
+        superfeatures = []
         for superfeature_file_components in [i for i in dynophore_files_components if i['envpartner_id'] is None]:
 
-            # Initialize superfeature and set attributes
-            superfeature = Superfeature()
-            superfeature.id = superfeature_file_components['superfeature_id']
-            superfeature.feature_type = superfeature_file_components['superfeature_feature_type']
-            superfeature.atom_numbers = superfeature_file_components['superfeature_atom_numbers']
-            superfeature.occurrences = np.loadtxt(fname=superfeature_file_components['filepath'], dtype=int)
-
             # Iterate over environmental partners
-            for envpartner_file_components in [i for i in dynophore_files_components
-                                               if i['superfeature_id'] == superfeature.id and
-                                                  i['envpartner_id'] is not None]:
-                # Initialize environmental partner and set attributes
-                envpartner = EnvPartner()
-                envpartner.id = envpartner_file_components['envpartner_id']
-                envpartner.residue_name = envpartner_file_components['envpartner_residue_name']
-                envpartner.residue_number = envpartner_file_components['envpartner_residue_number']
-                envpartner.chain = envpartner_file_components['envpartner_chain']
-                envpartner.atom_numbers = envpartner_file_components['envpartner_atom_numbers']
-                envpartner.occurrences = np.loadtxt(fname=envpartner_file_components['filepath'], dtype=int,
-                                                    delimiter=',', usecols=1)
-                envpartner.distances = np.loadtxt(fname=envpartner_file_components['filepath'], dtype=float,
-                                                  delimiter=',', usecols=0)
+            envpartners = []
+            for envpartner_file_components in [
+                i for i in dynophore_files_components
+                if i['superfeature_id'] == superfeature_file_components['superfeature_id'] and
+                i['envpartner_id'] is not None
+            ]:
+                # Set environmental partner
+                envpartner = EnvPartner(
+                    envpartner_file_components['envpartner_id'],
+                    envpartner_file_components['envpartner_residue_name'],
+                    envpartner_file_components['envpartner_residue_number'],
+                    envpartner_file_components['envpartner_chain'],
+                    envpartner_file_components['envpartner_atom_numbers'],
+                    np.loadtxt(fname=envpartner_file_components['filepath'], dtype=int, delimiter=',', usecols=1),
+                    np.loadtxt(fname=envpartner_file_components['filepath'], dtype=float, delimiter=',', usecols=0)
+                )
+                envpartners.append(envpartner)
 
-                # Add environmental partner to superfeature
-                superfeature.envpartners.append(envpartner)
+            # Set superfeature
+            superfeature = Superfeature(
+                superfeature_file_components['superfeature_id'],
+                superfeature_file_components['superfeature_feature_type'],
+                superfeature_file_components['superfeature_atom_numbers'],
+                np.loadtxt(fname=superfeature_file_components['filepath'], dtype=int),
+                envpartners
+            )
+            superfeatures.append(superfeature)
 
-            # Add superfeature to dynophore
-            self.superfeatures.append(superfeature)
+        # Add superfeature to dynophore
+        self.id = dynophore_files_components[0]['dynophore_id']
+        self.superfeatures = superfeatures
+
+    def show_2d_dynophore(self):
+        """
+        Show 2D dynophore representation.
+
+        Returns
+        -------
+        TBA
+        """
+
+        pass
+
+    def show_3d_dynophore(self):
+        """
+        Show 3D dynophore representation (using nglview).
+
+        Returns
+        -------
+        TBA
+        """
+
+        pass
+
+    def plot_superfeatures_occurrences(self):
+        """
+        Plot the superfeatures' occurrences as barcode.
+
+        Returns
+        -------
+        TBA
+        """
+        pass
 
     @staticmethod
     def _get_file_components(filepath):
@@ -209,37 +267,39 @@ class Dynophore:
 
         return file_components
 
-    def show_2d_dynophore(self):
+    def _get_envpartners_data(self, type='occurrences'):
         """
-        Show 2D dynophore representation.
+        Get occurrences or distances of all superfeatures' environmental partners.
+
+        Parameters
+        ----------
+        type : str
+            Data type: occurrences (default) or distances.
 
         Returns
         -------
-        TBA
+        dict of DataFrame
+            Occurrences (default) or distances for a superfeature's (dict key) environmental partners (columns) for all
+            frames (rows).
         """
 
-        pass
+        types = ['occurrences', 'distances']
+        if type in types:
+            pass
+        else:
+            raise ValueError(f'Wrong type. Select from: {", ".join(types)}')
 
-    def show_3d_dynophore(self):
-        """
-        Show 3D dynophore representation (using nglview).
+        envpartners = {}
 
-        Returns
-        -------
-        TBA
-        """
+        for superfeature in self.superfeatures:
+            superfeature_envpartners = pd.DataFrame(
+                [getattr(envpartner, type) for envpartner in superfeature.envpartners],
+                index=[envpartner.id for envpartner in superfeature.envpartners]
+            ).transpose()
 
-        pass
+            envpartners[superfeature.id] = superfeature_envpartners
 
-    def plot_superfeatures_occurrences(self):
-        """
-        Plot the superfeatures' occurrences as barcode.
-
-        Returns
-        -------
-        TBA
-        """
-        pass
+        return envpartners
 
 
 class Superfeature:
@@ -261,13 +321,13 @@ class Superfeature:
         Superfeature's environmental partners.
     """
 
-    def __init__(self):
+    def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners):
 
-        self.id = None
-        self.feature_type = None
-        self.atom_numbers = None
-        self.occurrences = None
-        self.envpartners = []
+        self.id = id
+        self.feature_type = feature_type
+        self.atom_numbers = atom_numbers
+        self.occurrences = occurrences
+        self.envpartners = envpartners
 
     @property
     def envpartners_occurrences(self):
@@ -281,7 +341,7 @@ class Superfeature:
 
         """
 
-        pass
+        return self._get_envpartners_data(type='occurrences')
 
     @property
     def envpartners_distances(self):
@@ -294,18 +354,26 @@ class Superfeature:
             Distances to an environmental partner (columns) in each frame (row)
         """
 
-        pass
+        return self._get_envpartners_data(type='distances')
 
     @property
-    def count(self, relative=False):
+    def n_frames(self):
+        """
+        Get superfeatures's number of frames.
+
+        Returns
+        -------
+        int
+            Number of frames.
+        """
+
+        return len(self.occurrences)
+
+    @property
+    def count(self):
         """
         Get number of frames in which the superfeature occurs, including the superfeature's environmental partners
         occurrences.
-
-        Parameters
-        ----------
-        relative : bool
-            Absolute (default) or relative count.
 
         Returns
         -------
@@ -314,21 +382,27 @@ class Superfeature:
             any environmental partner.
         """
 
-        pass
+        superfeature_count = pd.Series({'any': sum(self.occurrences)})
+        envpartners_count = pd.Series(
+            {envpartner.id: envpartner.count for envpartner in self.envpartners}
+        )
 
-    def from_file(self, superfeature_path, envpartners_paths):
+        return superfeature_count.append(envpartners_count)
+
+    @property
+    def frequency(self):
         """
-        Load superfeature data from files to Superfeature instance.
+        Get frequency of frames in which the superfeature occurs, including the superfeature's environmental partners
+        occurrences.
 
-        Parameters
-        ----------
-        superfeature_path : pathlib.Path
-            Path to file with superfeature data.
-        envpartners_paths : list of pathlib.Path
-            List of paths to files with superfeature's environmental partners data.
+        Returns
+        -------
+        pandas.Series
+            Superfeature frequency: The Series shows interactions (yes/no) to each single environmental partner as well
+            as any environmental partner.
         """
 
-        pass
+        return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
     def plot_envpartners_occurrences(self):
         """
@@ -352,6 +426,35 @@ class Superfeature:
 
         pass
 
+    def _get_envpartners_data(self, type='occurrences'):
+        """
+        Get occurrences or distances of a superfeature's environmental partners.
+
+        Parameters
+        ----------
+        type : str
+            Data type: occurrences (default) or distances.
+
+        Returns
+        -------
+        DataFrame
+            Occurrences (default) or distances of a superfeature's environmental partners (columns) for all
+            frames (rows).
+        """
+
+        types = ['occurrences', 'distances']
+        if type in types:
+            pass
+        else:
+            raise ValueError(f'Wrong type. Select from: {", ".join(types)}')
+
+        envpartners = pd.DataFrame(
+            [getattr(envpartner, type) for envpartner in self.envpartners],
+            index=[envpartner.id for envpartner in self.envpartners]
+        ).transpose()
+
+        return envpartners
+
 
 class EnvPartner:
     """
@@ -367,20 +470,62 @@ class EnvPartner:
         Residue number of environmental partner.
     chain : str
         Chain of environmental partner.
-    atom_ids : list of int
-        List of atom IDs.
+    atom_numbers : list of int
+        List of atom numbers.
     occurrences : numpy.array
         Occurrences of interaction with environmental partner (0=no, 1=yes) in each frame.
     distances : numpy.array
         Interaction distances in each frame.
     """
 
-    def __init__(self):
+    def __init__(self, id, residue_name, residue_number, chain, atom_numbers, occurrences, distances):
 
-        self.id = None
-        self.residue_name = None
-        self.residue_number = None
-        self.chain = None
-        self.atom_ids = None
-        self.occurrences = None
-        self.distances = None
+        if len(occurrences) != len(distances):
+            raise ValueError(f'Occurrences and distances must be of same length.')
+
+        self.id = id
+        self.residue_name = residue_name
+        self.residue_number = residue_number
+        self.chain = chain
+        self.atom_numbers = atom_numbers
+        self.occurrences = occurrences
+        self.distances = distances
+
+    @property
+    def n_frames(self):
+        """
+        Get environmental partner's number of frames.
+
+        Returns
+        -------
+        int
+            Number of frames.
+        """
+
+        return len(self.occurrences)
+
+    @property
+    def count(self):
+        """
+        Get number of frames in which the interaction with the environmental partner occurs.
+
+        Returns
+        -------
+        int
+            Count of interaction occurrence.
+        """
+
+        return sum(self.occurrences)
+
+    @property
+    def frequency(self):
+        """
+        Get frequency of frames in which the interaction with the environmental partner occurs.
+
+        Returns
+        -------
+        float
+            Frequency of interaction occurrence.
+        """
+
+        return round(sum(self.occurrences) / self.n_frames * 100, 2)
