@@ -5,6 +5,8 @@ Dynamic pharmacophore modeling of molecular interactions
 
 # Add imports here
 from .api import *
+from .base import *
+from .analyze import *
 
 # Handle versioneer
 from ._version import get_versions
