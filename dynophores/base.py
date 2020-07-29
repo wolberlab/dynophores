@@ -243,7 +243,7 @@ class Dynophore:
         plotting = Plotting()
         plotting.plot_occurrences(data, color_by_feature_type, max_frames)
 
-    def plot_envpartners_occurrences(self, superfeature_name, max_frames):
+    def plot_envpartners_occurrences(self, superfeature_name, max_frames=1000):
         """
         Plot a superfeature's interaction ocurrences with its interaction partners.
 
