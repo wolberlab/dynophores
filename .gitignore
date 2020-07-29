@@ -108,5 +108,8 @@ ENV/
 # PyCharm
 .idea/
 
+# VS Code
+.vscode/
+
 # Data
 docs/examples/data
