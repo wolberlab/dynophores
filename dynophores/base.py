@@ -2,10 +2,13 @@
 Contains base functions/classes.
 """
 
-from pathlib import Path
+import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+FEATURE_COLORS = {'HBA': 'firebrick', 'HBD': 'green', 'H': 'gold', 'AR': 'mediumblue', 'PI': 'blue', 'NI': 'red'}
 
 
 class Dynophore:
@@ -206,15 +209,58 @@ class Dynophore:
 
         pass
 
-    def plot_superfeatures_occurrences(self):
+    def plot_superfeatures_occurrences(self, superfeature_names=None, color_by_feature_type=True, max_frames=1000):
         """
         Plot the superfeatures' occurrences as barcode.
 
-        Returns
-        -------
-        TBA
+        Parameters
+        ----------
+        superfeature_names : None or str or list of str
+            Select superfeatures to plot or select all (default).
+        color_by_feature_type : bool
+            Color barcode by feature type (default) or color all in black.
+        max_frames : int
+            Number of frames to display in barcode plot. If input data contains more than `max_frames`,
+            `max_frames` equidistant frames will be selected.
         """
-        pass
+
+        data = self.superfeatures_occurrences
+        
+        if superfeature_names is not None:
+            
+            if isinstance(superfeature_names, str):
+                superfeature_names = [superfeature_names]
+
+            # Get all superfeature names that are in data
+            superfeature_names_curated = [i for i in superfeature_names if i in data.columns]
+            superfeature_names_omitted = list(set(superfeature_names)-set(superfeature_names_curated))
+            if len(superfeature_names_omitted) > 0:
+                print(f'Superfeature names {superfeature_names_omitted} omitted because unknown.')
+
+            # Select subset
+            data = data[superfeature_names_curated]
+
+        plotting = Plotting()
+        plotting.plot_occurrences(data, color_by_feature_type, max_frames)
+
+    def plot_envpartners_occurrences(self, superfeature_name, max_frames):
+        """
+        Plot a superfeature's interaction ocurrences with its interaction partners.
+
+        Parameters
+        ----------
+        superfeature_name : str
+            Superfeature name
+        max_frames : int
+            Number of frames to display in barcode plot. If input data contains more than `max_frames`,
+            `max_frames` equidistant frames will be selected.
+        """
+
+        if superfeature_name not in self.envpartners_occurrences.keys():
+            raise KeyError(f'Superfeature name {superfeature_name} is unknown.')
+        
+        plotting = Plotting()
+        plotting.plot_occurrences(self.envpartners_occurrences[superfeature_name], color_by_feature_type=None)
 
     @staticmethod
     def _get_file_components(filepath):
@@ -304,8 +350,8 @@ class Dynophore:
 
 class Superfeature:
     """
-    Class to store superfeature data, i.e. data on environmental partners, and important functions to interact with this
-    data.
+    Class to store superfeature data, i.e. data on environmental partners, and important functions
+    to interact with this data.
 
     Attributes
     ----------
@@ -404,28 +450,6 @@ class Superfeature:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-    def plot_envpartners_occurrences(self):
-        """
-        Plot the superfeature's environmental occurrences as barcode.
-
-        Returns
-        -------
-        TBA
-        """
-
-        pass
-
-    def plot_envpartners_distances(self):
-        """
-        Plot the superfeature's environmental distances as series or histogram.
-
-        Returns
-        -------
-        TBA
-        """
-
-        pass
-
     def _get_envpartners_data(self, type='occurrences'):
         """
         Get occurrences or distances of a superfeature's environmental partners.
@@ -481,7 +505,7 @@ class EnvPartner:
     def __init__(self, id, residue_name, residue_number, chain, atom_numbers, occurrences, distances):
 
         if len(occurrences) != len(distances):
-            raise ValueError(f'Occurrences and distances must be of same length.')
+            raise ValueError('Occurrences and distances must be of same length.')
 
         self.id = id
         self.residue_name = residue_name
@@ -529,3 +553,59 @@ class EnvPartner:
         """
 
         return round(sum(self.occurrences) / self.n_frames * 100, 2)
+
+
+class Plotting:
+    """
+    Class to store plotting functions
+    """
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def plot_occurrences(occurrences, color_by_feature_type=True, max_frames=1000):
+        """
+        Create a barcode plot for superfeature or interaction occurrences.
+
+        Parameters
+        ----------
+        occurrences : pandas.DataFrame
+            Occurrences (0 or 1) per frame (rows) for one or more superfeatures or interactions (columns).
+        color_by_feature_type : bool
+            Color barcode by feature type (default) or color all in black.
+        max_frames : int
+            Number of frames to display in barcode plot. If input data contains more than `max_frames`,
+            `max_frames` equidistant frames will be selected.
+        """
+
+        # Sort data by ratio
+        ratio = round(occurrences.apply(sum) / occurrences.shape[0] * 100, 2)
+        ratio.sort_values(inplace=True)
+        occurrences = occurrences[ratio.index]
+
+        # Get subset of data if more than 1000 frames
+        if occurrences.shape[0] > 1000:
+            selected_indices = [i for i in range(0, 1000, math.floor(1002/max_frames))]
+            occurrences = occurrences.iloc[selected_indices, :]
+
+        # Transform 1 in binary values to rank in plot
+        occurrences_plot = {}
+        for i, (name, data) in enumerate(occurrences.iteritems()):
+            data = data.replace([0, 1], [None, i+1])
+            occurrences_plot[name] = data
+        occurrences_plot = pd.DataFrame(occurrences_plot)
+
+        # Feature type colors?
+        if color_by_feature_type:
+            feature_types = [i.split('[')[0] for i in occurrences_plot.columns]
+            colors = [FEATURE_COLORS[i] if i in FEATURE_COLORS.keys() else 'black' for i in feature_types]
+        else:
+            colors = None
+
+        # Plot (plot size depending on number barcodes)
+        fig, ax = plt.subplots(figsize=(10, occurrences_plot.shape[1] / 2))
+        occurrences_plot.plot(marker='|', markersize=5, linestyle='', legend=None, ax=ax, color=colors)
+        ax.set_yticks(range(0, occurrences_plot.shape[1]+2))
+        ax.set_xlabel('frame index')
+        ax.set_yticklabels([''] + occurrences_plot.columns.to_list() + [''])
