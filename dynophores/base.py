@@ -7,7 +7,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 FEATURE_COLORS = {'HBA': 'firebrick', 'HBD': 'green', 'H': 'gold', 'AR': 'mediumblue', 'PI': 'blue', 'NI': 'red'}
 plt.style.use('seaborn')
