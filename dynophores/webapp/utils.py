@@ -6,4 +6,4 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 
-EXAMPLE_PATH = HERE / ".." / "docs" / "examples" / "data" / "out" / "DynophoreApp"
+EXAMPLE_PATH = HERE / ".." / ".." / "docs" / "examples" / "data" / "out" / "DynophoreApp"

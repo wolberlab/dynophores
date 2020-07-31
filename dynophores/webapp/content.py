@@ -15,6 +15,4 @@ def load_dynophore():
     dynophore = Dynophore()
     dynophore.from_file(EXAMPLE_PATH)
 
-    print(dynophore.frequency)
-
     return dynophore

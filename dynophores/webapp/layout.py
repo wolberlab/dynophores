@@ -8,7 +8,10 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 
-from .plots import boxplot
+from .plots import interaction_heatmap, superfeatures_occurrences, interaction_distances, superfeatures_occurrences_px
+
+# Temporary
+from .content import load_dynophore
 
 THEME = dbc.themes.JOURNAL
 
@@ -156,7 +159,9 @@ def _dynophore_3d():
                     )
                 ),
                 dbc.Collapse(
-                    [None],
+                    [
+                        html.Div('Test hidden content.')
+                    ],
                     id="dynophore-3d-collapse",
                 ),
             ]
@@ -186,7 +191,9 @@ def _dynophore_2d():
                     )
                 ),
                 dbc.Collapse(
-                    [None],
+                    [
+                        html.Div('Test hidden content.')
+                    ],
                     id="dynophore-2d-collapse",
                 ),
             ]
@@ -235,6 +242,9 @@ def _superfeatures():
     * `superfeatures-collapse`: collapsible area that contains plots
     """
 
+    dynophore = load_dynophore()
+    fig = superfeatures_occurrences_px(dynophore)
+
     return (
         dbc.Card(
             [
@@ -246,7 +256,7 @@ def _superfeatures():
                     )
                 ),
                 dbc.Collapse(
-                    [*_plot_area("superfeatures")],
+                    [dcc.Graph(figure=fig)],
                     id="superfeatures-collapse",
                 ),
             ]
@@ -276,7 +286,7 @@ def _interaction_partners():
                     )
                 ),
                 dbc.Collapse(
-                    [*_plot_area("interaction-partners")],
+                    [*_plot_area("envpartners-distances")],
                     id="interaction-partners-collapse",
                 ),
             ]
@@ -306,17 +316,50 @@ def _plot_area(identifier):
             style={"max-width": "100%"},
         ),
         dcc.Loading(
-            id=f"{identifier}-loading", children=[dcc.Graph(id=identifier)], type="default",
+            id=f"{identifier}-loading",
+            children=[dcc.Graph(id=identifier)],
+            type="default",
         ),
     )
 
+
+CARDS = [
+    "dynophore-3d",
+    "dynophore-2d",
+    "interaction-heatmap",
+    "superfeatures",
+    "interaction-partners"
+]
 
 PLOTS = {
     "interaction-heatmap": {
         "title": "Interaction occurrences: Superfeature vs. interaction partners",
         "yaxis": "TBA",
-        "plotter": partial(boxplot, selector=lambda dynophore: dynophore.count),
+        "plotter": partial(
+            interaction_heatmap,
+            selector=lambda dynophore: dynophore.frequency
+        ),
     },
+    "superfeatures-occurrences": {
+        "title": "Superfeature occurrences",
+        "yaxis": "TBA",
+        "plotter": partial(
+            superfeatures_occurrences,
+            selector=lambda dynophore: dynophore.superfeatures_occurrences
+        ),
+    },
+    "envpartners-distances": {
+        "title": "Test",
+        "yaxis": "TBA",
+        "plotter": partial(
+            interaction_distances,
+            selector=lambda dynophore: dynophore.envpartners_distances['HBA[4619]']
+        ),
+    },
+}
+
+"""
+PLOTS = {
     "superfeatures": {
         "title": "Superfeature occurrences",
         "yaxis": "TBA",
@@ -328,3 +371,4 @@ PLOTS = {
         "plotter": partial(boxplot, selector=lambda dynophore: dynophore.envpartner_occurrences),
     },
 }
+"""
