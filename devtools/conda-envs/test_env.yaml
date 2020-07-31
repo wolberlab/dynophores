@@ -4,6 +4,11 @@ dependencies:
     # Base depends
   - python
   - pip
+  - numpy
+  - pandas
+  - jupyter
+  - matplotlib
+  - seaborn
 
     # Testing
   - pytest
