@@ -1,6 +1,6 @@
 """
 Dynophores
-Dynamic pharmacophore modeling of molecular interactions
+Dynamic pharmacophore modeling of molecular interactions.
 """
 
 # Add imports here
@@ -8,6 +8,7 @@ from .api import *
 from .base import *
 from .analyze import *
 from .plots import *
+from . import webapp
 
 # Handle versioneer
 from ._version import get_versions

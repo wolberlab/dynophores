@@ -1,5 +1,5 @@
 """
-Contains plotting functions for e.g. Jupyter notebooks.
+This module defines plotting functions for e.g. Jupyter notebooks.
 """
 
 import math
@@ -10,14 +10,6 @@ import seaborn as sns
 
 from dynophores.base import FEATURE_COLORS
 
-########
-# Dash #
-########
-
-
-###########
-# Jupyter #
-###########
 
 def plot_superfeatures_occurrences(dynophore, superfeature_names=None, color_by_feature_type=True, max_frames=1000):
     """

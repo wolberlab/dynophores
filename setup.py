@@ -40,6 +40,7 @@ setup(
     # Customize MANIFEST.in if the general case does not suit your needs
     # Comment out this line to prevent the files from being packaged with your software
     include_package_data=True,
+    entry_points={"console_scripts": ["dynophores-webapp=dynophores.webapp.webapp:main"]},
 
     # Allows `setup.py test` to work correctly with pytest
     setup_requires=[] + pytest_runner,
