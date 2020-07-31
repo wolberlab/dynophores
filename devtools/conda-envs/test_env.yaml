@@ -9,6 +9,9 @@ dependencies:
   - jupyter
   - matplotlib
   - seaborn
+  - dash
+  - dash-core-components
+  - dash-bio
 
     # Testing
   - pytest
