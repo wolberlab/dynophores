@@ -132,6 +132,66 @@ def _general_errors():
     )
 
 
+def _dynophore_3d():
+    """
+    Creates the 3D dynophore visualization area.
+
+    Components
+    ----------
+    * `dynophore_3d`:  (+ their errors; check `_plot_area`)
+    * `dynophore_3d-toggle`: button controlling open/closed state of plot area
+    * `dynophore_3d-collapse`: collapsible area that contains plots
+    """
+
+    return (
+        dbc.Card(
+            [
+                dbc.CardHeader(
+                    html.H2(
+                        dbc.Button(
+                            "Interaction heatmap", color="link", id="dynophore-3d-toggle",
+                        )
+                    )
+                ),
+                dbc.Collapse(
+                    [None],
+                    id="dynophore-3d-collapse",
+                ),
+            ]
+        ),
+    )
+
+
+def _dynophore_2d():
+    """
+    Creates the 2D dynophore visualization area.
+
+    Components
+    ----------
+    * `dynophore_2d`:  (+ their errors; check `_plot_area`)
+    * `dynophore_2d-toggle`: button controlling open/closed state of plot area
+    * `dynophore_2d-collapse`: collapsible area that contains plots
+    """
+
+    return (
+        dbc.Card(
+            [
+                dbc.CardHeader(
+                    html.H2(
+                        dbc.Button(
+                            "Interaction heatmap", color="link", id="dynophore-2d-toggle",
+                        )
+                    )
+                ),
+                dbc.Collapse(
+                    [None],
+                    id="dynophore-2d-collapse",
+                ),
+            ]
+        ),
+    )
+
+
 def _interaction_heatmap():
     """
     Creates the interaction heatmap area for the dynophore.
