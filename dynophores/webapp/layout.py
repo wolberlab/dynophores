@@ -25,6 +25,8 @@ def layout():
             *_upload(),
             *_submit_button(),
             *_general_errors(),
+            *_dynophore_3d(),
+            *_dynophore_2d(),
             *_interaction_heatmap(),
             *_superfeatures(),
             *_interaction_partners(),
@@ -149,7 +151,7 @@ def _dynophore_3d():
                 dbc.CardHeader(
                     html.H2(
                         dbc.Button(
-                            "Interaction heatmap", color="link", id="dynophore-3d-toggle",
+                            "Dynophore 3D", color="link", id="dynophore-3d-toggle",
                         )
                     )
                 ),
@@ -179,7 +181,7 @@ def _dynophore_2d():
                 dbc.CardHeader(
                     html.H2(
                         dbc.Button(
-                            "Interaction heatmap", color="link", id="dynophore-2d-toggle",
+                            "Dynophore 2D", color="link", id="dynophore-2d-toggle",
                         )
                     )
                 ),
