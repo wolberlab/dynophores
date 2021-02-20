@@ -67,7 +67,7 @@ jobs:
       shell: bash -l {0}
 
       run: |
-        pytest -v --cov=dynophore --cov-report=xml --color=yes dynophore/tests/
+        pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI_OS: ubuntu-latest
-      PACKAGE: "dynophore"
+      PACKAGE: "dynophores"
       PYVER: "3.7"
 
     steps:
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI_OS: ubuntu-latest
-      PACKAGE: "dynophore"
+      PACKAGE: "dynophores"
       PYVER: "3.7"
 
     steps:
