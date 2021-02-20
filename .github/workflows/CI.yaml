@@ -1,0 +1,167 @@
+name: CI
+
+on:
+  # GitHub has started calling new repo's first branch "main" https://github.com/github/renaming
+  # Existing codes likely still have "master" as the primary branch
+  # Both are tracked here to keep legacy and new codes working
+  push:
+    branches:
+      - "master"
+      - "main"
+  pull_request:
+    branches:
+      - "master"
+      - "main"
+  schedule:
+    # Nightly tests run on master by default:
+    #   Scheduled workflows run on the latest commit on the default or base branch.
+    #   (from https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule)
+    - cron: "0 0 * * *"
+
+jobs:
+
+  test:
+    name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-latest, ubuntu-latest, windows-latest]
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Additional info about the build
+      shell: bash
+      run: |
+        uname -a
+        df -h
+        ulimit -a
+
+    # More info on options: https://github.com/conda-incubator/setup-miniconda
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        environment-file: devtools/conda-envs/test_env.yaml
+
+        channels: conda-forge,defaults
+
+        activate-environment: test
+        auto-update-conda: false
+        auto-activate-base: false
+        show-channel-urls: true
+
+    - name: Install package
+      # conda setup requires this special shell
+      shell: bash -l {0}
+      run: |
+        python -m pip install . --no-deps
+        conda list
+  
+    - name: Run package tests
+      shell: bash -l {0}
+      run: |
+        pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
+
+    - name: Run docs notebooks tests
+      shell: bash -l {0}
+      run: |
+        PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
+        pytest $PYTEST_ARGS docs/*.ipynb -vvv
+
+    - name: CodeCov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
+
+
+  lint-format:
+    runs-on: ubuntu-latest
+    env:
+      CI_OS: ubuntu-latest
+      PACKAGE: "dynophores"
+      PYVER: "3.7"
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      # More info on options: https://github.com/conda-incubator/setup-miniconda
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          environment-file: devtools/conda-envs/test_env.yaml
+          channels: conda-forge,defaults,bioconda
+          activate-environment: test
+          auto-update-conda: true
+          auto-activate-base: false
+          show-channel-urls: true
+          # mamba-version: "*"
+
+      - name: Install linter and formatter
+        shell: bash -l {0}
+        run: |
+          conda install -y flake8 black
+          python -m pip install black-nb shyaml
+          python -m pip install flake8-nb
+
+      - name: Run black check
+        shell: bash -l {0}
+        if: always()
+        run: |
+          black --check -l 99 $PACKAGE/
+
+      - name: Run flake8
+        shell: bash -l {0}
+        run: |
+          flake8 --config setup.cfg $PACKAGE/
+
+      - name: Run black-nb check
+        shell: bash -l {0}
+        if: always()
+        run: |
+          black-nb --check -l 99 docs/*.ipynb
+
+      - name: Run flake8-nb
+        shell: bash -l {0}
+        run: |
+          flake8-nb --config setup.cfg docs/*.ipynb
+
+
+  docs:
+    runs-on: ubuntu-latest
+    env:
+      CI_OS: ubuntu-latest
+      PACKAGE: "dynophores"
+      PYVER: "3.7"
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      # More info on options: https://github.com/conda-incubator/setup-miniconda
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          environment-file: devtools/conda-envs/test_env.yaml
+          channels: conda-forge,defaults,bioconda
+          activate-environment: test
+          auto-update-conda: true
+          auto-activate-base: false
+          show-channel-urls: true
+          # mamba-version: "*"
+
+      - name: Install package
+        shell: bash -l {0}
+        run: |
+          python -m pip install . --no-deps
+          conda list
+
+      - name: Run sphinx
+        shell: bash -l {0}
+        run: |
+          cd docs
+          make clean
+          SPHINXOPTS="-W -T --keep-going" make html

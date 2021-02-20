@@ -1,8 +1,11 @@
 Dynophores
 ==============================
+
 [//]: # (Badges)
-[![Travis Build Status](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/Dynophores.svg?branch=master)](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/Dynophores)
-[![codecov](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/Dynophores/branch/master/graph/badge.svg)](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/Dynophores/branch/master)
+[![GitHub Actions Build Status](https://github.com/dominiquesydow/dynophores/workflows/CI/badge.svg)](https://github.com/dominiquesydow/dynophores/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/dominiquesydow/dynophores/branch/master/graph/badge.svg)](https://codecov.io/gh/dominiquesydow/dynophores/branch/master)
+
+> ⚠ This project is work-in-progress. The API is not final.
 
 
 Dynamic pharmacophore modeling of molecular interactions
