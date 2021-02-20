@@ -1,21 +1,32 @@
 name: test
 channels:
+  - conda-forge
+  - defaults
 dependencies:
     # Base depends
-  - python
+  - python>=3.6
   - pip
   - numpy
-  - pandas
-  - jupyter
+  - pandas  
   - matplotlib
   - seaborn
-
-    # Testing
+  - jupyter
+  - jupyterlab=2
+  - nodejs  # Remove when using JLab3
+  - ipywidgets>=7.5
+  # Testing
   - pytest
   - pytest-cov
   - codecov
+  # Docs
+  - sphinx
+  - sphinx_rtd_theme
+  - nbsphinx
+  # Developement
+  - black
+  - pylint
+  - pip:
+    - black-nb
 
-    # Pip-only installs
-  #- pip:
-  #  - codecov
-
+## For Jupyter lab extensions, run:
+# jupyter labextension install @jupyter-widgets/jupyterlab-manager nglview-js-widgets @jupyterlab/toc @ijmbarr/jupyterlab_spellchecker
