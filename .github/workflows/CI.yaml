@@ -67,7 +67,7 @@ jobs:
       shell: bash -l {0}
       run: |
         PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
-        pytest $PYTEST_ARGS docs/*.ipynb
+        pytest $PYTEST_ARGS docs/*.ipynb -vvv
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
