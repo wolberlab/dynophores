@@ -180,7 +180,6 @@ class Dynophore:
         for superfeature_file_components in [
             i for i in dynophore_files_components if i["envpartner_id"] is None
         ]:
-
             # Iterate over environmental partners
             envpartners = []
             for envpartner_file_components in [
@@ -264,7 +263,6 @@ class Dynophore:
         """
 
         file_split = filepath.stem.split("_")
-        file_split.remove("")
 
         file_components = {
             "filepath": None,
@@ -279,9 +277,14 @@ class Dynophore:
             "envpartner_atom_numbers": None,
         }
 
+        # Example filepath
+        # 1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt
+        # Is split into
+        # ['1KE7-1', 'data', 'superfeature', 'H[4599,4602,4601,4608,4609,4600]', '100.0']
+
         file_components["filepath"] = filepath
         file_components["dynophore_id"] = file_split[0]
-        file_components["superfeature_id"] = file_split[3].split("%")[0]
+        file_components["superfeature_id"] = file_split[3]
         file_components["superfeature_feature_type"] = file_components["superfeature_id"].split(
             "["
         )[0]
@@ -289,20 +292,19 @@ class Dynophore:
             int(atom) for atom in file_components["superfeature_id"].split("[")[1][:-1].split(",")
         ]
 
-        if len(file_split) == 6:
-            file_components["envpartner_id"] = file_split[5].split("%")[0]
-            file_components["envpartner_residue_name"] = file_components["envpartner_id"].split(
-                "-"
-            )[0]
-            file_components["envpartner_residue_number"] = int(
-                file_components["envpartner_id"].split("-")[1]
-            )
-            file_components["envpartner_chain"] = (
-                file_components["envpartner_id"].split("-")[2].split("[")[0]
-            )
+        if len(file_split) == 10:
+
+            # Example filepath
+            # 1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_ASP_86_A[1313]_1.6.txt
+            # Is split into
+            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86', 'A[1313]', '1.6']
+
+            file_components["envpartner_id"] = "-".join(file_split[6:9])
+            file_components["envpartner_residue_name"] = file_split[6]
+            file_components["envpartner_residue_number"] = int(file_split[7])
+            file_components["envpartner_chain"] = file_split[8].split("[")[0]
             file_components["envpartner_atom_numbers"] = [
-                int(atom)
-                for atom in file_components["envpartner_id"].split("[")[1][:-1].split(",")
+                int(atom) for atom in file_split[8].split("[")[1][:-1].split(",")
             ]
 
         return file_components
