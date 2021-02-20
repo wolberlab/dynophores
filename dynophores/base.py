@@ -234,7 +234,7 @@ class Dynophore:
         TBA
         """
 
-        pass
+        raise NotImplementedError("Not yet implemented.")
 
     def show_3d_dynophore(self):
         """
@@ -245,7 +245,7 @@ class Dynophore:
         TBA
         """
 
-        pass
+        raise NotImplementedError("Not yet implemented.")
 
     @staticmethod
     def _get_file_components(filepath):
@@ -589,7 +589,7 @@ class Plotting:
 
         # Transform 1 in binary values to rank in plot
         occurrences_plot = {}
-        for i, (name, data) in enumerate(occurrences.iteritems()):
+        for i, (name, data) in enumerate(occurrences.items()):
             data = data.replace([0, 1], [None, i + 1])
             occurrences_plot[name] = data
         occurrences_plot = pd.DataFrame(occurrences_plot)

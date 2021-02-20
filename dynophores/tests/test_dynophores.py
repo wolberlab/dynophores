@@ -3,8 +3,8 @@ Unit and regression test for the dynophores package.
 """
 
 # Import package, test suite, and other packages as needed
-import dynophores
-import pytest
+# import dynophores
+# import pytest
 import sys
 
 

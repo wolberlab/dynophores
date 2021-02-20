@@ -259,7 +259,7 @@ def _prepare_plot_occurrences(occurrences, max_frames=1000):
 
     # Transform 1 in binary values to rank in plot
     occurrences_plot = {}
-    for i, (name, data) in enumerate(occurrences.iteritems()):
+    for i, (name, data) in enumerate(occurrences.items()):
         data = data.replace([0, 1], [None, i + 1])
         occurrences_plot[name] = data
     occurrences_plot = pd.DataFrame(occurrences_plot)
