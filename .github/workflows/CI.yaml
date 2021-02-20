@@ -103,18 +103,29 @@ jobs:
       - name: Install linter and formatter
         shell: bash -l {0}
         run: |
-          conda install -y pylint black
-
-      - name: Run pylint
-        shell: bash -l {0}
-        run: |
-          pylint $PACKAGE/
+          conda install -y flake8 flake8-nb black black-nb
 
       - name: Run black check
         shell: bash -l {0}
         if: always()
         run: |
           black --check -l 99 $PACKAGE/
+
+      - name: Run flake8
+        shell: bash -l {0}
+        run: |
+          flake8 --config setup.cfg $PACKAGE/
+
+      - name: Run black-nb check
+        shell: bash -l {0}
+        if: always()
+        run: |
+          black-nb --check -l 99 docs/*.ipynb
+
+      - name: Run flake8-nb
+        shell: bash -l {0}
+        run: |
+          flake8-nb --config setup.cfg docs/*.ipynb
 
   #############
   docs:
