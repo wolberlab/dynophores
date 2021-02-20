@@ -19,8 +19,7 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  
-  #############
+
   test:
     name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
@@ -53,21 +52,22 @@ jobs:
         show-channel-urls: true
 
     - name: Install package
-
       # conda setup requires this special shell
       shell: bash -l {0}
       run: |
         python -m pip install . --no-deps
         conda list
-
-
-    - name: Run tests
-
-      # conda setup requires this special shell
+  
+    - name: Run package tests
       shell: bash -l {0}
-
       run: |
         pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
+
+    - name: Run docs notebooks tests
+        shell: bash -l {0}
+        run: |
+          PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
+          pytest $PYTEST_ARGS docs/*.ipynb
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
@@ -76,7 +76,7 @@ jobs:
         flags: unittests
         name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
 
-  #############
+
   lint-format:
     runs-on: ubuntu-latest
     env:
@@ -103,7 +103,9 @@ jobs:
       - name: Install linter and formatter
         shell: bash -l {0}
         run: |
-          conda install -y flake8 flake8-nb black black-nb
+          conda install -y flake8 black
+          python -m pip install black-nb shyaml
+          python -m pip install flake8-nb
 
       - name: Run black check
         shell: bash -l {0}
@@ -127,7 +129,7 @@ jobs:
         run: |
           flake8-nb --config setup.cfg docs/*.ipynb
 
-  #############
+
   docs:
     runs-on: ubuntu-latest
     env:
