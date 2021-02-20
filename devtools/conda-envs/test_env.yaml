@@ -15,7 +15,11 @@ dependencies:
   - nodejs  # Remove when using JLab3
   - ipywidgets>=7.5
   # Testing
-  - pytest
+  - pytest 5.*
+  - pytest-xdist
+  - pytest-cov
+  - nbval
+  - shyaml
   - pytest-cov
   - codecov
   # Docs
