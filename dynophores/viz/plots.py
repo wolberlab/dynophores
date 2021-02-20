@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from dynophores.base import FEATURE_COLORS
+from dynophores.definitions import FEATURE_COLORS
 
 ########
 # Dash #
