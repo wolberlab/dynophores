@@ -116,8 +116,8 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
 
 def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     """
-    Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances (frame series and
-    histogram).
+    Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances
+    (frame series and histogram).
 
     Parameters
     ----------
@@ -235,7 +235,8 @@ def _prepare_plot_occurrences(occurrences, max_frames=1000):
     Parameters
     ----------
     occurrences : pandas.DataFrame
-        Occurrences (0 or 1) per frame (rows) for one or more superfeatures or superfeature interactions (columns).
+        Occurrences (0 or 1) per frame (rows) for one or more superfeatures or superfeature
+        interactions (columns).
     max_frames : int
         Number of frames to display in barcode plot. If input data contains more than `max_frames`,
         `max_frames` equidistant frames will be selected.

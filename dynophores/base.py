@@ -21,8 +21,8 @@ plt.style.use("seaborn")
 
 class Dynophore:
     """
-    Class to store dynophore data, i.e. data on superfeatures and their environmental partners, and important functions
-    to interact with this data.
+    Class to store dynophore data, i.e. data on superfeatures and their environmental partners,
+    and important functions to interact with this data.
 
     Attributes
     ----------
@@ -58,12 +58,14 @@ class Dynophore:
     @property
     def envpartners_occurrences(self):
         """
-        For each superfeature, get its environmental partners' occurrences per environmental partner and frame.
+        For each superfeature, get its environmental partners' occurrences per environmental
+        partner and frame.
 
         Returns
         -------
         dict of pandas.DataFrame
-            For each superfeature, occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
+            For each superfeature, occurrences (0=no, 1=yes) of an environmental partner (columns)
+            in each frame (row).
         """
 
         return self._get_envpartners_data(type="occurrences")
@@ -71,13 +73,14 @@ class Dynophore:
     @property
     def envpartners_distances(self):
         """
-        For each superfeature, get its environmental partners' distances per environmental partner and frame.
+        For each superfeature, get its environmental partners' distances per environmental partner
+        and frame.
 
         Returns
         -------
         dict of pandas.DataFrame
-            For each superfeature, distances to an environmental partner (columns) in each frame (row).
-
+            For each superfeature, distances to an environmental partner (columns) in each frame
+            (row).
         """
 
         return self._get_envpartners_data(type="distances")
@@ -111,14 +114,14 @@ class Dynophore:
     @property
     def count(self):
         """
-        Get number of frames in which each dynophore occurs, including the superfeatures and superfeatures'
-        environmental partners occurrences.
+        Get number of frames in which each dynophore occurs, including the superfeatures and
+        superfeatures' environmental partners occurrences.
 
         Returns
         -------
         pandas.DataFrame
-            Dynophore count: The DataFrame shows interaction (yes/no) for superfeatures (rows) to each single
-            environmental partner as well as any environmental partner (columns).
+            Dynophore count: The DataFrame shows interaction (yes/no) for superfeatures (rows) to
+            each single environmental partner as well as any environmental partner (columns).
         """
 
         dynophore_count = pd.DataFrame(
@@ -132,14 +135,14 @@ class Dynophore:
     @property
     def frequency(self):
         """
-        Get frequency of frames in which each dynophore occurs, including the superfeatures and superfeatures'
-        environmental partners occurrences.
+        Get frequency of frames in which each dynophore occurs, including the superfeatures and
+        superfeatures' environmental partners occurrences.
 
         Returns
         -------
         pandas.DataFrame
-            Dynophore frequency: The DataFrame shows interaction (yes/no) for superfeatures (rows) to each single
-            environmental partner as well as any environmental partner (columns).
+            Dynophore frequency: The DataFrame shows interaction (yes/no) for superfeatures (rows)
+            to each single environmental partner as well as any environmental partner (columns).
         """
 
         dynophore_count = pd.DataFrame(
@@ -297,7 +300,8 @@ class Dynophore:
             # Example filepath
             # 1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_ASP_86_A[1313]_1.6.txt
             # Is split into
-            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86', 'A[1313]', '1.6']
+            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86',
+            # 'A[1313]', '1.6']
 
             file_components["envpartner_id"] = "-".join(file_split[6:9])
             file_components["envpartner_residue_name"] = file_split[6]
@@ -321,8 +325,8 @@ class Dynophore:
         Returns
         -------
         dict of DataFrame
-            Occurrences (default) or distances for a superfeature's (dict key) environmental partners (columns) for all
-            frames (rows).
+            Occurrences (default) or distances for a superfeature's (dict key) environmental
+            partners (columns) for all frames (rows).
         """
 
         types = ["occurrences", "distances"]
@@ -374,7 +378,8 @@ class Superfeature:
     @property
     def envpartners_occurrences(self):
         """
-        Get the superfeature's environmental partners' occurrences per environmental partner and frame.
+        Get the superfeature's environmental partners' occurrences per environmental partner and
+        frame.
 
         Returns
         -------
@@ -388,7 +393,8 @@ class Superfeature:
     @property
     def envpartners_distances(self):
         """
-        Get the superfeature's environmental partners' distances per environmental partner and frame.
+        Get the superfeature's environmental partners' distances per environmental partner and
+        frame.
 
         Returns
         -------
@@ -414,14 +420,14 @@ class Superfeature:
     @property
     def count(self):
         """
-        Get number of frames in which the superfeature occurs, including the superfeature's environmental partners
-        occurrences.
+        Get number of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
 
         Returns
         -------
         pandas.Series
-            Superfeature count: The Series shows interactions (yes/no) to each single environmental partner as well as
-            any environmental partner.
+            Superfeature count: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
         """
 
         superfeature_count = pd.Series({"any": sum(self.occurrences)})
@@ -434,14 +440,14 @@ class Superfeature:
     @property
     def frequency(self):
         """
-        Get frequency of frames in which the superfeature occurs, including the superfeature's environmental partners
-        occurrences.
+        Get frequency of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
 
         Returns
         -------
         pandas.Series
-            Superfeature frequency: The Series shows interactions (yes/no) to each single environmental partner as well
-            as any environmental partner.
+            Superfeature frequency: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
         """
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
@@ -458,8 +464,8 @@ class Superfeature:
         Returns
         -------
         DataFrame
-            Occurrences (default) or distances of a superfeature's environmental partners (columns) for all
-            frames (rows).
+            Occurrences (default) or distances of a superfeature's environmental partners
+            (columns) for all frames (rows).
         """
 
         types = ["occurrences", "distances"]
@@ -569,12 +575,13 @@ class Plotting:
         Parameters
         ----------
         occurrences : pandas.DataFrame
-            Occurrences (0 or 1) per frame (rows) for one or more superfeatures or interactions (columns).
+            Occurrences (0 or 1) per frame (rows) for one or more superfeatures or interactions
+            (columns).
         color_by_feature_type : bool
             Color barcode by feature type (default) or color all in black.
         max_frames : int
-            Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-            `max_frames` equidistant frames will be selected.
+            Number of frames to display in barcode plot. If input data contains more than
+            `max_frames`, `max_frames` equidistant frames will be selected.
         """
         # Set plotting style
         plt.style.use("seaborn-dark")
