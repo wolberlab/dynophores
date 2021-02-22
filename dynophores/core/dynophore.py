@@ -7,7 +7,7 @@ Handles dynophore class.
 import numpy as np
 import pandas as pd
 
-from dynophores.core.superfeature import Superfeature
+from dynophores.core.superfeature import SuperFeature
 from dynophores.core.envpartner import EnvPartner
 
 
@@ -20,7 +20,7 @@ class Dynophore:
     ----------
     id : str
         Dynophore name.
-    superfeatures : list of dynophores.base.Superfeature
+    superfeatures : list of dynophores.base.SuperFeature
         Dynophore superfeatures.
     """
 
@@ -206,7 +206,7 @@ class Dynophore:
                 envpartners.append(envpartner)
 
             # Set superfeature
-            superfeature = Superfeature(
+            superfeature = SuperFeature(
                 superfeature_file_components["superfeature_id"],
                 superfeature_file_components["superfeature_feature_type"],
                 superfeature_file_components["superfeature_atom_numbers"],

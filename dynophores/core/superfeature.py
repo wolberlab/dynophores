@@ -7,7 +7,7 @@ Handles superfeature class.
 import pandas as pd
 
 
-class Superfeature:
+class SuperFeature:
     """
     Class to store superfeature data, i.e. data on environmental partners, and important functions
     to interact with this data.
@@ -20,8 +20,8 @@ class Superfeature:
         Pharmacophoric feature type.
     atom_numbers : list of int
         List of atom IDs.
-    occurrences : pandas.DataFrame
-        Per superfeature (columns), occurrences (0=no, 1=yes) in each frame (row).
+    occurrences : np.array
+        Occurrence of superfeature (0=no, 1=yes) in each frame.
     envpartners : list of EnvPartner
         Superfeature's environmental partners.
     """
@@ -47,7 +47,7 @@ class Superfeature:
 
         """
 
-        return self._get_envpartners_data(type="occurrences")
+        return self._data(type="occurrences")
 
     @property
     def envpartners_distances(self):
@@ -61,7 +61,7 @@ class Superfeature:
             Distances to an environmental partner (columns) in each frame (row)
         """
 
-        return self._get_envpartners_data(type="distances")
+        return self._data(type="distances")
 
     @property
     def n_frames(self):
@@ -111,7 +111,7 @@ class Superfeature:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-    def _get_envpartners_data(self, type="occurrences"):
+    def _data(self, type="occurrences"):
         """
         Get occurrences or distances of a superfeature's environmental partners.
 
@@ -131,7 +131,7 @@ class Superfeature:
         if type in types:
             pass
         else:
-            raise ValueError(f'Wrong type. Select from: {", ".join(types)}')
+            raise KeyError(f'Wrong type. Select from: {", ".join(types)}')
 
         envpartners = pd.DataFrame(
             [getattr(envpartner, type) for envpartner in self.envpartners],
