@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from dynophores.base import FEATURE_COLORS
+from dynophores.definitions import FEATURE_COLORS
 
 ########
 # Dash #
@@ -37,6 +37,13 @@ def plot_superfeatures_occurrences(
     max_frames : int
         Number of frames to display in barcode plot. If input data contains more than `max_frames`,
         `max_frames` equidistant frames will be selected.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
     occurrences = dynophore.superfeatures_occurrences
@@ -45,16 +52,11 @@ def plot_superfeatures_occurrences(
         if isinstance(superfeature_names, str):
             superfeature_names = [superfeature_names]
 
-        # Get all superfeature names that are in data
-        superfeature_names_curated = [i for i in superfeature_names if i in occurrences.columns]
-        superfeature_names_omitted = list(
-            set(superfeature_names) - set(superfeature_names_curated)
-        )
-        if len(superfeature_names_omitted) > 0:
-            print(f"Superfeature names {superfeature_names_omitted} omitted because unknown.")
+        for superfeature_name in superfeature_names:
+            dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
         # Select subset
-        occurrences = occurrences[superfeature_names_curated]
+        occurrences = occurrences[superfeature_names]
 
     # Prepare data
     occurrences = _prepare_plot_occurrences(occurrences, max_frames)
@@ -66,7 +68,7 @@ def plot_superfeatures_occurrences(
             FEATURE_COLORS[i] if i in FEATURE_COLORS.keys() else "black" for i in feature_types
         ]
     else:
-        colors = None
+        colors = "black"
 
     # Plot (plot size depending on number barcodes)
     fig, ax = plt.subplots(figsize=(10, occurrences.shape[1] / 2))
@@ -78,6 +80,8 @@ def plot_superfeatures_occurrences(
     # Set x axis limits and label
     ax.set_xlabel("frame index")
     ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
+
+    return fig, ax
 
 
 def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
@@ -93,9 +97,16 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
     max_frames : int
         Number of frames to display in barcode plot. If input data contains more than `max_frames`,
         `max_frames` equidistant frames will be selected.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
-    dynophore.is_superfeature(superfeature_name)
+    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     # Prepare data
     occurrences = _prepare_plot_occurrences(
@@ -113,6 +124,8 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
     ax.set_xlabel("Frame")
     ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
 
+    return fig, ax
+
 
 def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     """
@@ -128,9 +141,16 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     max_frames : int
         Number of frames to display in barcode plot. If input data contains more than `max_frames`,
         `max_frames` equidistant frames will be selected.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    axes : matplotlib.axis.Subplot
+        Plot axes.
     """
 
-    dynophore.is_superfeature(superfeature_name)
+    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
     occurrences = _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frames)
     distances = _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames)
 
@@ -177,6 +197,8 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     axes[1][1].set_xlabel("Frequency", fontsize=16)
     axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
 
+    return fig, axes
+
 
 def plot_superfeatures_vs_envpartners(dynophore):
     """
@@ -186,6 +208,13 @@ def plot_superfeatures_vs_envpartners(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
     # Sort superfeatures by overall frequency
@@ -193,10 +222,13 @@ def plot_superfeatures_vs_envpartners(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index
     ]
     data.fillna(0, inplace=True)
+    fig, ax = plt.subplots(1, 1)
     sns.heatmap(data, cmap="Blues")
 
+    return fig, ax
 
-def plot_envpartner_distances(dynophore, superfeature_name, kind):
+
+def plot_envpartner_distances(dynophore, superfeature_name, kind="line"):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
 
@@ -208,12 +240,22 @@ def plot_envpartner_distances(dynophore, superfeature_name, kind):
         Superfeature name.
     kind : str
         Plot kind, 'line' (distance vs. frames) or 'hist' (distance histogram)
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
+
+    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     data = dynophore.envpartners_distances[superfeature_name]
 
+    fig, ax = plt.subplots(figsize=(10, 5))
+
     if kind == "line":
-        fig, ax = plt.subplots(figsize=(10, 5))
         data.plot(kind="line", ax=ax)
         ax.set_xlim((0, data.shape[0]))
         ax.set_xlabel("Frame index")
@@ -222,7 +264,9 @@ def plot_envpartner_distances(dynophore, superfeature_name, kind):
         ax = data.plot(kind="hist")
         ax.set_xlabel(r"Distance [$\AA$]")
     else:
-        raise ValueError('Plotting kind is unknown. Choose from "line" and "hist".')
+        raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
+
+    return fig, ax
 
 
 def _prepare_plot_occurrences(occurrences, max_frames=1000):
@@ -318,13 +362,9 @@ def _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames
     # Get data
     distances = dynophore.envpartners_distances[superfeature_name]
 
-    # Sort data by ratio
-    ratio = (
-        dynophore.frequency.loc[:, superfeature_name]
-        .dropna()
-        .drop("any")
-        .sort_values(ascending=False)
-    )
-    distances = distances[ratio.index]
+    # Sort data by frequency
+    frequency = dynophore.frequency[superfeature_name]
+    frequency = frequency[frequency > 0].drop("any").sort_values(ascending=False)
+    distances = distances[frequency.index]
 
     return distances

@@ -4,14 +4,10 @@ Dynamic pharmacophore modeling of molecular interactions
 """
 
 # Add imports here
-from .base import Dynophore
-from .plots import (
-    plot_superfeatures_occurrences,
-    plot_envpartners_occurrences,
-    plot_envpartner_distances,
-    plot_envpartners,
-    plot_superfeatures_vs_envpartners,
-)
+from .core.dynophore import Dynophore
+from .core.superfeature import SuperFeature
+from .core.envpartner import EnvPartner
+from .viz import plots
 
 # Handle versioneer
 from ._version import get_versions
