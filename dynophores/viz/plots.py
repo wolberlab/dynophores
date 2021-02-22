@@ -4,8 +4,9 @@ Contains plotting functions for e.g. Jupyter notebooks.
 
 import math
 
-import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
 
 from dynophores.definitions import FEATURE_COLORS
@@ -261,7 +262,10 @@ def plot_envpartner_distances(dynophore, superfeature_name, kind="line"):
         ax.set_xlabel("Frame index")
         ax.set_ylabel(r"Distance [$\AA$]")
     elif kind == "hist":
-        ax = data.plot(kind="hist")
+        value_floor = int(np.floor(data.min().min()))
+        value_ceil = int(np.ceil(data.max().max()))
+        data.plot(kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8)
+        ax.set_xlim((value_floor, value_ceil))
         ax.set_xlabel(r"Distance [$\AA$]")
     else:
         raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
