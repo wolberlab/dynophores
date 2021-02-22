@@ -1,5 +1,7 @@
 """
 Unit tests for dynophore.core.superfeature.SuperFeature class.
+
+Uses fixture tests.conftest.superfeature.
 """
 
 import pytest

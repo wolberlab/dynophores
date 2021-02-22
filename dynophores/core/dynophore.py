@@ -4,6 +4,8 @@ dynophores.core.dynophore
 Handles dynophore class.
 """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -29,6 +31,85 @@ class Dynophore:
         self.id = None
         self.superfeatures = []
 
+    @classmethod
+    def from_files(cls, dynophore_path):
+        """
+        Load dynophore data from DynophoreApp output files as Dynophore instance.
+
+        Parameters
+        ----------
+        dynophore_path : pathlib.Path
+            Path to folder with dynophore data.
+
+        Returns
+        -------
+        dynophores.Dynophore
+            Dynophore.
+        """
+
+        dynophore = cls()
+
+        # Get all files and filename components
+        dynophore_files = [file for file in dynophore_path.glob("*")]
+        dynophore_files_components = [dynophore._file_components(i) for i in dynophore_files]
+
+        # Iterate over superfeatures
+        superfeatures = []
+        for superfeature_file_components in [
+            i for i in dynophore_files_components if i["envpartner_id"] is None
+        ]:
+            # Iterate over environmental partners
+            envpartners = []
+            for envpartner_file_components in [
+                i
+                for i in dynophore_files_components
+                if i["superfeature_id"] == superfeature_file_components["superfeature_id"]
+                and i["envpartner_id"] is not None
+            ]:
+                # Set environmental partner
+                envpartner = EnvPartner(
+                    envpartner_file_components["envpartner_id"],
+                    envpartner_file_components["envpartner_residue_name"],
+                    envpartner_file_components["envpartner_residue_number"],
+                    envpartner_file_components["envpartner_chain"],
+                    envpartner_file_components["envpartner_atom_numbers"],
+                    np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=int,
+                        delimiter=",",
+                        usecols=1,
+                    ),
+                    np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=float,
+                        delimiter=",",
+                        usecols=0,
+                    ),
+                )
+                envpartners.append(envpartner)
+
+            # Sort environmental partners list by (first) atom number (alphabetically)
+            envpartners = sorted(envpartners, key=lambda envpartner: envpartner.atom_numbers[0])
+
+            # Set superfeature
+            superfeature = SuperFeature(
+                superfeature_file_components["superfeature_id"],
+                superfeature_file_components["superfeature_feature_type"],
+                superfeature_file_components["superfeature_atom_numbers"],
+                np.loadtxt(fname=superfeature_file_components["filepath"], dtype=int),
+                envpartners,
+            )
+            superfeatures.append(superfeature)
+
+        # Sort superfeatures list by ID (alphabetically)
+        superfeatures = sorted(superfeatures, key=lambda superfeature: superfeature.id)
+
+        # Add superfeature to dynophore
+        dynophore.id = dynophore_files_components[0]["dynophore_id"]
+        dynophore.superfeatures = superfeatures
+
+        return dynophore
+
     @property
     def superfeatures_occurrences(self):
         """
@@ -45,6 +126,11 @@ class Dynophore:
             index=[superfeature.id for superfeature in self.superfeatures],
         ).transpose()
 
+        # Sort columns by feature type (alphabetically)
+        superfeature_ids = occurrence_superfeatures.columns.to_list()
+        superfeature_ids.sort()
+        occurrence_superfeatures = occurrence_superfeatures[superfeature_ids]
+
         return occurrence_superfeatures
 
     @property
@@ -60,7 +146,7 @@ class Dynophore:
             in each frame (row).
         """
 
-        return self._get_envpartners_data(type="occurrences")
+        return self._envpartners_data(type="occurrences")
 
     @property
     def envpartners_distances(self):
@@ -75,7 +161,7 @@ class Dynophore:
             (row).
         """
 
-        return self._get_envpartners_data(type="distances")
+        return self._envpartners_data(type="distances")
 
     @property
     def n_superfeatures(self):
@@ -137,15 +223,11 @@ class Dynophore:
             to each single environmental partner as well as any environmental partner (columns).
         """
 
-        dynophore_count = pd.DataFrame(
-            {superfeature.id: superfeature.count for superfeature in self.superfeatures}
-        )
+        return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-        return dynophore_count.apply(lambda x: round(x / self.n_frames * 100, 2))
-
-    def is_superfeature(self, superfeature_name):
+    def raise_keyerror_if_invalid_superfeature_name(self, superfeature_name):
         """
-        Check if a superfeature is part of the dynophore (by name).
+        Check if dynophore has a certain superfeature (by name).
 
         Parameters
         ----------
@@ -156,99 +238,14 @@ class Dynophore:
         if superfeature_name not in self.envpartners_occurrences.keys():
             raise KeyError(f"Superfeature name {superfeature_name} is unknown.")
 
-    def from_file(self, dynophore_path):
-        """
-        Load dynophore data from file to Dynophore instance.
-
-        Parameters
-        ----------
-        dynophore_path : pathlib.Path
-            Path to folder with dynophore data.
-        """
-
-        # Get all files and filename components
-        dynophore_files = [file for file in dynophore_path.glob("*")]
-        dynophore_files_components = [self._get_file_components(i) for i in dynophore_files]
-
-        # Iterate over superfeatures
-        superfeatures = []
-        for superfeature_file_components in [
-            i for i in dynophore_files_components if i["envpartner_id"] is None
-        ]:
-            # Iterate over environmental partners
-            envpartners = []
-            for envpartner_file_components in [
-                i
-                for i in dynophore_files_components
-                if i["superfeature_id"] == superfeature_file_components["superfeature_id"]
-                and i["envpartner_id"] is not None
-            ]:
-                # Set environmental partner
-                envpartner = EnvPartner(
-                    envpartner_file_components["envpartner_id"],
-                    envpartner_file_components["envpartner_residue_name"],
-                    envpartner_file_components["envpartner_residue_number"],
-                    envpartner_file_components["envpartner_chain"],
-                    envpartner_file_components["envpartner_atom_numbers"],
-                    np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=int,
-                        delimiter=",",
-                        usecols=1,
-                    ),
-                    np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=float,
-                        delimiter=",",
-                        usecols=0,
-                    ),
-                )
-                envpartners.append(envpartner)
-
-            # Set superfeature
-            superfeature = SuperFeature(
-                superfeature_file_components["superfeature_id"],
-                superfeature_file_components["superfeature_feature_type"],
-                superfeature_file_components["superfeature_atom_numbers"],
-                np.loadtxt(fname=superfeature_file_components["filepath"], dtype=int),
-                envpartners,
-            )
-            superfeatures.append(superfeature)
-
-        # Add superfeature to dynophore
-        self.id = dynophore_files_components[0]["dynophore_id"]
-        self.superfeatures = superfeatures
-
-    def show_2d_dynophore(self):
-        """
-        Show 2D dynophore representation.
-
-        Returns
-        -------
-        TBA
-        """
-
-        raise NotImplementedError("Not yet implemented.")
-
-    def show_3d_dynophore(self):
-        """
-        Show 3D dynophore representation (using nglview).
-
-        Returns
-        -------
-        TBA
-        """
-
-        raise NotImplementedError("Not yet implemented.")
-
     @staticmethod
-    def _get_file_components(filepath):
+    def _file_components(filepath):
         """
         Get components from dynophore filename.
 
         Parameters
         ----------
-        filepath : pathlib.Path
+        filepath : str or pathlib.Path
             Path to dynophore file.
 
         Returns
@@ -256,6 +253,8 @@ class Dynophore:
         dict
             Components for dynophore filename.
         """
+
+        filepath = Path(filepath)
 
         file_split = filepath.stem.split("_")
 
@@ -305,7 +304,7 @@ class Dynophore:
 
         return file_components
 
-    def _get_envpartners_data(self, type="occurrences"):
+    def _envpartners_data(self, type="occurrences"):
         """
         Get occurrences or distances of all superfeatures' environmental partners.
 
@@ -325,7 +324,7 @@ class Dynophore:
         if type in types:
             pass
         else:
-            raise ValueError(f'Wrong type. Select from: {", ".join(types)}')
+            raise KeyError(f'Wrong type. Select from: {", ".join(types)}')
 
         envpartners = {}
 

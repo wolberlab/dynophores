@@ -4,10 +4,14 @@ dynophores.tests.fixures
 Fixures to be used in unit testing.
 """
 
+from pathlib import Path
+
 import pytest
 import numpy as np
 
-from dynophores import SuperFeature, EnvPartner
+from dynophores import Dynophore, SuperFeature, EnvPartner
+
+PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.fixture(scope="module")
@@ -60,3 +64,10 @@ def superfeature():
 
     superfeature = SuperFeature(**superfeature_dict)
     return superfeature
+
+
+@pytest.fixture(scope="module")
+def dynophore():
+
+    dynophore = Dynophore.from_files(PATH_TEST_DATA / "1KE7-1/DynophoreApp/data")
+    return dynophore

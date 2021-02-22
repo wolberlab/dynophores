@@ -95,7 +95,7 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
         `max_frames` equidistant frames will be selected.
     """
 
-    dynophore.is_superfeature(superfeature_name)
+    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     # Prepare data
     occurrences = _prepare_plot_occurrences(
@@ -130,7 +130,7 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
         `max_frames` equidistant frames will be selected.
     """
 
-    dynophore.is_superfeature(superfeature_name)
+    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
     occurrences = _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frames)
     distances = _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames)
 
@@ -318,13 +318,9 @@ def _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames
     # Get data
     distances = dynophore.envpartners_distances[superfeature_name]
 
-    # Sort data by ratio
-    ratio = (
-        dynophore.frequency.loc[:, superfeature_name]
-        .dropna()
-        .drop("any")
-        .sort_values(ascending=False)
-    )
-    distances = distances[ratio.index]
+    # Sort data by frequency
+    frequency = dynophore.frequency[superfeature_name]
+    frequency = frequency[frequency > 0].drop("any").sort_values(ascending=False)
+    distances = distances[frequency.index]
 
     return distances

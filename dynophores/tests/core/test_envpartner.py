@@ -1,5 +1,7 @@
 """
 Unit tests for dynophore.core.envpartner.EnvPartner class.
+
+Uses fixture tests.conftest.envpartner.
 """
 
 import pytest
