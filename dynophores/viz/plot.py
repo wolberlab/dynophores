@@ -112,12 +112,13 @@ def superfeatures_occurrences_interactive(dynophore):
     """
 
     style = {"description_width": "initial"}
+    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
     func = interact(
         superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
-            options=["all"] + [superfeature.id for superfeature in dynophore.superfeatures],
+            options=["all"] + superfeature_ids,
             value=["all"],
             description="Superfeature name(s):",
             style=style,
@@ -136,7 +137,7 @@ def superfeatures_occurrences_interactive(dynophore):
     return func
 
 
-def envpartners_occurrences(dynophore, superfeature_name, n_equidistant_frames=1000):
+def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=1000):
     """
     Plot a superfeature's interaction ocurrences with its interaction partners.
 
@@ -144,7 +145,7 @@ def envpartners_occurrences(dynophore, superfeature_name, n_equidistant_frames=1
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-    superfeature_name : str
+    superfeature_names : str
         Superfeature name
     n_equidistant_frames : int
         Number of frames to display in barcode plot. If input data contains more than
@@ -158,25 +159,79 @@ def envpartners_occurrences(dynophore, superfeature_name, n_equidistant_frames=1
         Plot axes.
     """
 
-    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-
-    # Prepare data
-    occurrences = _prepare_plot_occurrences(
-        dynophore.envpartners_occurrences[superfeature_name], n_equidistant_frames
-    )
+    # Correct input from ipywidgets' interact function
+    if isinstance(superfeature_names, tuple):
+        superfeature_names = list(superfeature_names)
+    if isinstance(superfeature_names, str):
+        superfeature_names = [superfeature_names]
+    for superfeature_name in superfeature_names:
+        dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, occurrences.shape[1] / 2))
-    occurrences.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax)
-    # Set y tick labels
-    ax.set_yticks(range(0, occurrences.shape[1] + 2))
-    ax.set_yticklabels([""] + occurrences.columns.to_list() + [""])
-    ax.invert_yaxis()
-    # Set x axis limits and label
-    ax.set_xlabel("Frame")
-    ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
+    fig, axes = plt.subplots(nrows=len(superfeature_names), ncols=1, sharex=True)
+    # figsize=(10, occurrences.shape[1] / 2)
 
-    return fig, ax
+    for i, superfeature_name in enumerate(superfeature_names):
+
+        if len(list(axes)) > 1:
+            ax = axes[i]
+        else:
+            ax = axes
+
+        # Prepare data
+        occurrences = _prepare_plot_occurrences(
+            dynophore.envpartners_occurrences[superfeature_name], n_equidistant_frames
+        )
+        occurrences.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color="black")
+        # Set y tick labels
+        ax.set_yticks(range(0, occurrences.shape[1] + 2))
+        ax.set_yticklabels([""] + occurrences.columns.to_list() + [""])
+        ax.invert_yaxis()
+        # Set x axis limits and label
+        ax.set_xlabel("Frame")
+        ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
+
+    return fig, axes
+
+
+def envpartners_occurrences_interactive(dynophore):
+    """
+    Generate interactive widget to plot the superfeatures' occurrences as barcode.
+
+    Parameters
+    ----------
+    dynophore : dynophores.Dynophore
+        Dynophore.
+
+    Returns
+    -------
+    function
+        Parameterized IPyWidgets interact function.
+    """
+
+    style = {"description_width": "initial"}
+    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+
+    func = interact(
+        envpartners_occurrences,
+        dynophore=fixed(dynophore),
+        superfeature_names=widgets.SelectMultiple(
+            options=superfeature_ids,
+            value=[superfeature_ids[0]],
+            description="Superfeature name(s):",
+            style=style,
+        ),
+        n_equidistant_frames=widgets.IntSlider(
+            value=1000,
+            min=2,
+            max=dynophore.n_frames,
+            step=1,
+            description="# equidistant frames:",
+            style=style,
+        ),
+    )
+
+    return func
 
 
 def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
