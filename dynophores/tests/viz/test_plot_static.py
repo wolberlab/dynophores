@@ -10,6 +10,14 @@ import matplotlib
 from dynophores.viz import plot
 
 
+def test_superfeatures_vs_envpartners(dynophore):
+
+    fig, ax = plot.static.superfeatures_vs_envpartners(dynophore)
+
+    assert isinstance(fig, matplotlib.figure.Figure)
+    assert isinstance(ax, matplotlib.axes.Subplot)
+
+
 @pytest.mark.parametrize(
     "superfeature_names, color_by_feature_type, max_frames",
     [
@@ -17,6 +25,7 @@ from dynophores.viz import plot
         ("all", False, 1000),
         (("all",), False, 1000),
         ("AR[4605,4607,4603,4606,4604]", False, 1000),
+        # ("AR[4605,4607,4603,4606,4604]", False, 1),
         (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], False, 1000),
         (["all", "AR[4622,4615,4623,4613,4614,4621]"], False, 1000),
     ],
@@ -25,15 +34,12 @@ def test_superfeatures_occurrences(
     dynophore, superfeature_names, color_by_feature_type, max_frames
 ):
 
-    fig, ax = plot.superfeatures_occurrences(
+    fig, ax = plot.static.superfeatures_occurrences(
         dynophore, superfeature_names, color_by_feature_type, max_frames
     )
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert isinstance(ax, matplotlib.axes.Subplot)
-
-    func = plot.superfeatures_occurrences_interactive(dynophore)
-    assert func is not None
 
 
 @pytest.mark.parametrize(
@@ -44,7 +50,7 @@ def test_superfeatures_occurrences(
 )
 def test_envpartners_occurrences(dynophore, superfeature_name, max_frames):
 
-    fig, ax = plot.envpartners_occurrences(dynophore, superfeature_name, max_frames)
+    fig, ax = plot.static.envpartners_occurrences(dynophore, superfeature_name, max_frames)
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert isinstance(ax, matplotlib.axes.Subplot)
@@ -56,22 +62,14 @@ def test_envpartners_occurrences(dynophore, superfeature_name, max_frames):
         ("AR[4605,4607,4603,4606,4604]", 1000),
     ],
 )
-def test_envpartners(dynophore, superfeature_name, max_frames):
+def test_envpartners_all_in_one(dynophore, superfeature_name, max_frames):
 
-    fig, axes = plot.envpartners(dynophore, superfeature_name, max_frames)
+    fig, axes = plot.static.envpartners_all_in_one(dynophore, superfeature_name, max_frames)
     print(axes.size)
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert axes.size == 4
     assert isinstance(axes[0][0], matplotlib.axes.Subplot)
-
-
-def test_superfeatures_vs_envpartners(dynophore):
-
-    fig, ax = plot.superfeatures_vs_envpartners(dynophore)
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    assert isinstance(ax, matplotlib.axes.Subplot)
 
 
 @pytest.mark.parametrize(
@@ -83,7 +81,7 @@ def test_superfeatures_vs_envpartners(dynophore):
 )
 def test_envpartner_distances(dynophore, superfeature_name, kind):
 
-    fig, ax = plot.envpartner_distances(dynophore, superfeature_name, kind)
+    fig, ax = plot.static.envpartner_distances(dynophore, superfeature_name, kind)
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert isinstance(ax, matplotlib.axes.Subplot)
@@ -93,21 +91,21 @@ def test_envpartner_distances(dynophore, superfeature_name, kind):
 def test_superfeatures_occurrences_raises(dynophore, superfeature_names):
 
     with pytest.raises(KeyError):
-        plot.superfeatures_occurrences(dynophore, superfeature_names)
+        plot.static.superfeatures_occurrences(dynophore, superfeature_names)
 
 
 @pytest.mark.parametrize("superfeature_name", ["xxx"])
 def test_envpartners_occurrences_raises(dynophore, superfeature_name):
 
     with pytest.raises(KeyError):
-        plot.envpartners_occurrences(dynophore, superfeature_name)
+        plot.static.envpartners_occurrences(dynophore, superfeature_name)
 
 
 @pytest.mark.parametrize("superfeature_name", ["xxx"])
-def test_envpartners_raises(dynophore, superfeature_name):
+def test_envpartners_all_in_one_raises(dynophore, superfeature_name):
 
     with pytest.raises(KeyError):
-        plot.envpartners(dynophore, superfeature_name)
+        plot.static.envpartners_all_in_one(dynophore, superfeature_name)
 
 
 @pytest.mark.parametrize(
@@ -116,4 +114,4 @@ def test_envpartners_raises(dynophore, superfeature_name):
 def test_envpartner_distances_raises(dynophore, superfeature_name, kind):
 
     with pytest.raises(KeyError):
-        plot.envpartner_distances(dynophore, superfeature_name, kind)
+        plot.static.envpartner_distances(dynophore, superfeature_name, kind)

@@ -1,16 +1,5 @@
 """
-Contains static and interactive plotting functions for Jupyter notebooks.
-
-IPyWidgets are amazing!
-
-Resources:
-- Great IPyWidgets documentation
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html#interactive
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Styling.html
-- Big thanks to @jaimergp for this getting-started notebook
-  - https://github.com/volkamerlab/teachopencadd/blob/1fd1de46b66c5acbb4cdb8ef6083171cd84fb50f/
-    teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
+Contains static plotting functions.
 """
 
 import math
@@ -19,12 +8,48 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from ipywidgets import interact, fixed
-import ipywidgets as widgets
 
 from dynophores.definitions import FEATURE_COLORS
 
 plt.style.use("seaborn")
+
+
+def superfeatures_vs_envpartners(dynophore, superfeature_names="all"):
+    """
+    Plot heatmap of interactions between superfeatures and interaction partners.
+
+    Parameters
+    ----------
+    dynophore : dynophores.Dynophore
+        Dynophore.
+    superfeature_names : str or list of str
+        Show all superfeatures (default) or select one or more superfeatures by their superfeature
+        identifier.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
+    """
+
+    superfeature_names = _format_superfeature_names(dynophore, superfeature_names)
+
+    # Get data and sort superfeatures by overall frequency
+    data = dynophore.frequency[
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index
+    ]
+    if superfeature_names != "all":
+        data = data[superfeature_names]
+        data = data[~(data == 0).all(axis=1)]
+
+    fig, ax = plt.subplots(1, 1)
+    sns.heatmap(
+        data, cmap="Blues", cbar_kws={"label": "Occurrence frequency [%]"}, vmin=0, vmax=100
+    )
+
+    return fig, ax
 
 
 def superfeatures_occurrences(
@@ -54,28 +79,18 @@ def superfeatures_occurrences(
         Plot axes.
     """
 
-    occurrences = dynophore.superfeatures_occurrences
+    superfeature_names = _format_superfeature_names(dynophore, superfeature_names)
 
-    # Correct input from ipywidgets' interact function
-    if isinstance(superfeature_names, tuple):
-        superfeature_names = list(superfeature_names)
-    if "all" in superfeature_names:
-        superfeature_names = "all"
-
-    # (Optionally) select superfeature subset
+    data = dynophore.superfeatures_occurrences
     if superfeature_names != "all":
-        if not isinstance(superfeature_names, list):
-            superfeature_names = [superfeature_names]
-        for superfeature_name in superfeature_names:
-            dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-        occurrences = occurrences[superfeature_names]
+        data = data[superfeature_names]
 
     # Prepare data
-    occurrences = _prepare_plot_occurrences(occurrences, n_equidistant_frames)
+    data = _prepare_plot_occurrences(data, n_equidistant_frames)
 
     # Feature type colors?
     if color_by_feature_type:
-        feature_types = [i.split("[")[0] for i in occurrences.columns]
+        feature_types = [i.split("[")[0] for i in data.columns]
         colors = [
             FEATURE_COLORS[i] if i in FEATURE_COLORS.keys() else "black" for i in feature_types
         ]
@@ -83,58 +98,17 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, occurrences.shape[1] / 2))
-    occurrences.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color=colors)
+    fig, ax = plt.subplots(figsize=(10, data.shape[1] / 2))
+    data.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color=colors)
     # Set y tick labels
-    ax.set_yticks(range(0, occurrences.shape[1] + 2))
-    ax.set_yticklabels([""] + occurrences.columns.to_list() + [""])
+    ax.set_yticks(range(0, data.shape[1] + 2))
+    ax.set_yticklabels([""] + data.columns.to_list() + [""])
     ax.invert_yaxis()
     # Set x axis limits and label
     ax.set_xlabel("Frame index")
-    ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
+    ax.set_xlim((data.index[0], data.index[-1]))
 
     return fig, ax
-
-
-def superfeatures_occurrences_interactive(dynophore):
-    """
-    Generate interactive widget to plot the superfeatures' occurrences as barcode.
-
-    Parameters
-    ----------
-    dynophore : dynophores.Dynophore
-        Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
-    """
-
-    style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
-
-    func = interact(
-        superfeatures_occurrences,
-        dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
-            options=["all"] + superfeature_ids,
-            value=["all"],
-            description="Superfeature name(s):",
-            style=style,
-        ),
-        color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
-            max=dynophore.n_frames,
-            step=1,
-            description="# equidistant frames:",
-            style=style,
-        ),
-    )
-
-    return func
 
 
 def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=1000):
@@ -145,8 +119,8 @@ def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-    superfeature_names : str
-        Superfeature name
+    superfeature_names : str or list of str
+        Superfeature name(s).
     n_equidistant_frames : int
         Number of frames to display in barcode plot. If input data contains more than
         `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
@@ -159,82 +133,113 @@ def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=
         Plot axes.
     """
 
-    # Correct input from ipywidgets' interact function
-    if isinstance(superfeature_names, tuple):
-        superfeature_names = list(superfeature_names)
-    if isinstance(superfeature_names, str):
-        superfeature_names = [superfeature_names]
-    for superfeature_name in superfeature_names:
-        dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+    superfeature_names = _format_superfeature_names(dynophore, superfeature_names)
 
-    # Plot (plot size depending on number barcodes)
-    fig, axes = plt.subplots(nrows=len(superfeature_names), ncols=1, sharex=True)
-    # figsize=(10, occurrences.shape[1] / 2)
+    fig, axes = plt.subplots(
+        nrows=len(superfeature_names),
+        ncols=1,
+        figsize=(10, len(superfeature_names) * 2),
+        sharex=True,
+    )
 
     for i, superfeature_name in enumerate(superfeature_names):
 
-        if len(list(axes)) > 1:
+        if len(superfeature_names) > 1:
             ax = axes[i]
         else:
             ax = axes
 
+        # Add plot title
+        ax.set_title(superfeature_name)
+
         # Prepare data
-        occurrences = _prepare_plot_occurrences(
-            dynophore.envpartners_occurrences[superfeature_name], n_equidistant_frames
-        )
-        occurrences.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color="black")
-        # Set y tick labels
-        ax.set_yticks(range(0, occurrences.shape[1] + 2))
-        ax.set_yticklabels([""] + occurrences.columns.to_list() + [""])
-        ax.invert_yaxis()
-        # Set x axis limits and label
-        ax.set_xlabel("Frame")
-        ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
+        data = dynophore.envpartners_occurrences[superfeature_name]
+        data = _prepare_plot_occurrences(data, n_equidistant_frames)
+        if data.isna().all().all():
+            ax.set_yticks([0])
+            ax.set_yticklabels([""])
+        else:
+            data.plot(
+                marker=".",
+                markersize=5,
+                linestyle="",
+                legend=None,
+                ax=ax,
+                color="black",
+            )
+            # Set y tick labels
+            ax.set_yticks(range(0, data.shape[1] + 2))
+            ax.set_yticklabels([""] + data.columns.to_list() + [""])
+            ax.invert_yaxis()
+            # Set x axis limits and label
+            ax.set_xlabel("Frame")
+            ax.set_xlim((data.index[0], data.index[-1]))
 
     return fig, axes
 
 
-def envpartners_occurrences_interactive(dynophore):
+def envpartner_distances(dynophore, superfeature_names, kind="line"):
     """
-    Generate interactive widget to plot the superfeatures' occurrences as barcode.
+    Plot interaction distances for a superfeatures as frame series or histogram.
 
     Parameters
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
+    superfeature_names : str or list of str
+        Show all superfeatures (default) or select one or more superfeatures by their superfeature
+        identifier.
+    kind : str
+        Plot kind, 'line' (distance vs. frames) or 'hist' (distance histogram)
 
     Returns
     -------
-    function
-        Parameterized IPyWidgets interact function.
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
-    style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_names = _format_superfeature_names(dynophore, superfeature_names)
 
-    func = interact(
-        envpartners_occurrences,
-        dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
-            options=superfeature_ids,
-            value=[superfeature_ids[0]],
-            description="Superfeature name(s):",
-            style=style,
-        ),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
-            max=dynophore.n_frames,
-            step=1,
-            description="# equidistant frames:",
-            style=style,
-        ),
+    fig, axes = plt.subplots(
+        nrows=len(superfeature_names),
+        ncols=1,
+        figsize=(10, len(superfeature_names) * 4),
+        sharex=True,
     )
 
-    return func
+    for i, superfeature_name in enumerate(superfeature_names):
+
+        if len(superfeature_names) > 1:
+            ax = axes[i]
+        else:
+            ax = axes
+
+        # Add plot title
+        ax.set_title(superfeature_name)
+
+        # Prepare data
+        data = dynophore.envpartners_distances[superfeature_name]
+
+        if kind == "line":
+            data.plot(kind="line", ax=ax)
+            ax.set_xlim((0, data.shape[0]))
+            ax.set_xlabel("Frame index")
+            ax.set_ylabel(r"Distance [$\AA$]")
+        elif kind == "hist":
+            value_floor = int(np.floor(data.min().min()))
+            value_ceil = int(np.ceil(data.max().max()))
+            data.plot(kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8)
+            ax.set_xlim((value_floor, value_ceil))
+            ax.set_xlabel(r"Distance [$\AA$]")
+        else:
+            raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
+
+    return fig, axes
 
 
-def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
+def envpartners_all_in_one(dynophore, superfeature_name, n_equidistant_frames=1000):
     """
     Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances
     (frame series and histogram).
@@ -244,7 +249,7 @@ def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
     dynophore : dynophores.Dynophore
         Dynophore.
     superfeature_name : str
-        Superfeature name
+        Superfeature name.
     n_equidistant_frames : int
         Number of frames to display in barcode plot. If input data contains more than
         `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
@@ -257,7 +262,11 @@ def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
         Plot axes.
     """
 
+    # IPyWidgets' interact function: Cast tuple > str
+    if isinstance(superfeature_name, tuple):
+        superfeature_name = list(superfeature_name)[0]  # Keep only first
     dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+
     occurrences = _prepare_plot_envparters_occurrences(
         dynophore, superfeature_name, n_equidistant_frames
     )
@@ -309,78 +318,6 @@ def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
     axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
 
     return fig, axes
-
-
-def superfeatures_vs_envpartners(dynophore):
-    """
-    Plot heatmap of interactions between superfeatures and interaction partners.
-
-    Parameters
-    ----------
-    dynophore : dynophores.Dynophore
-        Dynophore.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    ax : matplotlib.axis.Subplot
-        Plot axes.
-    """
-
-    # Sort superfeatures by overall frequency
-    data = dynophore.frequency[
-        dynophore.frequency.loc["any", :].sort_values(ascending=False).index
-    ]
-    data.fillna(0, inplace=True)
-    fig, ax = plt.subplots(1, 1)
-    sns.heatmap(data, cmap="Blues")
-
-    return fig, ax
-
-
-def envpartner_distances(dynophore, superfeature_name, kind="line"):
-    """
-    Plot interaction distances for a superfeatures as frame series or histogram.
-
-    Parameters
-    ----------
-    dynophore : dynophores.Dynophore
-        Dynophore.
-    superfeature_name : str
-        Superfeature name.
-    kind : str
-        Plot kind, 'line' (distance vs. frames) or 'hist' (distance histogram)
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    ax : matplotlib.axis.Subplot
-        Plot axes.
-    """
-
-    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-
-    data = dynophore.envpartners_distances[superfeature_name]
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-
-    if kind == "line":
-        data.plot(kind="line", ax=ax)
-        ax.set_xlim((0, data.shape[0]))
-        ax.set_xlabel("Frame index")
-        ax.set_ylabel(r"Distance [$\AA$]")
-    elif kind == "hist":
-        value_floor = int(np.floor(data.min().min()))
-        value_ceil = int(np.ceil(data.max().max()))
-        data.plot(kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8)
-        ax.set_xlim((value_floor, value_ceil))
-        ax.set_xlabel(r"Distance [$\AA$]")
-    else:
-        raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
-
-    return fig, ax
 
 
 def _prepare_plot_occurrences(occurrences, n_equidistant_frame=1000):
@@ -483,3 +420,20 @@ def _prepare_plot_envpartners_distances(dynophore, superfeature_name, n_equidist
     distances = distances[frequency.index]
 
     return distances
+
+
+def _format_superfeature_names(dynophore, superfeature_names):
+
+    # IPyWidgets' interact function: Cast tuple > list
+    if isinstance(superfeature_names, tuple):
+        superfeature_names = list(superfeature_names)
+
+    if "all" in superfeature_names:
+        superfeature_names = "all"
+    else:
+        if not isinstance(superfeature_names, list):
+            superfeature_names = [superfeature_names]
+        for superfeature_name in superfeature_names:
+            dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+
+    return superfeature_names
