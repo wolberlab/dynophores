@@ -7,7 +7,7 @@ Dynamic pharmacophore modeling of molecular interactions
 from .core.dynophore import Dynophore
 from .core.superfeature import SuperFeature
 from .core.envpartner import EnvPartner
-from .viz import plots
+from .viz import plot
 
 # Handle versioneer
 from ._version import get_versions

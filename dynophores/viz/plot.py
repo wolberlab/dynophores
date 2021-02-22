@@ -1,5 +1,16 @@
 """
-Contains plotting functions for e.g. Jupyter notebooks.
+Contains static and interactive plotting functions for Jupyter notebooks.
+
+IPyWidgets are amazing!
+
+Resources:
+- Great IPyWidgets documentation
+  - https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html#interactive
+  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html
+  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Styling.html
+- Big thanks to @jaimergp for this getting-started notebook
+  - https://github.com/volkamerlab/teachopencadd/blob/1fd1de46b66c5acbb4cdb8ef6083171cd84fb50f/
+    teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
 """
 
 import math
@@ -8,21 +19,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from ipywidgets import interact, fixed
+import ipywidgets as widgets
 
 from dynophores.definitions import FEATURE_COLORS
 
-########
-# Dash #
-########
+plt.style.use("seaborn")
 
 
-###########
-# Jupyter #
-###########
-
-
-def plot_superfeatures_occurrences(
-    dynophore, superfeature_names=None, color_by_feature_type=True, max_frames=1000
+def superfeatures_occurrences(
+    dynophore, superfeature_names="all", color_by_feature_type=True, n_equidistant_frames=1000
 ):
     """
     Plot the superfeatures' occurrences as barcode.
@@ -31,13 +37,14 @@ def plot_superfeatures_occurrences(
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-    superfeature_names : None or str or list of str
-        Select superfeatures to plot or select all (default).
+    superfeature_names : str or list of str
+        Show all superfeatures (default) or select one or more superfeatures by their superfeature
+        identifier.
     color_by_feature_type : bool
         Color barcode by feature type (default) or color all in black.
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot. If input data contains more than
+        `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
 
     Returns
     -------
@@ -49,18 +56,22 @@ def plot_superfeatures_occurrences(
 
     occurrences = dynophore.superfeatures_occurrences
 
-    if superfeature_names is not None:
-        if isinstance(superfeature_names, str):
-            superfeature_names = [superfeature_names]
+    # Correct input from ipywidgets' interact function
+    if isinstance(superfeature_names, tuple):
+        superfeature_names = list(superfeature_names)
+    if "all" in superfeature_names:
+        superfeature_names = "all"
 
+    # (Optionally) select superfeature subset
+    if superfeature_names != "all":
+        if not isinstance(superfeature_names, list):
+            superfeature_names = [superfeature_names]
         for superfeature_name in superfeature_names:
             dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-
-        # Select subset
         occurrences = occurrences[superfeature_names]
 
     # Prepare data
-    occurrences = _prepare_plot_occurrences(occurrences, max_frames)
+    occurrences = _prepare_plot_occurrences(occurrences, n_equidistant_frames)
 
     # Feature type colors?
     if color_by_feature_type:
@@ -79,13 +90,53 @@ def plot_superfeatures_occurrences(
     ax.set_yticklabels([""] + occurrences.columns.to_list() + [""])
     ax.invert_yaxis()
     # Set x axis limits and label
-    ax.set_xlabel("frame index")
+    ax.set_xlabel("Frame index")
     ax.set_xlim((occurrences.index[0], occurrences.index[-1]))
 
     return fig, ax
 
 
-def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
+def superfeatures_occurrences_interactive(dynophore):
+    """
+    Generate interactive widget to plot the superfeatures' occurrences as barcode.
+
+    Parameters
+    ----------
+    dynophore : dynophores.Dynophore
+        Dynophore.
+
+    Returns
+    -------
+    function
+        Parameterized IPyWidgets interact function.
+    """
+
+    style = {"description_width": "initial"}
+
+    func = interact(
+        superfeatures_occurrences,
+        dynophore=fixed(dynophore),
+        superfeature_names=widgets.SelectMultiple(
+            options=["all"] + [superfeature.id for superfeature in dynophore.superfeatures],
+            value=["all"],
+            description="Superfeature name(s):",
+            style=style,
+        ),
+        color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
+        n_equidistant_frames=widgets.IntSlider(
+            value=1000,
+            min=2,
+            max=dynophore.n_frames,
+            step=1,
+            description="# equidistant frames:",
+            style=style,
+        ),
+    )
+
+    return func
+
+
+def envpartners_occurrences(dynophore, superfeature_name, n_equidistant_frames=1000):
     """
     Plot a superfeature's interaction ocurrences with its interaction partners.
 
@@ -95,9 +146,9 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
         Dynophore.
     superfeature_name : str
         Superfeature name
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot. If input data contains more than
+        `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
 
     Returns
     -------
@@ -111,7 +162,7 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
 
     # Prepare data
     occurrences = _prepare_plot_occurrences(
-        dynophore.envpartners_occurrences[superfeature_name], max_frames
+        dynophore.envpartners_occurrences[superfeature_name], n_equidistant_frames
     )
 
     # Plot (plot size depending on number barcodes)
@@ -128,7 +179,7 @@ def plot_envpartners_occurrences(dynophore, superfeature_name, max_frames=1000):
     return fig, ax
 
 
-def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
+def envpartners(dynophore, superfeature_name, n_equidistant_frames=1000):
     """
     Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances
     (frame series and histogram).
@@ -139,9 +190,9 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
         Dynophore.
     superfeature_name : str
         Superfeature name
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot. If input data contains more than
+        `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
 
     Returns
     -------
@@ -152,8 +203,12 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     """
 
     dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-    occurrences = _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frames)
-    distances = _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames)
+    occurrences = _prepare_plot_envparters_occurrences(
+        dynophore, superfeature_name, n_equidistant_frames
+    )
+    distances = _prepare_plot_envpartners_distances(
+        dynophore, superfeature_name, n_equidistant_frames
+    )
 
     # Set up plot
     fig, axes = plt.subplots(
@@ -171,7 +226,7 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     axes[0][0].set_yticks(range(0, occurrences.shape[1] + 2))
     axes[0][0].set_yticklabels("")
     # Set x axis limits and label
-    axes[0][0].set_xlabel("frame index")
+    axes[0][0].set_xlabel("Frame index")
     axes[0][0].set_xlim((occurrences.index[0], occurrences.index[-1]))
     # Show interactions from top to bottom from most common to rarest interactions
     axes[0][0].invert_yaxis()
@@ -191,7 +246,7 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
         kind="hist",
         bins=bins,
         orientation="horizontal",
-        alpha=0.7,
+        alpha=0.8,
         density=True,
         xlim=(0, 1),
     )
@@ -201,7 +256,7 @@ def plot_envpartners(dynophore, superfeature_name, max_frames=1000):
     return fig, axes
 
 
-def plot_superfeatures_vs_envpartners(dynophore):
+def superfeatures_vs_envpartners(dynophore):
     """
     Plot heatmap of interactions between superfeatures and interaction partners.
 
@@ -229,7 +284,7 @@ def plot_superfeatures_vs_envpartners(dynophore):
     return fig, ax
 
 
-def plot_envpartner_distances(dynophore, superfeature_name, kind="line"):
+def envpartner_distances(dynophore, superfeature_name, kind="line"):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
 
@@ -273,7 +328,7 @@ def plot_envpartner_distances(dynophore, superfeature_name, kind="line"):
     return fig, ax
 
 
-def _prepare_plot_occurrences(occurrences, max_frames=1000):
+def _prepare_plot_occurrences(occurrences, n_equidistant_frame=1000):
     """
     Prepare data for plotting occurrences (superfeatures or superfeature interactions):
     - Sort by interaction frequency
@@ -285,9 +340,10 @@ def _prepare_plot_occurrences(occurrences, max_frames=1000):
     occurrences : pandas.DataFrame
         Occurrences (0 or 1) per frame (rows) for one or more superfeatures or superfeature
         interactions (columns).
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot.
+        If input data contains more than `n_equidistant_frames`, `n_equidistant_frames` equidistant
+        frames will be selected.
 
     Returns
     -------
@@ -303,7 +359,7 @@ def _prepare_plot_occurrences(occurrences, max_frames=1000):
 
     # Get subset of data if more than 1000 frames
     if occurrences.shape[0] > 1000:
-        selected_indices = [i for i in range(0, 1000, math.floor(1002 / max_frames))]
+        selected_indices = [i for i in range(0, 1000, math.floor(1002 / n_equidistant_frame))]
         occurrences = occurrences.iloc[selected_indices, :]
 
     # Transform 1 in binary values to rank in plot
@@ -316,7 +372,7 @@ def _prepare_plot_occurrences(occurrences, max_frames=1000):
     return occurrences_plot
 
 
-def _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frames=1000):
+def _prepare_plot_envparters_occurrences(dynophore, superfeature_name, n_equidistant_frames=1000):
     """
     Prepare data for plotting superfeature interaction occurrences.
 
@@ -326,9 +382,9 @@ def _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frame
         Dynophore.
     superfeature_name : str
         Superfeature name
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot. If input data contains more than
+        `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
 
     Returns
     -------
@@ -337,12 +393,12 @@ def _prepare_plot_envparters_occurrences(dynophore, superfeature_name, max_frame
     """
 
     occurrences = dynophore.envpartners_occurrences[superfeature_name]
-    occurrences = _prepare_plot_occurrences(occurrences, max_frames)
+    occurrences = _prepare_plot_occurrences(occurrences, n_equidistant_frames)
 
     return occurrences
 
 
-def _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames=1000):
+def _prepare_plot_envpartners_distances(dynophore, superfeature_name, n_equidistant_frame=1000):
     """
     Prepare data for plotting interaction distances for a superfeature:
     - Sort by interaction frequency
@@ -353,9 +409,9 @@ def _prepare_plot_envpartners_distances(dynophore, superfeature_name, max_frames
         Dynophore.
     superfeature_name : str
         Superfeature name
-    max_frames : int
-        Number of frames to display in barcode plot. If input data contains more than `max_frames`,
-        `max_frames` equidistant frames will be selected.
+    n_equidistant_frames : int
+        Number of frames to display in barcode plot. If input data contains more than
+        `n_equidistant_frames`, `n_equidistant_frames` equidistant frames will be selected.
 
     Returns
     -------
