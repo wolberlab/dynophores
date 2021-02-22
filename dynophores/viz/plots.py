@@ -55,16 +55,8 @@ def plot_superfeatures_occurrences(
         for superfeature_name in superfeature_names:
             dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
-        # Get all superfeature names that are in data
-        superfeature_names_curated = [i for i in superfeature_names if i in occurrences.columns]
-        superfeature_names_omitted = list(
-            set(superfeature_names) - set(superfeature_names_curated)
-        )
-        if len(superfeature_names_omitted) > 0:
-            print(f"Superfeature names {superfeature_names_omitted} omitted because unknown.")
-
         # Select subset
-        occurrences = occurrences[superfeature_names_curated]
+        occurrences = occurrences[superfeature_names]
 
     # Prepare data
     occurrences = _prepare_plot_occurrences(occurrences, max_frames)
