@@ -129,7 +129,7 @@ def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=
     -------
     fig : matplotlib.figure.Figure
         Plot figure.
-    ax : matplotlib.axis.Subplot
+    axes : matplotlib.axis.Subplot or numpy.array of matplotlib.axis.Subplot
         Plot axes.
     """
 
@@ -178,7 +178,7 @@ def envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames=
     return fig, axes
 
 
-def envpartner_distances(dynophore, superfeature_names, kind="line"):
+def envpartners_distances(dynophore, superfeature_names, kind="line"):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
 

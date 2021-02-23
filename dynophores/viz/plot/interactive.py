@@ -132,7 +132,7 @@ def envpartners_occurrences(dynophore):
     return func
 
 
-def envpartner_distances(dynophore):
+def envpartners_distances(dynophore):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
 
@@ -151,7 +151,7 @@ def envpartner_distances(dynophore):
     superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
     func = interact(
-        plot.static.envpartner_distances,
+        plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
             options=superfeature_ids,
