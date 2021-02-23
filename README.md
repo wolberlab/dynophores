@@ -4,6 +4,7 @@ Dynophores
 [//]: # (Badges)
 [![GitHub Actions Build Status](https://github.com/dominiquesydow/dynophores/workflows/CI/badge.svg)](https://github.com/dominiquesydow/dynophores/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/dominiquesydow/dynophores/branch/master/graph/badge.svg)](https://codecov.io/gh/dominiquesydow/dynophores/branch/master)
+[![Documentation Status](https://readthedocs.org/projects/dynophores/badge/?version=latest)](https://dynophores.readthedocs.io/en/latest/?badge=latest)
 
 > ⚠ This project is work-in-progress. The API is not final.
 
