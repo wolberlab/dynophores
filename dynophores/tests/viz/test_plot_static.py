@@ -71,6 +71,7 @@ def test_superfeatures_occurrences_raises(dynophore, superfeature_names):
     [
         ("AR[4605,4607,4603,4606,4604]", 1000),
         (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], 1000),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], 2),
     ],
 )
 def test_envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames):
@@ -127,6 +128,7 @@ def test_envpartner_distances_raises(dynophore, superfeature_name, kind):
     "superfeature_name, n_equidistant_frames",
     [
         ("AR[4605,4607,4603,4606,4604]", 1000),
+        (("AR[4605,4607,4603,4606,4604]",), 1000),
     ],
 )
 def test_envpartners_all_in_one(dynophore, superfeature_name, n_equidistant_frames):
