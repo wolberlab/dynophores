@@ -3,14 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Dynophores's documentation!
-=========================================================
+Welcome to Dynophores' documentation!
+=====================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: User guide
 
-   getting_started
+   installing
+   tutorials/dynophore
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Explore package
+   
+   tutorials/explore_data
+   tutorials/explore_plots
+   tutorials/explore_view3d
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developers
+   
    api
 
 
