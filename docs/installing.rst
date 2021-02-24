@@ -1,8 +1,8 @@
 Installing
 ==========
 
-Install from the conda package
-------------------------------
+[WIP 🚧] Install from the conda package
+---------------------------------------
 
 Eventually, we will have a ``conda`` package, but for now you need to create a new environment manually.
 
@@ -22,23 +22,27 @@ Eventually, we will have a ``conda`` package, but for now you need to create a n
 
     conda activate dynophores
 
-3. Run ``dynophores -h`` to test that it works.
-4. [WIP 🚧] Run ``dynophores start .`` to set up a new workspace. This step is not fully functional yet. 
-Please refer to "Install from the latest development snapshot" for manual steps.
+3. Run ``dynoviz -h`` to test that it works.
 
+4. Run ``dynoviz create --dyno path/to/dyno/folder --pdb path/to/pdb/file --dcd path/to/dcd/file 
+--workspace path/to/workspace/folder`` to explore your dynophore data in a new notebook.
+
+5. Run ``dynoviz open path/to/your/dyno/notebook`` if you already have set up your dynophore 
+notebook (i.e. if you want to revisit a notebook created in step 4). 
+Note: This command is equivalent to ``jupyter lab path/to/your/dyno/notebook``.
 
 Install from the latest development snapshot
 --------------------------------------------
 
-If you have already created a *conda environment* and it has been activated  (see above), 
+If you have already created a *conda environment* and it has been activated  (see above steps 1+2), 
 the next step is downloading a copy of the current state of the 
 `GitHub repository <https://github.com/dominiquesydow/dynophores>`_.
 
 1. Download a zipfile of the repository using `this link <https://github.com/dominiquesydow/dynophores/archive/master.zip>`_.
 2. Unzip to your location of choice.
-3. Navigate to ``path/to/your/location/dynophores-master/docs``.
-4. Start Jupyter Lab.
-5. Double click on the lesson you want to start.
+3. Navigate to ``path/to/your/location/``.
+4. Run ``pip install dynophores``.
+5. Start your dynophore notebook as described above in steps 3-5.
 
 
 .. Unix instructions
@@ -53,8 +57,9 @@ the next step is downloading a copy of the current state of the
     wget https://github.com/dominiquesydow/dynophores/archive/master.zip -O dynophores.zip
     mkdir -p ~/Documents
     unzip dynophores.zip -d ~/Documents
-    cd ~/Documents/dynophores-master/docs
-    jupyter lab
+    cd ~/Documents
+    pip install dynophores
+    dynoviz -h
 
 .. raw:: html
 
@@ -72,8 +77,9 @@ the next step is downloading a copy of the current state of the
     wget https://github.com/dominiquesydow/dynophores/archive/master.zip -O dynophores.zip
     mkdir ~/Documents/
     Expand-Archive dynophores.zip -d ~/Documents
-    cd ~/Documents/dynophores-master/docs
-    jupyter lab
+    cd ~/Documents
+    pip install dynophores
+    dynoviz -h
 
 .. raw:: html
 
