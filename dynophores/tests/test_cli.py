@@ -30,7 +30,7 @@ def test_create_subprocess(function, dyno, pdb, dcd, workspace):
     """
 
     try:
-        process = subprocess.run(
+        subprocess.run(
             [
                 "dynoviz",
                 function,
