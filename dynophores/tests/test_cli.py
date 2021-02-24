@@ -17,10 +17,10 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
     [
         (
             "create",
-            PATH_TEST_DATA / "1KE7-1/DynophoreApp",
-            PATH_TEST_DATA / "1KE7-1/startframe.pdb",
-            PATH_TEST_DATA / "1KE7-1/trajectory.dcd",
-            PATH_TEST_DATA,
+            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp",)
+            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb",)
+            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd",)
+            str(PATH_TEST_DATA,)
         ),
     ],
 )
@@ -85,7 +85,7 @@ def test_create_subprocess_raises(function, dyno, pdb, dcd, workspace, error):
     [
         (
             "open",
-            PATH_TEST_DATA / "dynophore.ipynb",
+            str(PATH_TEST_DATA / "dynophore.ipynb"),
         )
     ],
 )
@@ -110,21 +110,21 @@ def test_open_subprocess(function, notebook):
     [
         (
             "xxx",
-            PATH_TEST_DATA / "1KE7-1/DynophoreApp",
-            PATH_TEST_DATA / "1KE7-1/startframe.pdb",
-            PATH_TEST_DATA / "1KE7-1/trajectory.dcd",
+            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
+            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
+            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
         ),
         (
             "xxx",
             "xxx",
-            PATH_TEST_DATA / "1KE7-1/startframe.pdb",
-            PATH_TEST_DATA / "1KE7-1/trajectory.dcd",
+            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
+            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
         ),
         (
             "xxx",
             "xxx",
             "xxx",
-            PATH_TEST_DATA / "1KE7-1/trajectory.dcd",
+            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
         ),
         ("xxx", "xxx", "xxx", "xxx"),
     ],
