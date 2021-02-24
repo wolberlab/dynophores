@@ -17,12 +17,12 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
     "pml_path, pdb_path, dcd_path",
     [
         (
-            PATH_TEST_DATA / "1KE7-1/DynophoreApp/1KE7-1_dynophore.pml",
+            PATH_TEST_DATA / "1KE7-1/DynophoreApp/dynophore.pml",
             PATH_TEST_DATA / "1KE7-1/startframe.pdb",
             None,
         ),
         (
-            PATH_TEST_DATA / "1KE7-1/DynophoreApp/1KE7-1_dynophore.pml",
+            PATH_TEST_DATA / "1KE7-1/DynophoreApp/dynophore.pml",
             PATH_TEST_DATA / "1KE7-1/startframe.pdb",
             PATH_TEST_DATA / "1KE7-1/trajectory.dcd",
         ),

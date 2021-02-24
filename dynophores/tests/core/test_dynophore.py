@@ -26,7 +26,7 @@ class TestsDynophore:
         for superfeature in dynophore.superfeatures:
             assert isinstance(superfeature, SuperFeature)
 
-    @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "1KE7-1/DynophoreApp/data"])
+    @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "1KE7-1/DynophoreApp"])
     def test_from_files(self, filepath):
 
         dynophore = Dynophore.from_files(filepath)
@@ -213,11 +213,11 @@ class TestsDynophore:
         [
             (
                 PATH_TEST_DATA
-                / "1KE7-1/DynophoreApp/data"
+                / "1KE7-1/DynophoreApp"
                 / "1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt",
                 {
                     "filepath": PATH_TEST_DATA
-                    / "1KE7-1/DynophoreApp/data"
+                    / "1KE7-1/DynophoreApp"
                     / "1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt",
                     "dynophore_id": "1KE7-1",
                     "superfeature_id": "H[4599,4602,4601,4608,4609,4600]",
@@ -232,11 +232,11 @@ class TestsDynophore:
             ),
             (
                 PATH_TEST_DATA
-                / "1KE7-1/DynophoreApp/data"
+                / "1KE7-1/DynophoreApp"
                 / "1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_LYS_20_A[308]_4.1.txt",
                 {
                     "filepath": PATH_TEST_DATA
-                    / "1KE7-1/DynophoreApp/data"
+                    / "1KE7-1/DynophoreApp"
                     / "1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_LYS_20_A[308]_4.1.txt",
                     "dynophore_id": "1KE7-1",
                     "superfeature_id": "HBA[4619]",
