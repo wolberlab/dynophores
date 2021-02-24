@@ -24,11 +24,11 @@ on macromolecule-side.
 These interaction partners are called __environmental partners__. 
 Superfeatures and their environmental partners are monitored throughout an MD simulation.
 
-#### Documentation
+## Documentation
 
-The documentation will be available soon.
+The documentation will be available [here](https://dynophores.readthedocs.io/en/latest/).
 
-#### Overview
+## Overview
 
 This Python library offers visualization schemes for dynophore data generated with the `DynophoreApp` (TODO: add link to software): 
 
@@ -36,13 +36,13 @@ This Python library offers visualization schemes for dynophore data generated wi
 - Show superfeature clouds in 3D using the NGLviewer (TODO: link to tutorial)
 - Show superfeatures mapped onto the ligand in 2D (TODO: link to tutorial)
 
-#### License
+## License
 
 `dynophores` is a free software and is licensed under the MIT license. 
 Copyright (c) 2020, Dominique Sydow.
 
 
-#### Acknowledgements
+## Acknowledgements
  
 Project based on the 
 [Computational Molecular Science Python Cookiecutter](https://github.com/molssi/cookiecutter-cms) version 1.3.
