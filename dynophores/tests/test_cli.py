@@ -29,27 +29,24 @@ def test_create_subprocess(function, dyno, pdb, dcd, workspace):
     TODO how to catch errors?
     """
 
-    try:
-        subprocess.run(
-            [
-                "dynoviz",
-                function,
-                "--dyno",
-                dyno,
-                "--pdb",
-                pdb,
-                "--dcd",
-                dcd,
-                "--workspace",
-                workspace,
-            ],
-            check=True,
-            timeout=5,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except subprocess.TimeoutExpired:
-        pass
+    process = subprocess.Popen(
+        [
+            "dynoviz",
+            function,
+            "--dyno",
+            dyno,
+            "--pdb",
+            pdb,
+            "--dcd",
+            dcd,
+            "--workspace",
+            workspace,
+        ],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    process.terminate()
 
 
 @pytest.mark.parametrize(
