@@ -34,18 +34,20 @@ class Dynophore:
     @classmethod
     def from_files(cls, dynophore_path):
         """
-        Load dynophore data from DynophoreApp output files as Dynophore instance.
+        Load dynophore data from DynophoreApp directory as Dynophore instance.
 
         Parameters
         ----------
         dynophore_path : pathlib.Path
-            Path to folder with dynophore data.
+            Path to DynophoreApp folder.
 
         Returns
         -------
         dynophores.Dynophore
             Dynophore.
         """
+
+        dynophore_path = Path(dynophore_path) / "data"
 
         dynophore = cls()
 
