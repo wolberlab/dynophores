@@ -17,10 +17,10 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
     [
         (
             "create",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp",)
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb",)
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd",)
-            str(PATH_TEST_DATA,)
+            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
+            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
+            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA),
         ),
     ],
 )
