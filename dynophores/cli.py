@@ -169,7 +169,7 @@ def _open_notebook(notebook_path):
         raise RuntimeError(f"Input file does not exist: `{notebook_path.absolute()}`")
 
     print("Open dynophore notebook with Jupyter Lab...")
-    subprocess.run(["jupyter", "lab", notebook_path.absolute()])
+    subprocess.run(["jupyter", "lab", str(notebook_path.absolute())])
 
 
 def _update_paths_in_notebook(notebook_path, search_replace_tuples):
