@@ -79,7 +79,7 @@ def _greet():
     Print CLI greeting.
     """
 
-    logo_path = Path(_version.__file__).parent / "../docs/_static/stegosaurus.txt"
+    logo_path = Path(_version.__file__).parent / "data/stegosaurus.txt"
     with open(logo_path, "r", encoding="ascii") as f:
         print(f.read())
     title_str = f"Dynophores CLI {_version.get_versions()['version']}"
