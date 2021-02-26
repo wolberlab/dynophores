@@ -126,7 +126,7 @@ def _copy_notebook(workspace_path, dyno_path, pdb_path, dcd_path):
         raise RuntimeError(f"Input file does not exist: `{dcd_path.absolute()}`")
 
     # Set template notebook and user notebook filepath
-    notebook_path = Path(_version.__file__).parent / "../docs/tutorials/dynophore.ipynb"
+    notebook_path = Path(_version.__file__).parent / "notebook/dynophore.ipynb"
     new_notebook_path = Path(workspace_path) / "dynophore.ipynb"
 
     # Copy template notebook to user-defined workspace
@@ -148,9 +148,9 @@ def _copy_notebook(workspace_path, dyno_path, pdb_path, dcd_path):
     # Replace template filepaths in notebook with user-defined filepaths
     print("\nUpdate filepaths in notebook to user filepaths...")
     search_replace_tuples = [
-        ("../../dynophores/tests/data/1KE7-1/DynophoreApp", str(dyno_path.absolute())),
-        ("../../dynophores/tests/data/1KE7-1/startframe.pdb", str(pdb_path.absolute())),
-        ("../../dynophores/tests/data/1KE7-1/trajectory.dcd", str(dcd_path.absolute())),
+        ("../tests/data/1KE7-1/DynophoreApp", str(dyno_path.absolute())),
+        ("../tests/data/1KE7-1/startframe.pdb", str(pdb_path.absolute())),
+        ("../tests/data/1KE7-1/trajectory.dcd", str(dcd_path.absolute())),
     ]
     _update_paths_in_notebook(new_notebook_path, search_replace_tuples)
 

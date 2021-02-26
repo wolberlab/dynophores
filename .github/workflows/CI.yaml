@@ -68,6 +68,7 @@ jobs:
       run: |
         PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
         pytest $PYTEST_ARGS docs/tutorials/*.ipynb -vvv
+        pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
@@ -123,11 +124,13 @@ jobs:
         if: always()
         run: |
           black-nb --check -l 99 docs/tutorials/*.ipynb
+          black-nb --check -l 99 dynophores/notebooks/*.ipynb
 
       - name: Run flake8-nb
         shell: bash -l {0}
         run: |
           flake8-nb --config setup.cfg docs/tutorials/*.ipynb
+          flake8-nb --config setup.cfg dynophores/notebooks/*.ipynb
 
 
   docs:
