@@ -36,23 +36,27 @@ def test_superfeatures_vs_envpartners_raises(dynophore, superfeature_names):
 
 
 @pytest.mark.parametrize(
-    "superfeature_names, color_by_feature_type, n_equidistant_frames",
+    "superfeature_names, color_by_feature_type, frames_range, frames_step_size",
     [
-        ("all", True, 1000),  # Defaults
-        ("all", False, 1000),
-        (("all",), False, 1000),
-        ("AR[4605,4607,4603,4606,4604]", False, 1000),
-        # ("AR[4605,4607,4603,4606,4604]", False, 1),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], False, 1000),
-        (["all", "AR[4622,4615,4623,4613,4614,4621]"], False, 1000),
+        ("all", True, [0, None], 1),  # Defaults
+        ("all", False, [10, 100], 1),
+        (("all",), False, [0, None], 100),
+        ("AR[4605,4607,4603,4606,4604]", False, [0, None], 1),
+        (
+            ["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"],
+            False,
+            [0, None],
+            1,
+        ),
+        (["all", "AR[4622,4615,4623,4613,4614,4621]"], False, [0, None], 1),
     ],
 )
 def test_superfeatures_occurrences(
-    dynophore, superfeature_names, color_by_feature_type, n_equidistant_frames
+    dynophore, superfeature_names, color_by_feature_type, frames_range, frames_step_size
 ):
 
     fig, ax = plot.static.superfeatures_occurrences(
-        dynophore, superfeature_names, color_by_feature_type, n_equidistant_frames
+        dynophore, superfeature_names, color_by_feature_type, frames_range, frames_step_size
     )
 
     assert isinstance(fig, matplotlib.figure.Figure)
@@ -67,17 +71,18 @@ def test_superfeatures_occurrences_raises(dynophore, superfeature_names):
 
 
 @pytest.mark.parametrize(
-    "superfeature_names, n_equidistant_frames",
+    "superfeature_names, frames_range, frames_step_size",
     [
-        ("AR[4605,4607,4603,4606,4604]", 1000),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], 1000),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], 2),
+        ("AR[4605,4607,4603,4606,4604]", [0, None], 1),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [0, None], 10),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 1),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 10),
     ],
 )
-def test_envpartners_occurrences(dynophore, superfeature_names, n_equidistant_frames):
+def test_envpartners_occurrences(dynophore, superfeature_names, frames_range, frames_step_size):
 
     fig, axes = plot.static.envpartners_occurrences(
-        dynophore, superfeature_names, n_equidistant_frames
+        dynophore, superfeature_names, frames_range, frames_step_size
     )
 
     assert isinstance(fig, matplotlib.figure.Figure)
@@ -125,16 +130,16 @@ def test_envpartner_distances_raises(dynophore, superfeature_name, kind):
 
 
 @pytest.mark.parametrize(
-    "superfeature_name, n_equidistant_frames",
+    "superfeature_name, frames_range, frames_step_size",
     [
-        ("AR[4605,4607,4603,4606,4604]", 1000),
-        (("AR[4605,4607,4603,4606,4604]",), 1000),
+        ("AR[4605,4607,4603,4606,4604]", [0, None], 1),
+        (("AR[4605,4607,4603,4606,4604]",), [0, None], 1),
     ],
 )
-def test_envpartners_all_in_one(dynophore, superfeature_name, n_equidistant_frames):
+def test_envpartners_all_in_one(dynophore, superfeature_name, frames_range, frames_step_size):
 
     fig, axes = plot.static.envpartners_all_in_one(
-        dynophore, superfeature_name, n_equidistant_frames
+        dynophore, superfeature_name, frames_range, frames_step_size
     )
     print(axes.size)
 
