@@ -13,7 +13,9 @@ Resources:
     teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
 """
 
-from ipywidgets import interact, fixed
+import math
+
+from ipywidgets import interact_manual, fixed
 import ipywidgets as widgets
 
 from dynophores.viz import plot
@@ -35,9 +37,12 @@ def superfeatures_vs_envpartners(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = ["all"] + [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
+    superfeature_ids = ["all"] + superfeature_ids
 
-    func = interact(
+    func = interact_manual(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -67,9 +72,11 @@ def superfeatures_occurrences(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
-    func = interact(
+    func = interact_manual(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -79,12 +86,21 @@ def superfeatures_occurrences(dynophore):
             style=style,
         ),
         color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
@@ -108,9 +124,11 @@ def envpartners_occurrences(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -119,12 +137,21 @@ def envpartners_occurrences(dynophore):
             description="Superfeature name(s):",
             style=style,
         ),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
@@ -148,9 +175,11 @@ def envpartners_distances(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -164,6 +193,23 @@ def envpartners_distances(dynophore):
             description="Plot style",
             button_style="",
             tooltips=["Series", "Histogram"],
+        ),
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
+            max=dynophore.n_frames,
+            step=1,
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
+            style=style,
         ),
     )
 
@@ -187,9 +233,11 @@ def envpartners_all_in_one(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
         superfeature_name=widgets.Select(
@@ -198,12 +246,21 @@ def envpartners_all_in_one(dynophore):
             description="Superfeature name(s):",
             style=style,
         ),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
