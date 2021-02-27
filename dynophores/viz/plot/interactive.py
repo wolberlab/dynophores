@@ -36,7 +36,10 @@ def superfeatures_vs_envpartners(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = ["all"] + [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
+    superfeature_ids = ["all"] + superfeature_ids
 
     func = interact_manual(
         plot.static.superfeatures_vs_envpartners,
@@ -68,7 +71,9 @@ def superfeatures_occurrences(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
     func = interact_manual(
         plot.static.superfeatures_occurrences,
@@ -109,7 +114,9 @@ def envpartners_occurrences(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
     func = interact_manual(
         plot.static.envpartners_occurrences,
@@ -149,7 +156,9 @@ def envpartners_distances(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
     func = interact_manual(
         plot.static.envpartners_distances,
@@ -188,7 +197,9 @@ def envpartners_all_in_one(dynophore):
     """
 
     style = {"description_width": "initial"}
-    superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
+    superfeature_ids = (
+        dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
+    )
 
     func = interact_manual(
         plot.static.envpartners_all_in_one,
