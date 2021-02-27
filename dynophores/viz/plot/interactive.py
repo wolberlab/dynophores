@@ -14,6 +14,7 @@ Resources:
 """
 
 from ipywidgets import interact, fixed
+from ipywidgets import interact_manual, fixed
 import ipywidgets as widgets
 
 from dynophores.viz import plot
@@ -37,7 +38,7 @@ def superfeatures_vs_envpartners(dynophore):
     style = {"description_width": "initial"}
     superfeature_ids = ["all"] + [superfeature.id for superfeature in dynophore.superfeatures]
 
-    func = interact(
+    func = interact_manual(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -69,7 +70,7 @@ def superfeatures_occurrences(dynophore):
     style = {"description_width": "initial"}
     superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
-    func = interact(
+    func = interact_manual(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -110,7 +111,7 @@ def envpartners_occurrences(dynophore):
     style = {"description_width": "initial"}
     superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -150,7 +151,7 @@ def envpartners_distances(dynophore):
     style = {"description_width": "initial"}
     superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_names=widgets.SelectMultiple(
@@ -189,7 +190,7 @@ def envpartners_all_in_one(dynophore):
     style = {"description_width": "initial"}
     superfeature_ids = [superfeature.id for superfeature in dynophore.superfeatures]
 
-    func = interact(
+    func = interact_manual(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
         superfeature_name=widgets.Select(
