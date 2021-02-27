@@ -252,7 +252,7 @@ def envpartners_distances(
 
         if kind == "line":
             data.plot(kind="line", ax=ax)
-            ax.set_xlim((0, data.shape[0]))
+            ax.set_xlim((data.index[0], data.index[-1]))
             ax.set_xlabel("Frame index")
             ax.set_ylabel(r"Distance [$\AA$]")
         elif kind == "hist":
