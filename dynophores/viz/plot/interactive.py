@@ -13,7 +13,8 @@ Resources:
     teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
 """
 
-from ipywidgets import interact, fixed
+import math
+
 from ipywidgets import interact_manual, fixed
 import ipywidgets as widgets
 
@@ -85,12 +86,21 @@ def superfeatures_occurrences(dynophore):
             style=style,
         ),
         color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
@@ -127,12 +137,21 @@ def envpartners_occurrences(dynophore):
             description="Superfeature name(s):",
             style=style,
         ),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
@@ -175,6 +194,23 @@ def envpartners_distances(dynophore):
             button_style="",
             tooltips=["Series", "Histogram"],
         ),
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
+            max=dynophore.n_frames,
+            step=1,
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
+            style=style,
+        ),
     )
 
     return func
@@ -210,12 +246,21 @@ def envpartners_all_in_one(dynophore):
             description="Superfeature name(s):",
             style=style,
         ),
-        n_equidistant_frames=widgets.IntSlider(
-            value=1000,
-            min=2,
+        frame_range=widgets.IntRangeSlider(
+            value=[0, dynophore.n_frames],
+            min=0,
             max=dynophore.n_frames,
             step=1,
-            description="# equidistant frames:",
+            description="Frames range:",
+            style=style,
+        ),
+        frame_step_size=widgets.BoundedIntText(
+            # Default value results in displayed 1000 frames
+            value=math.floor(dynophore.n_frames / 1000),
+            min=1,
+            max=dynophore.n_frames - 1,
+            step=1,
+            description="Frames step size:",
             style=style,
         ),
     )
