@@ -337,6 +337,49 @@ class Dynophore:
 
         return file_components
 
+    def _superfeature_names_frequencies_strings(self, superfeature_names):
+        """
+        Get superfeature names with frequencies as strings (useful for plotting).
+        TODO unit test
+
+        Parameters
+        ----------
+        superfeature_names : list of str
+            Superfeature names.
+
+        Returns
+        -------
+        list of str
+            Superfeature names with frequencies.
+        """
+
+        superfeature_names_frequencies = round(self.frequency.loc["any", superfeature_names], 1)
+        superfeature_names_frequencies_strings = (
+            superfeature_names_frequencies.reset_index()
+            .apply(lambda x: f"{x['index']} {x['any']}%", axis=1)
+            .to_list()
+        )
+        return superfeature_names_frequencies_strings
+
+    def _envpartner_names_frequencies_strings(self, superfeature_name, envpartners_names):
+        """
+        TODO docstring + unit test
+        """
+
+        envpartners_occurrences = self.envpartners_occurrences[superfeature_name]
+
+        envpartner_names_frequencies = round(
+            envpartners_occurrences.sum() / envpartners_occurrences.shape[0] * 100, 1
+        )
+        envpartner_names_frequencies = envpartner_names_frequencies[envpartners_names]
+        envpartner_names_frequencies_strings = (
+            envpartner_names_frequencies.reset_index()
+            .apply(lambda x: f"{x['index']} {x[0]}%", axis=1)
+            .to_list()
+        )
+
+        return envpartner_names_frequencies_strings
+
     @staticmethod
     def _file_components_alternative(filepath):
         """
