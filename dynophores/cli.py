@@ -126,7 +126,7 @@ def _copy_notebook(workspace_path, dyno_path, pdb_path, dcd_path):
         raise RuntimeError(f"Input file does not exist: `{dcd_path.absolute()}`")
 
     # Set template notebook and user notebook filepath
-    notebook_path = Path(_version.__file__).parent / "notebook/dynophore.ipynb"
+    notebook_path = Path(_version.__file__).parent / "notebooks/dynophore.ipynb"
     new_notebook_path = Path(workspace_path) / "dynophore.ipynb"
 
     # Copy template notebook to user-defined workspace
