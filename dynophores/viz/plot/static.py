@@ -109,7 +109,8 @@ def superfeatures_occurrences(
     data.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color=colors)
     # Set y tick labels
     ax.set_yticks(range(0, data.shape[1] + 2))
-    ax.set_yticklabels([""] + data.columns.to_list() + [""])
+    superfeature_labels = dynophore._superfeature_names_frequencies_strings(data.columns.to_list())
+    ax.set_yticklabels([""] + superfeature_labels + [""])
     ax.invert_yaxis()
     # Set x axis limits and label
     ax.set_xlabel("Frame index")
@@ -165,7 +166,8 @@ def envpartners_occurrences(
             ax = axes
 
         # Add plot title
-        ax.set_title(superfeature_name)
+        superfeature_title = dynophore._superfeature_names_frequencies_strings([superfeature_name])
+        ax.set_title(superfeature_title[0])
 
         # Prepare data
         data = dynophore.envpartners_occurrences[superfeature_name]
@@ -186,7 +188,10 @@ def envpartners_occurrences(
             )
             # Set y tick labels
             ax.set_yticks(range(0, data.shape[1] + 2))
-            ax.set_yticklabels([""] + data.columns.to_list() + [""])
+            envpartner_labels = dynophore._envpartner_names_frequencies_strings(
+                superfeature_name, data.columns.to_list()
+            )
+            ax.set_yticklabels([""] + envpartner_labels + [""])
             ax.invert_yaxis()
             # Set x axis limits and label
             ax.set_xlabel("Frame")
@@ -242,7 +247,8 @@ def envpartners_distances(
             ax = axes
 
         # Add plot title
-        ax.set_title(superfeature_name)
+        superfeature_title = dynophore._superfeature_names_frequencies_strings([superfeature_name])
+        ax.set_title(superfeature_title[0])
 
         # Prepare data
         data = dynophore.envpartners_distances[superfeature_name]
