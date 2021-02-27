@@ -265,7 +265,7 @@ def envpartners_all_in_one(dynophore, superfeature_name, n_equidistant_frames=10
     # IPyWidgets' interact function: Cast tuple > str
     if isinstance(superfeature_name, tuple):
         superfeature_name = list(superfeature_name)[0]  # Keep only first
-    dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+    dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     occurrences = _prepare_plot_envparters_occurrences(
         dynophore, superfeature_name, n_equidistant_frames
@@ -434,6 +434,6 @@ def _format_superfeature_names(dynophore, superfeature_names):
         if not isinstance(superfeature_names, list):
             superfeature_names = [superfeature_names]
         for superfeature_name in superfeature_names:
-            dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+            dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     return superfeature_names

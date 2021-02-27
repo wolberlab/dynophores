@@ -203,10 +203,12 @@ class TestsDynophore:
     ):
 
         if valid_superfeature:
-            assert dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name) is None
+            assert (
+                dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name) is None
+            )
         else:
             with pytest.raises(KeyError):
-                dynophore.raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+                dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     @pytest.mark.parametrize(
         "filepath, file_components",

@@ -227,7 +227,7 @@ class Dynophore:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-    def raise_keyerror_if_invalid_superfeature_name(self, superfeature_name):
+    def _raise_keyerror_if_invalid_superfeature_name(self, superfeature_name):
         """
         Check if dynophore has a certain superfeature (by name).
 
