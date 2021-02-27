@@ -255,12 +255,14 @@ def envpartners_distances(
             ax.set_xlim((data.index[0], data.index[-1]))
             ax.set_xlabel("Frame index")
             ax.set_ylabel(r"Distance [$\AA$]")
+            ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
         elif kind == "hist":
             value_floor = int(np.floor(data.min().min()))
             value_ceil = int(np.ceil(data.max().max()))
             data.plot(kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8)
             ax.set_xlim((value_floor, value_ceil))
             ax.set_xlabel(r"Distance [$\AA$]")
+            ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
         else:
             raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
 
