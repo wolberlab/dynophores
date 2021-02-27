@@ -47,13 +47,25 @@ class Dynophore:
             Dynophore.
         """
 
-        dynophore_path = Path(dynophore_path) / "data"
-
         dynophore = cls()
 
         # Get all files and filename components
-        dynophore_files = [file for file in dynophore_path.glob("*")]
-        dynophore_files_components = [dynophore._file_components(i) for i in dynophore_files]
+        dynophore_path_options = [Path(dynophore_path) / "data", Path(dynophore_path) / "raw_data"]
+        if dynophore_path_options[0].exists():
+            dynophore_files = [file for file in dynophore_path_options[0].glob("*")]
+            dynophore_files_components = [dynophore._file_components(i) for i in dynophore_files]
+            print(f"Read files from {dynophore_path_options[0]}.")
+        elif dynophore_path_options[1].exists():
+            dynophore_files = [file for file in dynophore_path_options[1].glob("*")]
+            dynophore_files_components = [
+                dynophore._file_components_alternative(i) for i in dynophore_files
+            ]
+            print(f"Read files from {dynophore_path_options[1]}.")
+        else:
+            raise FileNotFoundError(
+                "Could not find directory: "
+                f"{' or '.join([str(i) for i in dynophore_path_options])}"
+            )
 
         # Iterate over superfeatures
         superfeatures = []
@@ -68,6 +80,35 @@ class Dynophore:
                 if i["superfeature_id"] == superfeature_file_components["superfeature_id"]
                 and i["envpartner_id"] is not None
             ]:
+                # Get distances and occurrences for environmental partner
+                try:
+                    distances = np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=int,
+                        delimiter=",",
+                        usecols=1,
+                    )
+                    occurrences = np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=float,
+                        delimiter=",",
+                        usecols=0,
+                    )
+                except IndexError:
+                    # In case data comes from master thesis DynophoreApp output
+                    distances = np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=int,
+                        delimiter=" ",
+                        usecols=1,
+                    )
+                    occurrences = np.loadtxt(
+                        fname=envpartner_file_components["filepath"],
+                        dtype=float,
+                        delimiter=" ",
+                        usecols=0,
+                    )
+
                 # Set environmental partner
                 envpartner = EnvPartner(
                     envpartner_file_components["envpartner_id"],
@@ -75,18 +116,8 @@ class Dynophore:
                     envpartner_file_components["envpartner_residue_number"],
                     envpartner_file_components["envpartner_chain"],
                     envpartner_file_components["envpartner_atom_numbers"],
-                    np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=int,
-                        delimiter=",",
-                        usecols=1,
-                    ),
-                    np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=float,
-                        delimiter=",",
-                        usecols=0,
-                    ),
+                    distances,
+                    occurrences,
                 )
                 envpartners.append(envpartner)
 
@@ -302,6 +333,73 @@ class Dynophore:
             file_components["envpartner_chain"] = file_split[8].split("[")[0]
             file_components["envpartner_atom_numbers"] = [
                 int(atom) for atom in file_split[8].split("[")[1][:-1].split(",")
+            ]
+
+        return file_components
+
+    @staticmethod
+    def _file_components_alternative(filepath):
+        """
+        Get components from dynophore filename that follows the syntax used in the master thesis
+        version of the DynophoreApp (from 2015).
+
+        Parameters
+        ----------
+        filepath : str or pathlib.Path
+            Path to dynophore file.
+
+        Returns
+        -------
+        dict
+            Components for dynophore filename.
+        """
+
+        filepath = Path(filepath)
+
+        file_split = filepath.stem.split("_")
+
+        file_components = {
+            "filepath": None,
+            "dynophore_id": None,
+            "superfeature_id": None,
+            "superfeature_feature_type": None,
+            "superfeature_atom_numbers": None,
+            "envpartner_id": None,
+            "envpartner_residue_name": None,
+            "envpartner_residue_number": None,
+            "envpartner_chain": None,
+            "envpartner_atom_numbers": None,
+        }
+
+        # Example filepath
+        # 1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt
+        # Is split into
+        # ['1KE7-1', 'data', 'superfeature', 'H[4599,4602,4601,4608,4609,4600]', '100.0']
+
+        file_components["filepath"] = filepath
+        file_components["dynophore_id"] = file_split[0]
+        file_components["superfeature_id"] = file_split[3].split("%")[0]
+        file_components["superfeature_feature_type"] = file_components["superfeature_id"].split(
+            "["
+        )[0]
+        file_components["superfeature_atom_numbers"] = [
+            int(atom) for atom in file_components["superfeature_id"].split("[")[1][:-1].split(",")
+        ]
+
+        if len(file_split) == 8:
+
+            # Example filepath
+            # 1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_ASP_86_A[1313]_1.6.txt
+            # Is split into
+            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86',
+            # 'A[1313]', '1.6']
+
+            file_components["envpartner_id"] = "-".join(file_split[5:8]).split("%")[0]
+            file_components["envpartner_residue_name"] = file_split[5]
+            file_components["envpartner_residue_number"] = int(file_split[6])
+            file_components["envpartner_chain"] = file_split[7].split("%")[0].split("[")[0]
+            file_components["envpartner_atom_numbers"] = [
+                int(atom) for atom in file_split[7].split("%")[0].split("[")[1][:-1].split(",")
             ]
 
         return file_components
