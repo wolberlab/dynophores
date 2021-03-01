@@ -69,5 +69,5 @@ def superfeature():
 @pytest.fixture(scope="module")
 def dynophore():
 
-    dynophore = Dynophore.from_files(PATH_TEST_DATA / "1KE7-1/DynophoreApp")
+    dynophore = Dynophore.from_file(PATH_TEST_DATA / "1KE7-1/DynophoreApp")
     return dynophore

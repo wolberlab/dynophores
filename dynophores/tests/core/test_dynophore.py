@@ -27,10 +27,17 @@ class TestsDynophore:
             assert isinstance(superfeature, SuperFeature)
 
     @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "1KE7-1/DynophoreApp"])
-    def test_from_files(self, filepath):
+    def test_from_file(self, filepath):
 
-        dynophore = Dynophore.from_files(filepath)
-        assert isinstance(dynophore, Dynophore)
+        # From data/ folder (TXT files)
+        dynophore1 = Dynophore.from_file(filepath)
+        assert isinstance(dynophore1, Dynophore)
+
+        # From dynophore.json file
+        (filepath / "data").rename(filepath / "data_tmp")
+        dynophore2 = Dynophore.from_file(filepath)
+        (filepath / "data_tmp").rename(filepath / "data")
+        assert isinstance(dynophore2, Dynophore)
 
     @pytest.mark.parametrize(
         "column_names, counts_sum",
@@ -79,14 +86,12 @@ class TestsDynophore:
     )
     def test_envpartners_occurrences(self, dynophore, counts_sum_dict):
 
-        assert list(dynophore.envpartners_occurrences.keys()) == list(counts_sum_dict.keys())
-        counts_sum_dict_calculated = {
-            superfeature: occurrences.sum().sum()
-            for superfeature, occurrences in dynophore.envpartners_occurrences.items()
-        }
-        for (_, counts_sum_calculated), (_, counts_sum) in zip(
-            counts_sum_dict_calculated.items(), counts_sum_dict.items()
-        ):
+        assert sorted(list(dynophore.envpartners_occurrences.keys())) == sorted(
+            list(counts_sum_dict.keys())
+        )
+        for superfeature, occurrences in dynophore.envpartners_occurrences.items():
+            counts_sum_calculated = occurrences.sum().sum()
+            counts_sum = counts_sum_dict[superfeature]
             assert counts_sum_calculated == counts_sum
 
     @pytest.mark.parametrize(
@@ -108,14 +113,12 @@ class TestsDynophore:
     )
     def test_envpartners_distances(self, dynophore, distances_sum_dict):
 
-        assert list(dynophore.envpartners_distances.keys()) == list(distances_sum_dict.keys())
-        distances_sum_dict_calculated = {
-            superfeature: occurrences.sum().sum()
-            for superfeature, occurrences in dynophore.envpartners_distances.items()
-        }
-        for (_, distances_sum_calculated), (_, distances_sum) in zip(
-            distances_sum_dict_calculated.items(), distances_sum_dict.items()
-        ):
+        assert sorted(list(dynophore.envpartners_distances.keys())) == sorted(
+            list(distances_sum_dict.keys())
+        )
+        for superfeature, distances in dynophore.envpartners_distances.items():
+            distances_sum_calculated = distances.sum().sum()
+            distances_sum = distances_sum_dict[superfeature]
             assert pytest.approx(distances_sum_calculated) == distances_sum
 
     @pytest.mark.parametrize("data_type", ["xxx"])
@@ -184,13 +187,16 @@ class TestsDynophore:
         self, dynophore, count_sum, frequency_sum, superfeature_names, envpartner_names
     ):
 
+        # TODO remove this when fixed in DynophoreApp json export
+        envpartner_names = [i.replace("-", "_") for i in envpartner_names]
+
         # Count
-        assert dynophore.count.columns.to_list() == superfeature_names
+        assert sorted(dynophore.count.columns.to_list()) == superfeature_names
         assert dynophore.count.index.to_list() == envpartner_names
         assert dynophore.count.sum().sum() == count_sum
 
         # Frequency
-        assert dynophore.frequency.columns.to_list() == superfeature_names
+        assert sorted(dynophore.frequency.columns.to_list()) == superfeature_names
         assert dynophore.frequency.index.to_list() == envpartner_names
         assert pytest.approx(dynophore.frequency.sum().sum()) == frequency_sum
 
