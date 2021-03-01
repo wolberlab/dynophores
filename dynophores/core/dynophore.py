@@ -5,12 +5,17 @@ Handles dynophore class.
 """
 
 from pathlib import Path
+import json
+import logging
 
 import numpy as np
 import pandas as pd
 
 from dynophores.core.superfeature import SuperFeature
 from dynophores.core.envpartner import EnvPartner
+
+
+logger = logging.getLogger(__name__)
 
 
 class Dynophore:
@@ -32,9 +37,150 @@ class Dynophore:
         self.superfeatures = []
 
     @classmethod
-    def from_files(cls, dynophore_path):
+    def from_file(cls, dynophore_path):
         """
-        Load dynophore data from DynophoreApp directory as Dynophore instance.
+        Load dynophore data from DynophoreApp directory.
+        There are multiple file (ranked!) options to read from:
+        1. Read from JSON file (preferred).
+        2. Read from TXT files in data/ directory (TODO will deprecate at some point).
+        3. Read from TXT files in raw_data/ directory from 2015 DynphoreApp version
+           (TODO will deprecate at some point).
+
+        Parameters
+        ----------
+        dynophore_path : pathlib.Path
+            Path to DynophoreApp folder.
+
+        Returns
+        -------
+        dynophores.Dynophore
+            Dynophore.
+        """
+
+        dynophore_path = Path(dynophore_path)
+
+        dynophore_path_options = [
+            Path(dynophore_path) / "dynophore.json",
+            Path(dynophore_path) / "data",
+            Path(dynophore_path) / "raw_data",
+        ]
+
+        json_paths = list(dynophore_path.glob("*dynophore.json"))
+        if len(json_paths) == 1:
+            return cls.from_json(json_paths[0])
+        elif len(json_paths) > 1:
+            raise ValueError(
+                f"Too many json files in {dynophore_path}. "
+                f"Use `from_json` to specify which one to be loaded."
+            )
+        elif dynophore_path_options[1].exists():
+            return cls._from_txt(dynophore_path)
+        elif dynophore_path_options[2].exists():
+            return cls._from_txt(dynophore_path)
+        else:
+            raise FileNotFoundError(
+                "Could not find directory: "
+                f"{' or '.join([str(i) for i in dynophore_path_options])}"
+            )
+
+    @classmethod
+    def from_json(cls, json_path):
+        """
+        Load dynophore data from JSON file in the DynophoreApp directory.
+
+        Parameters
+        ----------
+        json_path : pathlib.Path
+            Path to dynophore JSON file.
+
+        Returns
+        -------
+        dynophores.Dynophore
+            Dynophore.
+        """
+
+        json_path = Path(json_path)
+
+        logger.debug(f"Read files from {json_path}.")
+        print(f"Read files from {json_path}.")
+
+        with open(json_path, "r") as f:
+            json_string = f.read()
+            dynophore_dict = json.loads(json_string)
+
+        dynophore = cls()
+        dynophore.id = dynophore_dict["id"]
+        superfeatures = []
+        for superfeature_dict in dynophore_dict["superfeatures"]:
+            envpartners = []
+            for envpartner_dict in superfeature_dict["envpartners"]:
+                try:
+                    residue_name = envpartner_dict["residue_name"]
+                    residue_number = envpartner_dict["residue_number"]
+                    chain = envpartner_dict["chain"]
+                except KeyError:
+                    # TODO Remove this, once updated in DynophoreApp
+                    residue_name = envpartner_dict["name"].split("_")[0]
+                    residue_number = envpartner_dict["name"].split("_")[1]
+                    chain = envpartner_dict["name"].split("_")[2]
+                envpartner = EnvPartner(
+                    envpartner_dict["id"],
+                    residue_name,
+                    residue_number,
+                    chain,
+                    envpartner_dict["atom_numbers"],
+                    np.array(envpartner_dict["occurrences"]),
+                    np.array(envpartner_dict["distances"]),
+                )
+                envpartners.append(envpartner)
+            superfeature = SuperFeature(
+                superfeature_dict["id"],
+                superfeature_dict["feature_type"],
+                superfeature_dict["atom_numbers"],
+                np.array(superfeature_dict["occurrences"]),
+                envpartners,
+            )
+            superfeatures.append(superfeature)
+        dynophore.superfeatures = superfeatures
+        return dynophore
+
+    def _to_json(self, json_path):
+        """
+        Write dynophore data to JSON file.
+
+        Parameters
+        ----------
+        json_path : pathlib.Path
+            Output file path.
+        """
+
+        # Prepare Dynophore object for JSON export
+        dynophore_dict = self.__dict__.copy()
+        superfeatures_dict_list = []
+        for superfeature in dynophore_dict["superfeatures"]:
+            superfeature_dict = superfeature.__dict__.copy()
+            envpartners_dict_list = []
+            for envpartner in superfeature_dict["envpartners"]:
+                envpartner_dict = envpartner.__dict__.copy()
+                envpartner_dict["occurrences"] = envpartner_dict["occurrences"].tolist()
+                envpartner_dict["distances"] = envpartner_dict["distances"].tolist()
+                envpartners_dict_list.append(envpartner_dict)
+            superfeature_dict["envpartners"] = envpartners_dict_list
+            superfeature_dict["occurrences"] = superfeature_dict["occurrences"].tolist()
+            superfeatures_dict_list.append(superfeature_dict)
+        dynophore_dict["superfeatures"] = superfeatures_dict_list
+
+        # Write JSON string to file
+        json_string = json.dumps(dynophore_dict)
+        json_path = Path(json_path)
+        with open(json_path, "w") as f:
+            f.write(json_string)
+
+    @classmethod
+    def _from_txt(cls, dynophore_path):
+        """
+        Load dynophore data from JSON file or TXT files in the DynophoreApp directory.
+        TODO: This method will deprecate in the future.
 
         Parameters
         ----------
@@ -50,16 +196,21 @@ class Dynophore:
         dynophore = cls()
 
         # Get all files and filename components
-        dynophore_path_options = [Path(dynophore_path) / "data", Path(dynophore_path) / "raw_data"]
+        dynophore_path_options = [
+            Path(dynophore_path) / "data",
+            Path(dynophore_path) / "raw_data",
+        ]
         if dynophore_path_options[0].exists():
             dynophore_files = [file for file in dynophore_path_options[0].glob("*")]
             dynophore_files_components = [dynophore._file_components(i) for i in dynophore_files]
+            logger.debug(f"Read files from {dynophore_path_options[0]}.")
             print(f"Read files from {dynophore_path_options[0]}.")
         elif dynophore_path_options[1].exists():
             dynophore_files = [file for file in dynophore_path_options[1].glob("*")]
             dynophore_files_components = [
                 dynophore._file_components_alternative(i) for i in dynophore_files
             ]
+            logger.debug(f"Read files from {dynophore_path_options[1]}.")
             print(f"Read files from {dynophore_path_options[1]}.")
         else:
             raise FileNotFoundError(
