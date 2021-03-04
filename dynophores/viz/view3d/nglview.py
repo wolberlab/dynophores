@@ -8,7 +8,7 @@ import nglview as nv
 import MDAnalysis as mda
 import matplotlib
 
-from .parser import _parse_pml
+from ...parsers import _pml_to_dict
 from ...definitions import FEATURE_COLORS
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -44,14 +44,15 @@ def _show_trajectory(pdb_path, dcd_path):
 
 def _add_dynophore(view, pml_path):
 
-    dynophore3d_dict = _parse_pml(pml_path)
+    dynophore3d_dict = _pml_to_dict(pml_path)
 
-    for superfeature_id, coordinates in dynophore3d_dict.items():
+    for superfeature_id, cloud in dynophore3d_dict.items():
         sphere_buffer = {"position": [], "color": [], "radius": []}
-        for coordinate in coordinates:
-            sphere_buffer["position"] += coordinate
+        # TODO: Add cloud name!
+        for point_coordinates in cloud["coordinates"]:
+            sphere_buffer["position"] += point_coordinates.tolist()
             sphere_buffer["color"] += matplotlib.colors.to_rgb(
-                FEATURE_COLORS[superfeature_id.split("-")[0]]
+                FEATURE_COLORS[superfeature_id.split("[")[0]]
             )
             sphere_buffer["radius"] += [0.1]
         view.shape.add_buffer("sphere", **sphere_buffer)

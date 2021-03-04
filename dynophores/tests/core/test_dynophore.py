@@ -18,7 +18,7 @@ class TestsDynophore:
     Test Dynophore class methods.
     """
 
-    @pytest.mark.parametrize("id", ["1KE7-1"])
+    @pytest.mark.parametrize("id", ["dynophore_1KE7"])  # TODO: 1KE7
     def test_attributes(self, dynophore, id):
 
         assert dynophore.id == id
@@ -26,18 +26,11 @@ class TestsDynophore:
         for superfeature in dynophore.superfeatures:
             assert isinstance(superfeature, SuperFeature)
 
-    @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "1KE7-1/DynophoreApp"])
+    @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "out"])
     def test_from_file(self, filepath):
 
-        # From data/ folder (TXT files)
-        dynophore1 = Dynophore.from_file(filepath)
-        assert isinstance(dynophore1, Dynophore)
-
-        # From dynophore.json file
-        (filepath / "data").rename(filepath / "data_tmp")
-        dynophore2 = Dynophore.from_file(filepath)
-        (filepath / "data_tmp").rename(filepath / "data")
-        assert isinstance(dynophore2, Dynophore)
+        dynophore = Dynophore.from_dir(filepath)
+        assert isinstance(dynophore, Dynophore)
 
     @pytest.mark.parametrize(
         "column_names, counts_sum",
@@ -215,56 +208,3 @@ class TestsDynophore:
         else:
             with pytest.raises(KeyError):
                 dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
-
-    @pytest.mark.parametrize(
-        "filepath, file_components",
-        [
-            (
-                PATH_TEST_DATA
-                / "1KE7-1/DynophoreApp"
-                / "1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt",
-                {
-                    "filepath": PATH_TEST_DATA
-                    / "1KE7-1/DynophoreApp"
-                    / "1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt",
-                    "dynophore_id": "1KE7-1",
-                    "superfeature_id": "H[4599,4602,4601,4608,4609,4600]",
-                    "superfeature_feature_type": "H",
-                    "superfeature_atom_numbers": [4599, 4602, 4601, 4608, 4609, 4600],
-                    "envpartner_id": None,
-                    "envpartner_residue_name": None,
-                    "envpartner_residue_number": None,
-                    "envpartner_chain": None,
-                    "envpartner_atom_numbers": None,
-                },
-            ),
-            (
-                PATH_TEST_DATA
-                / "1KE7-1/DynophoreApp"
-                / "1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_LYS_20_A[308]_4.1.txt",
-                {
-                    "filepath": PATH_TEST_DATA
-                    / "1KE7-1/DynophoreApp"
-                    / "1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_LYS_20_A[308]_4.1.txt",
-                    "dynophore_id": "1KE7-1",
-                    "superfeature_id": "HBA[4619]",
-                    "superfeature_feature_type": "HBA",
-                    "superfeature_atom_numbers": [4619],
-                    "envpartner_id": "LYS-20-A[308]",
-                    "envpartner_residue_name": "LYS",
-                    "envpartner_residue_number": 20,
-                    "envpartner_chain": "A",
-                    "envpartner_atom_numbers": [308],
-                },
-            ),
-        ],
-    )
-    def test_file_components(self, filepath, file_components):
-
-        dynophore = Dynophore()
-        file_components_calculated = dynophore._file_components(filepath)
-
-        for (_, component_calculated), (_, component) in zip(
-            file_components_calculated.items(), file_components.items()
-        ):
-            assert component_calculated == component

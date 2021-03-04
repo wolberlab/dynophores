@@ -1,13 +1,13 @@
 """
 dynophores.core.envpartner
 
-Handles environmental partner class.
+Handles the EnvPartner class, which describes one environmental partner for one superfeature.
 """
 
 
 class EnvPartner:
     """
-    Class to store environmental partner data.
+    Class to store environmental partner data w.r.t. to one superfeature.
 
     Attributes
     ----------

@@ -9,7 +9,7 @@ import subprocess
 
 from . import _version
 
-PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "dynophores" / "tests" / "data"
+PATH_TEST_DATA = Path(__file__).parent / "tests" / "data"
 
 
 def main():
@@ -115,7 +115,6 @@ def _open_viz(args):
     """
     Open visualization notebook based on command line arguments.
     """
-    print("_open_viz")
 
     _open_notebook(args.notebook)
 
@@ -129,9 +128,9 @@ def _demo_viz(args):
     _copy_notebook(new_notebook_path)
     _update_paths_in_notebook(
         new_notebook_path,
-        (PATH_TEST_DATA / "1KE7-1/DynophoreApp").absolute(),
-        (PATH_TEST_DATA / "1KE7-1/startframe.pdb").absolute(),
-        (PATH_TEST_DATA / "1KE7-1/trajectory.dcd").absolute(),
+        (PATH_TEST_DATA / "out").absolute(),
+        (PATH_TEST_DATA / "in/startframe.pdb").absolute(),
+        (PATH_TEST_DATA / "in/trajectory.dcd").absolute(),
     )
     _open_notebook(new_notebook_path)
 
@@ -185,7 +184,7 @@ def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path):
 
     if not notebook_path.is_file():
         raise RuntimeError(f"Input is no file or does not exist: `{notebook_path.absolute()}`")
-    if not dyno_path.is_file():
+    if not dyno_path.is_dir():
         raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
     if not pdb_path.is_file():
         raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
@@ -195,9 +194,9 @@ def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path):
     # Replace template filepaths in notebook with user-defined filepaths
     print("\nUpdate filepaths in notebook to user filepaths...")
     search_replace_tuples = [
-        ("../tests/data/1KE7-1/DynophoreApp", str(dyno_path.absolute())),
-        ("../tests/data/1KE7-1/startframe.pdb", str(pdb_path.absolute())),
-        ("../tests/data/1KE7-1/trajectory.dcd", str(dcd_path.absolute())),
+        ("../tests/data/out", str(dyno_path.absolute())),
+        ("../tests/data/in/startframe.pdb", str(pdb_path.absolute())),
+        ("../tests/data/in/trajectory.dcd", str(dcd_path.absolute())),
     ]
 
     # Read in the file
@@ -225,7 +224,6 @@ def _open_notebook(notebook_path):
     print("_open_notebook")
 
     notebook_path = Path(notebook_path)
-    print(notebook_path)
 
     if not notebook_path.exists():
         raise RuntimeError(f"Input path does not exist: `{notebook_path.absolute()}`")

@@ -1,18 +1,20 @@
 """
 dynophores.core.dynophore
 
-Handles dynophore class.
+Handles the Dynophore class, describing a dynophore with its superfeatures and environmental
+partners.
 """
 
 from pathlib import Path
-import json
 import logging
 
 import numpy as np
 import pandas as pd
 
+from dynophores import parsers
 from dynophores.core.superfeature import SuperFeature
 from dynophores.core.envpartner import EnvPartner
+from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
 
 
 logger = logging.getLogger(__name__)
@@ -37,19 +39,14 @@ class Dynophore:
         self.superfeatures = []
 
     @classmethod
-    def from_file(cls, dynophore_path):
+    def from_dir(cls, dynophore_path):
         """
-        Load dynophore data from DynophoreApp directory.
-        There are multiple file (ranked!) options to read from:
-        1. Read from JSON file (preferred).
-        2. Read from TXT files in data/ directory (TODO will deprecate at some point).
-        3. Read from TXT files in raw_data/ directory from 2015 DynphoreApp version
-           (TODO will deprecate at some point).
+        Load dynophore data from DynophoreApp output directory.
 
         Parameters
         ----------
         dynophore_path : pathlib.Path
-            Path to DynophoreApp folder.
+            Path to DynophoreApp output folder.
 
         Returns
         -------
@@ -59,39 +56,42 @@ class Dynophore:
 
         dynophore_path = Path(dynophore_path)
 
-        dynophore_path_options = [
-            Path(dynophore_path) / "dynophore.json",
-            Path(dynophore_path) / "data",
-            Path(dynophore_path) / "raw_data",
-        ]
+        if dynophore_path.is_dir():
 
-        json_paths = list(dynophore_path.glob("*dynophore.json"))
-        if len(json_paths) == 1:
-            return cls.from_json(json_paths[0])
-        elif len(json_paths) > 1:
-            raise ValueError(
-                f"Too many json files in {dynophore_path}. "
-                f"Use `from_json` to specify which one to be loaded."
-            )
-        elif dynophore_path_options[1].exists():
-            return cls._from_txt(dynophore_path)
-        elif dynophore_path_options[2].exists():
-            return cls._from_txt(dynophore_path)
+            # Set JSON path
+            json_path = list(dynophore_path.glob("*.json"))
+            if len(json_path) == 1:
+                json_path = json_path[0]
+            elif len(json_path) > 1:
+                raise ValueError(f"Too many JSON files in {dynophore_path}. Only one allowed.")
+
+            # Set PML path
+            pml_path = list(dynophore_path.glob("*.pml"))
+            if len(pml_path) == 1:
+                pml_path = pml_path[0]
+            elif len(pml_path) > 1:
+                raise ValueError(f"Too many PML files in {dynophore_path}. Only one allowed.")
+
+            # Create Dynophore object
+            return cls.from_files(json_path, pml_path)
+
         else:
             raise FileNotFoundError(
-                "Could not find directory: "
-                f"{' or '.join([str(i) for i in dynophore_path_options])}"
+                "Input directory does not exist or is no directory. "
+                f"Your input: {dynophore_path}"
             )
 
     @classmethod
-    def from_json(cls, json_path):
+    def from_files(cls, json_path, pml_path):
         """
-        Load dynophore data from JSON file in the DynophoreApp directory.
+        Load dynophore data from JSON and PML file.
 
         Parameters
         ----------
         json_path : pathlib.Path
             Path to dynophore JSON file.
+        pml_path : pathlib.Path
+            Path to dynophore PML file.
 
         Returns
         -------
@@ -100,199 +100,73 @@ class Dynophore:
         """
 
         json_path = Path(json_path)
+        pml_path = Path(pml_path)
 
-        logger.debug(f"Read files from {json_path}.")
-        print(f"Read files from {json_path}.")
+        json_dict = parsers._json_to_dict(json_path)
+        pml_dict = parsers._pml_to_dict(pml_path)
 
-        with open(json_path, "r") as f:
-            json_string = f.read()
-            dynophore_dict = json.loads(json_string)
+        # Check if superfeatures are the same in both files
+        json_superfeatures = sorted([sp["id"] for sp in json_dict["superfeatures"]])
+        pml_superfeatures = sorted(list(pml_dict.keys()))
+        if json_superfeatures != pml_superfeatures:
+            raise ValueError(
+                f"Your PML and JSON files are not matching. Superfeatures must be the same.\n"
+                f"Your JSON file: {json_path}\n"
+                f"Your PML file: {pml_path}"
+            )
 
         dynophore = cls()
-        dynophore.id = dynophore_dict["id"]
+
+        json_dynophore_dict = json_dict
+
+        dynophore.id = json_dynophore_dict["id"]
+
         superfeatures = []
-        for superfeature_dict in dynophore_dict["superfeatures"]:
+        for json_superfeature_dict in json_dynophore_dict["superfeatures"]:
+
             envpartners = []
-            for envpartner_dict in superfeature_dict["envpartners"]:
+            for json_envpartner_dict in json_superfeature_dict["envpartners"]:
                 try:
-                    residue_name = envpartner_dict["residue_name"]
-                    residue_number = envpartner_dict["residue_number"]
-                    chain = envpartner_dict["chain"]
+                    residue_name = json_envpartner_dict["residue_name"]
+                    residue_number = json_envpartner_dict["residue_number"]
+                    chain = json_envpartner_dict["chain"]
                 except KeyError:
                     # TODO Remove this, once updated in DynophoreApp
-                    residue_name = envpartner_dict["name"].split("_")[0]
-                    residue_number = envpartner_dict["name"].split("_")[1]
-                    chain = envpartner_dict["name"].split("_")[2]
+                    residue_name = json_envpartner_dict["name"].split("_")[0]
+                    residue_number = json_envpartner_dict["name"].split("_")[1]
+                    chain = json_envpartner_dict["name"].split("_")[2]
                 envpartner = EnvPartner(
-                    envpartner_dict["id"],
+                    json_envpartner_dict["id"],
                     residue_name,
                     residue_number,
                     chain,
-                    envpartner_dict["atom_numbers"],
-                    np.array(envpartner_dict["occurrences"]),
-                    np.array(envpartner_dict["distances"]),
-                )
-                envpartners.append(envpartner)
-            superfeature = SuperFeature(
-                superfeature_dict["id"],
-                superfeature_dict["feature_type"],
-                superfeature_dict["atom_numbers"],
-                np.array(superfeature_dict["occurrences"]),
-                envpartners,
-            )
-            superfeatures.append(superfeature)
-        dynophore.superfeatures = superfeatures
-        return dynophore
-
-    def _to_json(self, json_path):
-        """
-        Write dynophore data to JSON file.
-
-        Parameters
-        ----------
-        json_path : pathlib.Path
-            Output file path.
-        """
-
-        # Prepare Dynophore object for JSON export
-        dynophore_dict = self.__dict__.copy()
-        superfeatures_dict_list = []
-        for superfeature in dynophore_dict["superfeatures"]:
-            superfeature_dict = superfeature.__dict__.copy()
-            envpartners_dict_list = []
-            for envpartner in superfeature_dict["envpartners"]:
-                envpartner_dict = envpartner.__dict__.copy()
-                envpartner_dict["occurrences"] = envpartner_dict["occurrences"].tolist()
-                envpartner_dict["distances"] = envpartner_dict["distances"].tolist()
-                envpartners_dict_list.append(envpartner_dict)
-            superfeature_dict["envpartners"] = envpartners_dict_list
-            superfeature_dict["occurrences"] = superfeature_dict["occurrences"].tolist()
-            superfeatures_dict_list.append(superfeature_dict)
-        dynophore_dict["superfeatures"] = superfeatures_dict_list
-
-        # Write JSON string to file
-        json_string = json.dumps(dynophore_dict)
-        json_path = Path(json_path)
-        with open(json_path, "w") as f:
-            f.write(json_string)
-
-    @classmethod
-    def _from_txt(cls, dynophore_path):
-        """
-        Load dynophore data from JSON file or TXT files in the DynophoreApp directory.
-        TODO: This method will deprecate in the future.
-
-        Parameters
-        ----------
-        dynophore_path : pathlib.Path
-            Path to DynophoreApp folder.
-
-        Returns
-        -------
-        dynophores.Dynophore
-            Dynophore.
-        """
-
-        dynophore = cls()
-
-        # Get all files and filename components
-        dynophore_path_options = [
-            Path(dynophore_path) / "data",
-            Path(dynophore_path) / "raw_data",
-        ]
-        if dynophore_path_options[0].exists():
-            dynophore_files = [file for file in dynophore_path_options[0].glob("*")]
-            dynophore_files_components = [dynophore._file_components(i) for i in dynophore_files]
-            logger.debug(f"Read files from {dynophore_path_options[0]}.")
-            print(f"Read files from {dynophore_path_options[0]}.")
-        elif dynophore_path_options[1].exists():
-            dynophore_files = [file for file in dynophore_path_options[1].glob("*")]
-            dynophore_files_components = [
-                dynophore._file_components_alternative(i) for i in dynophore_files
-            ]
-            logger.debug(f"Read files from {dynophore_path_options[1]}.")
-            print(f"Read files from {dynophore_path_options[1]}.")
-        else:
-            raise FileNotFoundError(
-                "Could not find directory: "
-                f"{' or '.join([str(i) for i in dynophore_path_options])}"
-            )
-
-        # Iterate over superfeatures
-        superfeatures = []
-        for superfeature_file_components in [
-            i for i in dynophore_files_components if i["envpartner_id"] is None
-        ]:
-            # Iterate over environmental partners
-            envpartners = []
-            for envpartner_file_components in [
-                i
-                for i in dynophore_files_components
-                if i["superfeature_id"] == superfeature_file_components["superfeature_id"]
-                and i["envpartner_id"] is not None
-            ]:
-                # Get distances and occurrences for environmental partner
-                try:
-                    distances = np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=int,
-                        delimiter=",",
-                        usecols=1,
-                    )
-                    occurrences = np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=float,
-                        delimiter=",",
-                        usecols=0,
-                    )
-                except IndexError:
-                    # In case data comes from master thesis DynophoreApp output
-                    distances = np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=int,
-                        delimiter=" ",
-                        usecols=1,
-                    )
-                    occurrences = np.loadtxt(
-                        fname=envpartner_file_components["filepath"],
-                        dtype=float,
-                        delimiter=" ",
-                        usecols=0,
-                    )
-
-                # Set environmental partner
-                envpartner = EnvPartner(
-                    envpartner_file_components["envpartner_id"],
-                    envpartner_file_components["envpartner_residue_name"],
-                    envpartner_file_components["envpartner_residue_number"],
-                    envpartner_file_components["envpartner_chain"],
-                    envpartner_file_components["envpartner_atom_numbers"],
-                    distances,
-                    occurrences,
+                    json_envpartner_dict["atom_numbers"],
+                    np.array(json_envpartner_dict["occurrences"]),
+                    np.array(json_envpartner_dict["distances"]),
                 )
                 envpartners.append(envpartner)
 
-            # Sort environmental partners list by (first) atom number (alphabetically)
-            envpartners = sorted(envpartners, key=lambda envpartner: envpartner.atom_numbers[0])
+            superfeature_id = json_superfeature_dict["id"]
+            cloud = ChemicalFeatureCloud3D(**pml_dict[superfeature_id])
 
-            # Set superfeature
             superfeature = SuperFeature(
-                superfeature_file_components["superfeature_id"],
-                superfeature_file_components["superfeature_feature_type"],
-                superfeature_file_components["superfeature_atom_numbers"],
-                np.loadtxt(fname=superfeature_file_components["filepath"], dtype=int),
+                superfeature_id,
+                json_superfeature_dict["feature_type"],
+                json_superfeature_dict["atom_numbers"],
+                np.array(json_superfeature_dict["occurrences"]),
                 envpartners,
+                cloud,
             )
             superfeatures.append(superfeature)
-
-        # Sort superfeatures list by ID (alphabetically)
-        superfeatures = sorted(superfeatures, key=lambda superfeature: superfeature.id)
-
-        # Add superfeature to dynophore
-        dynophore.id = dynophore_files_components[0]["dynophore_id"]
         dynophore.superfeatures = superfeatures
 
         return dynophore
+
+    @property
+    def clouds(self):
+        return {
+            superfeature.id: superfeature.cloud._coordinates for superfeature in self.superfeatures
+        }
 
     @property
     def superfeatures_occurrences(self):
@@ -422,72 +296,6 @@ class Dynophore:
         if superfeature_name not in self.envpartners_occurrences.keys():
             raise KeyError(f"Superfeature name {superfeature_name} is unknown.")
 
-    @staticmethod
-    def _file_components(filepath):
-        """
-        Get components from dynophore filename.
-
-        Parameters
-        ----------
-        filepath : str or pathlib.Path
-            Path to dynophore file.
-
-        Returns
-        -------
-        dict
-            Components for dynophore filename.
-        """
-
-        filepath = Path(filepath)
-
-        file_split = filepath.stem.split("_")
-
-        file_components = {
-            "filepath": None,
-            "dynophore_id": None,
-            "superfeature_id": None,
-            "superfeature_feature_type": None,
-            "superfeature_atom_numbers": None,
-            "envpartner_id": None,
-            "envpartner_residue_name": None,
-            "envpartner_residue_number": None,
-            "envpartner_chain": None,
-            "envpartner_atom_numbers": None,
-        }
-
-        # Example filepath
-        # 1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt
-        # Is split into
-        # ['1KE7-1', 'data', 'superfeature', 'H[4599,4602,4601,4608,4609,4600]', '100.0']
-
-        file_components["filepath"] = filepath
-        file_components["dynophore_id"] = file_split[0]
-        file_components["superfeature_id"] = file_split[3]
-        file_components["superfeature_feature_type"] = file_components["superfeature_id"].split(
-            "["
-        )[0]
-        file_components["superfeature_atom_numbers"] = [
-            int(atom) for atom in file_components["superfeature_id"].split("[")[1][:-1].split(",")
-        ]
-
-        if len(file_split) == 10:
-
-            # Example filepath
-            # 1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_ASP_86_A[1313]_1.6.txt
-            # Is split into
-            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86',
-            # 'A[1313]', '1.6']
-
-            file_components["envpartner_id"] = "-".join(file_split[6:9])
-            file_components["envpartner_residue_name"] = file_split[6]
-            file_components["envpartner_residue_number"] = int(file_split[7])
-            file_components["envpartner_chain"] = file_split[8].split("[")[0]
-            file_components["envpartner_atom_numbers"] = [
-                int(atom) for atom in file_split[8].split("[")[1][:-1].split(",")
-            ]
-
-        return file_components
-
     def _superfeature_names_frequencies_strings(self, superfeature_names):
         """
         Get superfeature names with frequencies as strings (useful for plotting).
@@ -530,73 +338,6 @@ class Dynophore:
         )
 
         return envpartner_names_frequencies_strings
-
-    @staticmethod
-    def _file_components_alternative(filepath):
-        """
-        Get components from dynophore filename that follows the syntax used in the master thesis
-        version of the DynophoreApp (from 2015).
-
-        Parameters
-        ----------
-        filepath : str or pathlib.Path
-            Path to dynophore file.
-
-        Returns
-        -------
-        dict
-            Components for dynophore filename.
-        """
-
-        filepath = Path(filepath)
-
-        file_split = filepath.stem.split("_")
-
-        file_components = {
-            "filepath": None,
-            "dynophore_id": None,
-            "superfeature_id": None,
-            "superfeature_feature_type": None,
-            "superfeature_atom_numbers": None,
-            "envpartner_id": None,
-            "envpartner_residue_name": None,
-            "envpartner_residue_number": None,
-            "envpartner_chain": None,
-            "envpartner_atom_numbers": None,
-        }
-
-        # Example filepath
-        # 1KE7-1_data_superfeature_H[4599,4602,4601,4608,4609,4600]_100.0.txt
-        # Is split into
-        # ['1KE7-1', 'data', 'superfeature', 'H[4599,4602,4601,4608,4609,4600]', '100.0']
-
-        file_components["filepath"] = filepath
-        file_components["dynophore_id"] = file_split[0]
-        file_components["superfeature_id"] = file_split[3].split("%")[0]
-        file_components["superfeature_feature_type"] = file_components["superfeature_id"].split(
-            "["
-        )[0]
-        file_components["superfeature_atom_numbers"] = [
-            int(atom) for atom in file_components["superfeature_id"].split("[")[1][:-1].split(",")
-        ]
-
-        if len(file_split) == 8:
-
-            # Example filepath
-            # 1KE7-1_data_superfeature_HBA[4619]_12.3_envpartner_ASP_86_A[1313]_1.6.txt
-            # Is split into
-            # ['1KE7-1', 'data', 'superfeature', 'HBA[4619]', '12.3', 'envpartner', 'ASP', '86',
-            # 'A[1313]', '1.6']
-
-            file_components["envpartner_id"] = "-".join(file_split[5:8]).split("%")[0]
-            file_components["envpartner_residue_name"] = file_split[5]
-            file_components["envpartner_residue_number"] = int(file_split[6])
-            file_components["envpartner_chain"] = file_split[7].split("%")[0].split("[")[0]
-            file_components["envpartner_atom_numbers"] = [
-                int(atom) for atom in file_split[7].split("%")[0].split("[")[1][:-1].split(",")
-            ]
-
-        return file_components
 
     def _envpartners_data(self, type="occurrences"):
         """
