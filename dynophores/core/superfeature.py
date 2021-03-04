@@ -1,7 +1,7 @@
 """
 dynophores.core.superfeature
 
-Handles superfeature class.
+Handles the SuperFeature class, which describes one superfeature for one dynophore.
 """
 
 import pandas as pd
@@ -24,15 +24,18 @@ class SuperFeature:
         Occurrence of superfeature (0=no, 1=yes) in each frame.
     envpartners : list of EnvPartner
         Superfeature's environmental partners.
+    cloud : ChemicalFeatureCloud3D
+        Chemical feature cloud.
     """
 
-    def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners):
+    def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners, cloud):
 
         self.id = id
         self.feature_type = feature_type
         self.atom_numbers = atom_numbers
         self.occurrences = occurrences
         self.envpartners = envpartners
+        self.cloud = cloud
 
     @property
     def envpartners_occurrences(self):
