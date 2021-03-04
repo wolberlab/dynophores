@@ -37,7 +37,11 @@ Eventually, we will have a ``conda`` package, but for now you need to create a n
 
     dynoviz -h
 
-4. Explore your dynophore data in a new notebook::
+3. Take a look at a demo notebook showing the dynophore from an MD simulation for ligand-bound kinase CDK2 (PDB ID: 1KE7)::
+
+    dynoviz demo
+
+4. Explore your own dynophore data in a new notebook::
 
     dynoviz create --dyno path/to/dyno/folder --pdb path/to/pdb/file --dcd path/to/dcd/file --workspace path/to/workspace/folder
 
