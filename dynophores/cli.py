@@ -185,7 +185,7 @@ def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path):
 
     if not notebook_path.is_file():
         raise RuntimeError(f"Input is no file or does not exist: `{notebook_path.absolute()}`")
-    if not dyno_path.is_file():
+    if not dyno_path.is_dir():
         raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
     if not pdb_path.is_file():
         raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
