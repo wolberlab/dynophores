@@ -9,7 +9,7 @@ import subprocess
 
 from . import _version
 
-PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "dynophores" / "tests" / "data"
+PATH_TEST_DATA = Path(__file__).parent / "tests" / "data"
 
 
 def main():
@@ -115,7 +115,6 @@ def _open_viz(args):
     """
     Open visualization notebook based on command line arguments.
     """
-    print("_open_viz")
 
     _open_notebook(args.notebook)
 
@@ -225,7 +224,6 @@ def _open_notebook(notebook_path):
     print("_open_notebook")
 
     notebook_path = Path(notebook_path)
-    print(notebook_path)
 
     if not notebook_path.exists():
         raise RuntimeError(f"Input path does not exist: `{notebook_path.absolute()}`")
