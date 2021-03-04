@@ -40,9 +40,9 @@ def test_subprocess_demo(function):
     [
         (
             "create",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            str(PATH_TEST_DATA / "in/trajectory.dcd"),
             str(PATH_TEST_DATA),
         ),
     ],
@@ -78,23 +78,23 @@ def test_subprocess_create(function, args_dyno, args_pdb, args_dcd, args_workspa
         ("create", "xxx", "xxx", "xxx", "xxx"),
         (
             "create",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
+            str(PATH_TEST_DATA / "out"),
             "xxx",
             "xxx",
             "xxx",
         ),
         (
             "create",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
+            str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
             "xxx",
             "xxx",
         ),
         (
             "create",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            str(PATH_TEST_DATA / "in/trajectory.dcd"),
             "xxx",
         ),
     ],
@@ -175,7 +175,7 @@ def test_subprocess_open_raises(function, args_notebook):
 
 @pytest.mark.parametrize(
     "new_notebook_path",
-    [PATH_TEST_DATA / "1KE7-1/copied_notebook.ipynb"],
+    [PATH_TEST_DATA / "copied_notebook.ipynb"],
 )
 def test_copy_notebook(new_notebook_path):
     """
@@ -204,21 +204,21 @@ def test_copy_notebook_raises(new_notebook_path):
     [
         (
             "xxx",
-            str(PATH_TEST_DATA / "1KE7-1/DynophoreApp"),
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
             "xxx",
             "xxx",
-            str(PATH_TEST_DATA / "1KE7-1/startframe.pdb"),
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
             "xxx",
             "xxx",
             "xxx",
-            str(PATH_TEST_DATA / "1KE7-1/trajectory.dcd"),
+            str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         ("xxx", "xxx", "xxx", "xxx"),
     ],
