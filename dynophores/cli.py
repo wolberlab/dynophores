@@ -129,9 +129,9 @@ def _demo_viz(args):
     _copy_notebook(new_notebook_path)
     _update_paths_in_notebook(
         new_notebook_path,
-        (PATH_TEST_DATA / "1KE7-1/DynophoreApp").absolute(),
-        (PATH_TEST_DATA / "1KE7-1/startframe.pdb").absolute(),
-        (PATH_TEST_DATA / "1KE7-1/trajectory.dcd").absolute(),
+        (PATH_TEST_DATA / "out").absolute(),
+        (PATH_TEST_DATA / "in/startframe.pdb").absolute(),
+        (PATH_TEST_DATA / "in/trajectory.dcd").absolute(),
     )
     _open_notebook(new_notebook_path)
 
@@ -195,9 +195,9 @@ def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path):
     # Replace template filepaths in notebook with user-defined filepaths
     print("\nUpdate filepaths in notebook to user filepaths...")
     search_replace_tuples = [
-        ("../tests/data/1KE7-1/DynophoreApp", str(dyno_path.absolute())),
-        ("../tests/data/1KE7-1/startframe.pdb", str(pdb_path.absolute())),
-        ("../tests/data/1KE7-1/trajectory.dcd", str(dcd_path.absolute())),
+        ("../tests/data/out", str(dyno_path.absolute())),
+        ("../tests/data/in/startframe.pdb", str(pdb_path.absolute())),
+        ("../tests/data/in/trajectory.dcd", str(dcd_path.absolute())),
     ]
 
     # Read in the file
