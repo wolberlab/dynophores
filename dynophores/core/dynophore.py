@@ -62,15 +62,19 @@ class Dynophore:
             json_path = list(dynophore_path.glob("*.json"))
             if len(json_path) == 1:
                 json_path = json_path[0]
-            elif len(json_path) > 1:
-                raise ValueError(f"Too many JSON files in {dynophore_path}. Only one allowed.")
+            else:
+                raise ValueError(
+                    f"None or too many JSON files in {dynophore_path}. Only one allowed."
+                )
 
             # Set PML path
             pml_path = list(dynophore_path.glob("*.pml"))
             if len(pml_path) == 1:
                 pml_path = pml_path[0]
-            elif len(pml_path) > 1:
-                raise ValueError(f"Too many PML files in {dynophore_path}. Only one allowed.")
+            else:
+                raise ValueError(
+                    f"None or roo many PML files in {dynophore_path}. Only one allowed."
+                )
 
             # Create Dynophore object
             return cls.from_files(json_path, pml_path)
