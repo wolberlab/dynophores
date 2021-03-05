@@ -3,6 +3,7 @@ Command Line Interface for the project.
 """
 
 import argparse
+import json
 from pathlib import Path
 from shutil import copyfile
 import subprocess
@@ -46,6 +47,13 @@ def main():
         required=True,
     )
     create_subparser.add_argument(
+        "-w",
+        "--workspace",
+        type=str,
+        help="Path to workspace folder",
+        required=True,
+    )
+    create_subparser.add_argument(
         "-p",
         "--pdb",
         type=str,
@@ -57,14 +65,7 @@ def main():
         "--dcd",
         type=str,
         help="Path to dcd (trajectory) file",
-        required=True,
-    )
-    create_subparser.add_argument(
-        "-w",
-        "--workspace",
-        type=str,
-        help="Path to workspace folder",
-        required=True,
+        required=False,
     )
     create_subparser.set_defaults(func=_create_viz)
 
@@ -106,16 +107,21 @@ def _create_viz(args):
     """
 
     new_notebook_path = Path(args.workspace) / "dynophore.ipynb"
-    dyno_path = Path(args.dyno_path)
-    pdb_path = Path(args.pdb_path)
-    dcd_path = Path(args.dcd_path)
 
+    dyno_path = Path(args.dyno)
     if not dyno_path.is_dir():
         raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
+
+    pdb_path = Path(args.pdb)
     if not pdb_path.is_file():
         raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
-    if not dcd_path.is_file():
-        raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
+
+    if args.dcd is not None:
+        dcd_path = Path(args.dcd)
+        if not dcd_path.is_file():
+            raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
+    else:
+        dcd_path = None
 
     _copy_notebook(new_notebook_path)
     _update_paths_in_notebook(new_notebook_path, dyno_path, pdb_path, dcd_path)
@@ -182,33 +188,46 @@ def _copy_notebook(new_notebook_path):
         )
 
 
-def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path):
+def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path=None):
     """
     Read notebook file as string, replace all search instances (filepaths), and overwrite notebook
     file with this updated string.
     """
 
     notebook_path = Path(notebook_path)
-    dyno_path = Path(dyno_path)
-    pdb_path = Path(pdb_path)
-    dcd_path = Path(dcd_path)
-
     if not notebook_path.is_file():
         raise RuntimeError(f"Input is no file or does not exist: `{notebook_path.absolute()}`")
+
+    dyno_path = Path(dyno_path)
     if not dyno_path.is_dir():
         raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
+
+    pdb_path = Path(pdb_path)
     if not pdb_path.is_file():
         raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
-    if not dcd_path.is_file():
-        raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
+
+    if dcd_path is not None:
+        dcd_path = Path(dcd_path)
+        if not dcd_path.is_file():
+            raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
 
     # Replace template filepaths in notebook with user-defined filepaths
     print("\nUpdate filepaths in notebook to user filepaths...")
+
     search_replace_tuples = [
         ("../tests/data/out", str(dyno_path.absolute())),
         ("../tests/data/in/startframe.pdb", str(pdb_path.absolute())),
-        ("../tests/data/in/trajectory.dcd", str(dcd_path.absolute())),
     ]
+
+    if dcd_path is not None:
+        search_replace_tuples.append(("../tests/data/in/trajectory.dcd", str(dcd_path.absolute())))
+    else:
+        search_replace_tuples.append(
+            (
+                json.dumps('dcd_path = Path("../tests/data/in/trajectory.dcd")'),
+                json.dumps("dcd_path = None"),
+            )
+        )
 
     # Read in the file
     with open(notebook_path, "r") as f:
