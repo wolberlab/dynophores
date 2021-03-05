@@ -86,7 +86,11 @@ def main():
     demo_subparser.set_defaults(func=_demo_viz)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except AttributeError:
+        # Run help if no arguments were given
+        subprocess.run(["dynoviz", "-h"])
 
 
 def _greet():
