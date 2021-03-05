@@ -15,6 +15,24 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def show_dynophore3d(pml_path, pdb_path, dcd_path=None):
+    """
+    Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
+    MD trajectory.
+
+    Parameters
+    ----------
+    pml_path : str or pathlib.Path
+        Path to PML file (dynophore).
+    pdb_path : str or pathlib.Path
+        Path to PDB file (structure/topology)
+    dcd_path : None or str or pathlib.Path
+        Optionally: Path to DCD file (trajectory).
+
+    Returns
+    -------
+    nglview.widget.NGLWidget
+        Visualization with the NGL Viewer.
+    """
 
     if dcd_path is None:
         view = _show_structure(pdb_path)
@@ -30,12 +48,39 @@ def show_dynophore3d(pml_path, pdb_path, dcd_path=None):
 
 
 def _show_structure(pdb_path):
+    """
+    Show the ligand-bound structure that belongs to the dynophore. Could be the starting frame of
+    the MD simulation.
+
+    Parameters
+    ----------
+    pdb_path : str or pathlib.Path
+        Path to PDB file (structure/topology)
+
+    Returns
+    -------
+    nglview.widget.NGLWidget
+        Visualization with the NGL Viewer.
+    """
 
     view = nv.show_file(str(pdb_path), ext="pdb")
     return view
 
 
 def _show_trajectory(pdb_path, dcd_path):
+    """
+    Show the MD trajectory that is the bases for the dynophore.
+
+    Parameters
+    ----------
+    dcd_path : None or str or pathlib.Path
+        Optionally: Path to DCD file (trajectory).
+
+    Returns
+    -------
+    nglview.widget.NGLWidget
+        Visualization with the NGL Viewer.
+    """
 
     md_universe = mda.Universe(str(pdb_path), str(dcd_path))
     view = nv.show_mdanalysis(md_universe)
@@ -43,18 +88,42 @@ def _show_trajectory(pdb_path, dcd_path):
 
 
 def _add_dynophore(view, pml_path):
+    """
+    Add the dynophore point cloud to an existing view of its underlying structure (and optionally
+    its trajectory).
+
+    Parameters
+    ----------
+    view : nglview.widget.NGLWidget
+        NGL Viewer containing the ligand-bound structure (optionally including the trajectory)
+        belonging to the dynophore.
+    pml_path : str or pathlib.Path
+        Path to PML file (dynophore).
+
+    Returns
+    -------
+    nglview.widget.NGLWidget
+        Visualization with the NGL Viewer.
+    """
 
     dynophore3d_dict = _pml_to_dict(pml_path)
 
     for superfeature_id, cloud in dynophore3d_dict.items():
         sphere_buffer = {"position": [], "color": [], "radius": []}
-        # TODO: Add cloud name!
         for point_coordinates in cloud["coordinates"]:
             sphere_buffer["position"] += point_coordinates.tolist()
             sphere_buffer["color"] += matplotlib.colors.to_rgb(
                 FEATURE_COLORS[superfeature_id.split("[")[0]]
             )
             sphere_buffer["radius"] += [0.1]
-        view.shape.add_buffer("sphere", **sphere_buffer)
+        js = f"""
+        var params = {sphere_buffer};
+        var shape = new NGL.Shape('{superfeature_id}');
+        var buffer = new NGL.SphereBuffer(params);
+        shape.addBuffer(buffer);
+        var shapeComp = this.stage.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer");
+        """
+        view._js(js)
 
     return view
