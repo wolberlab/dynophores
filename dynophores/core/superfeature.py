@@ -15,7 +15,7 @@ class SuperFeature:
     Attributes
     ----------
     id : str
-        Superfeature name.
+        Superfeature ID.
     envpartner_ids : list of str
         Environmental partner identifiers available for this superfeature.
     feature_type : str

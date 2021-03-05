@@ -127,7 +127,7 @@ class TestsDynophore:
         assert dynophore.n_frames == n_frames
 
     @pytest.mark.parametrize(
-        "count_sum, frequency_sum, superfeature_names, envpartner_names",
+        "count_sum, frequency_sum, superfeature_ids, envpartner_names",
         [
             (
                 11372,
@@ -173,34 +173,32 @@ class TestsDynophore:
         ],
     )
     def test_count_frequency(
-        self, dynophore, count_sum, frequency_sum, superfeature_names, envpartner_names
+        self, dynophore, count_sum, frequency_sum, superfeature_ids, envpartner_names
     ):
 
         # TODO remove this when fixed in DynophoreApp json export
         envpartner_names = [i.replace("_", "-") for i in envpartner_names]
 
         # Count
-        assert sorted(dynophore.count.columns.to_list()) == superfeature_names
+        assert sorted(dynophore.count.columns.to_list()) == superfeature_ids
         assert dynophore.count.index.to_list() == envpartner_names
         assert dynophore.count.sum().sum() == count_sum
 
         # Frequency
-        assert sorted(dynophore.frequency.columns.to_list()) == superfeature_names
+        assert sorted(dynophore.frequency.columns.to_list()) == superfeature_ids
         assert dynophore.frequency.index.to_list() == envpartner_names
         assert pytest.approx(dynophore.frequency.sum().sum()) == frequency_sum
 
     @pytest.mark.parametrize(
-        "valid_superfeature, superfeature_name",
+        "valid_superfeature, superfeature_id",
         [(True, "AR[4605,4607,4603,4606,4604]"), (False, "xxx")],
     )
-    def test_raise_keyerror_if_invalid_superfeature_name(
-        self, dynophore, valid_superfeature, superfeature_name
+    def test_raise_keyerror_if_invalid_superfeature_id(
+        self, dynophore, valid_superfeature, superfeature_id
     ):
 
         if valid_superfeature:
-            assert (
-                dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name) is None
-            )
+            assert dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id) is None
         else:
             with pytest.raises(KeyError):
-                dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
+                dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id)

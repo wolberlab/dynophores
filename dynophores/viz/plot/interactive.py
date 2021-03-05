@@ -45,10 +45,10 @@ def superfeatures_vs_envpartners(dynophore):
     func = interact_manual(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
+        superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=["all"],
-            description="Superfeature name(s):",
+            description="Superfeature ID(s):",
             style=style,
         ),
     )
@@ -79,10 +79,10 @@ def superfeatures_occurrences(dynophore):
     func = interact_manual(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
+        superfeature_ids=widgets.SelectMultiple(
             options=["all"] + superfeature_ids,
             value=["all"],
-            description="Superfeature name(s):",
+            description="Superfeature ID(s):",
             style=style,
         ),
         color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
@@ -131,10 +131,10 @@ def envpartners_occurrences(dynophore):
     func = interact_manual(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
+        superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature name(s):",
+            description="Superfeature ID(s):",
             style=style,
         ),
         frame_range=widgets.IntRangeSlider(
@@ -182,10 +182,10 @@ def envpartners_distances(dynophore):
     func = interact_manual(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
-        superfeature_names=widgets.SelectMultiple(
+        superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature name(s):",
+            description="Superfeature ID(s):",
             style=style,
         ),
         kind=widgets.ToggleButtons(
@@ -240,10 +240,10 @@ def envpartners_all_in_one(dynophore):
     func = interact_manual(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
-        superfeature_name=widgets.Select(
+        superfeature_id=widgets.Select(
             options=superfeature_ids,
             value=superfeature_ids[0],
-            description="Superfeature name(s):",
+            description="Superfeature ID(s):",
             style=style,
         ),
         frame_range=widgets.IntRangeSlider(

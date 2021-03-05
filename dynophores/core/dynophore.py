@@ -372,49 +372,49 @@ class Dynophore:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-    def _raise_keyerror_if_invalid_superfeature_name(self, superfeature_name):
+    def _raise_keyerror_if_invalid_superfeature_id(self, superfeature_id):
         """
         Check if dynophore has a certain superfeature (by name).
 
         Parameters
         ----------
-        superfeature_name : str
-            Superfeature name
+        superfeature_id : str
+            Superfeature ID
         """
 
-        if superfeature_name not in self.envpartners_occurrences.keys():
-            raise KeyError(f"Superfeature name {superfeature_name} is unknown.")
+        if superfeature_id not in self.envpartners_occurrences.keys():
+            raise KeyError(f"Superfeature ID {superfeature_id} is unknown.")
 
-    def _superfeature_names_frequencies_strings(self, superfeature_names):
+    def _superfeature_ids_frequencies_strings(self, superfeature_ids):
         """
-        Get superfeature names with frequencies as strings (useful for plotting).
+        Get superfeature IDs with frequencies as strings (useful for plotting).
         TODO unit test
 
         Parameters
         ----------
-        superfeature_names : list of str
-            Superfeature names.
+        superfeature_ids : list of str
+            Superfeature IDs.
 
         Returns
         -------
         list of str
-            Superfeature names with frequencies.
+            Superfeature IDs with frequencies.
         """
 
-        superfeature_names_frequencies = round(self.frequency.loc["any", superfeature_names], 1)
-        superfeature_names_frequencies_strings = (
-            superfeature_names_frequencies.reset_index()
+        superfeature_ids_frequencies = round(self.frequency.loc["any", superfeature_ids], 1)
+        superfeature_ids_frequencies_strings = (
+            superfeature_ids_frequencies.reset_index()
             .apply(lambda x: f"{x['index']} {x['any']}%", axis=1)
             .to_list()
         )
-        return superfeature_names_frequencies_strings
+        return superfeature_ids_frequencies_strings
 
-    def _envpartner_names_frequencies_strings(self, superfeature_name, envpartners_names):
+    def _envpartner_names_frequencies_strings(self, superfeature_id, envpartners_names):
         """
         TODO docstring + unit test
         """
 
-        envpartners_occurrences = self.envpartners_occurrences[superfeature_name]
+        envpartners_occurrences = self.envpartners_occurrences[superfeature_id]
 
         envpartner_names_frequencies = round(
             envpartners_occurrences.sum() / envpartners_occurrences.shape[0] * 100, 1
