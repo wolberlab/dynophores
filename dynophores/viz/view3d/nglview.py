@@ -110,7 +110,7 @@ def _add_dynophore(view, pml_path):
 
     for superfeature_id, cloud in dynophore3d_dict.items():
         sphere_buffer = {"position": [], "color": [], "radius": []}
-        for point_coordinates in cloud["coordinates"]:
+        for point_coordinates in cloud["points"]:
             sphere_buffer["position"] += point_coordinates.tolist()
             sphere_buffer["color"] += matplotlib.colors.to_rgb(
                 FEATURE_COLORS[superfeature_id.split("[")[0]]

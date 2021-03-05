@@ -29,7 +29,7 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
                 "H[4599,4602,4601,4608,4609,4600]",
                 "H[4615,4623,4622,4613,4621,4614]",
             ],
-            ["center", "coordinates", "id"],
+            ["center", "id", "points"],
         )
     ],
 )
@@ -42,7 +42,7 @@ def test_pml_to_dict(filepath, superfeature_names, cloud_keys):
         assert isinstance(superfeature_name, str)
         assert data["id"] == superfeature_name
         assert isinstance(data["center"], np.ndarray)
-        assert isinstance(data["coordinates"], np.ndarray)
+        assert isinstance(data["points"], np.ndarray)
 
 
 @pytest.mark.parametrize(

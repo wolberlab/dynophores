@@ -74,6 +74,6 @@ def _pml_to_dict(pml_path):
             ]
         )
 
-        dynophore3d_dict[superfeature_id]["coordinates"] = additional_point_coordinates
+        dynophore3d_dict[superfeature_id]["points"] = additional_point_coordinates
 
     return dynophore3d_dict

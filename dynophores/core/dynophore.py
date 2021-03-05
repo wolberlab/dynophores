@@ -164,9 +164,7 @@ class Dynophore:
 
     @property
     def clouds(self):
-        return {
-            superfeature.id: superfeature.cloud._coordinates for superfeature in self.superfeatures
-        }
+        return {superfeature.id: superfeature.cloud.points for superfeature in self.superfeatures}
 
     @property
     def superfeatures_occurrences(self):
