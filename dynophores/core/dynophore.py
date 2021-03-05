@@ -243,8 +243,8 @@ class Dynophore:
         Returns
         -------
         pandas.DataFrame
-            For a given superfeature, occurrences (0=no, 1=yes) of an environmental partner (columns)
-            in each frame (row).
+            For a given superfeature, occurrences (0=no, 1=yes) of an environmental partner
+            (columns) in each frame (row).
         """
 
         superfeature = self.superfeatures[superfeature_id]
