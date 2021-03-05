@@ -49,6 +49,8 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
     sns.heatmap(
         data, cmap="Blues", cbar_kws={"label": "Occurrence frequency [%]"}, vmin=0, vmax=100
     )
+    ax.set_xlabel("Superfeature IDs")
+    ax.set_ylabel("Environmental partner IDs")
 
     return fig, ax
 
