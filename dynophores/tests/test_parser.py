@@ -13,7 +13,7 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "filepath, superfeature_names, cloud_keys",
+    "filepath, superfeature_ids, cloud_keys",
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",
@@ -29,24 +29,24 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
                 "H[4599,4602,4601,4608,4609,4600]",
                 "H[4615,4623,4622,4613,4621,4614]",
             ],
-            ["center", "coordinates", "id"],
+            ["center", "id", "points"],
         )
     ],
 )
-def test_pml_to_dict(filepath, superfeature_names, cloud_keys):
+def test_pml_to_dict(filepath, superfeature_ids, cloud_keys):
 
     pml_dict = parsers._pml_to_dict(filepath)
-    assert sorted(pml_dict) == superfeature_names
-    for superfeature_name, data in pml_dict.items():
+    assert sorted(pml_dict) == superfeature_ids
+    for superfeature_id, data in pml_dict.items():
         assert sorted(data.keys()) == cloud_keys
-        assert isinstance(superfeature_name, str)
-        assert data["id"] == superfeature_name
+        assert isinstance(superfeature_id, str)
+        assert data["id"] == superfeature_id
         assert isinstance(data["center"], np.ndarray)
-        assert isinstance(data["coordinates"], np.ndarray)
+        assert isinstance(data["points"], np.ndarray)
 
 
 @pytest.mark.parametrize(
-    "filepath, dynophore_keys, superfeature_names, superfeature_keys, envpartner_keys",
+    "filepath, dynophore_keys, superfeature_ids, superfeature_keys, envpartner_keys",
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
@@ -75,7 +75,7 @@ def test_pml_to_dict(filepath, superfeature_names, cloud_keys):
     ],
 )
 def test_json_to_dict(
-    filepath, dynophore_keys, superfeature_names, superfeature_keys, envpartner_keys
+    filepath, dynophore_keys, superfeature_ids, superfeature_keys, envpartner_keys
 ):
 
     pml_dict = parsers._json_to_dict(filepath)

@@ -29,13 +29,14 @@ on macromolecule-side.
 These interaction partners are called **environmental partners**. 
 Superfeatures and their environmental partners are monitored throughout an MD simulation.
 
-
 This Python library offers visualization schemes for dynophore data generated with the 
-``DynophoreApp`` software (TODO: add link to software): 
+``DynophoreApp`` in a single Jupyter Notebook 
+(`template dynophore notebook <https://dynophores.readthedocs.io/en/latest/tutorials/dynophore.html>`_).  
 
-- Plot statistics on superfeatures and interactions (TODO: link to tutorial)
-- Show superfeature clouds in 3D using the NGLviewer (TODO: link to tutorial)
-- Show superfeatures mapped onto the ligand in 2D (TODO: link to tutorial)
+- 3D view of the dynophore's point clouds (one cloud per superfeature) using `nglview` allows easy visual inspection of the dynamic macromolecule-ligand interactions. Point clouds are rendered alongside the topology and (optionally) the trajectory underlying the dynophore. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_view3d.html>`_.
+- Statistics cover the occurrence of superfeatures and their environmental partners as well as distances between them. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_plots.html>`_.
+- Dynophore data can be further analyzed conveniently right there in the same notebook by working with the `Dynophore` class. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_data.html>`_.
+
 
 .. toctree::
    :maxdepth: 1

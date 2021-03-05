@@ -30,11 +30,14 @@ The documentation will be available [here](https://dynophores.readthedocs.io/en/
 
 ## Overview
 
-This Python library offers visualization schemes for dynophore data generated with the `DynophoreApp` (TODO: add link to software): 
+This Python library offers visualization schemes for dynophore data generated with the `DynophoreApp` in a single Jupyter Notebook.  
 
-- Plot statistics on superfeatures and interactions (TODO: link to tutorial)
-- Show superfeature clouds in 3D using the NGLviewer (TODO: link to tutorial)
-- Show superfeatures mapped onto the ligand in 2D (TODO: link to tutorial)
+- 3D view of the dynophore's point clouds (one cloud per superfeature) using `nglview` allows easy 
+visual inspection of the dynamic macromolecule-ligand interactions. Point clouds are rendered 
+alongside the topology and (optionally) the trajectory underlying the dynophore.
+- Statistics cover the occurrence of superfeatures and their environmental partners as well as distances between them.
+- Dynophore data can be further analyzed conveniently right there in the same notebook by working with the `Dynophore` class.
+
 
 ## License
 

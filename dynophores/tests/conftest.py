@@ -37,7 +37,7 @@ def chemicalfeaturecloud3d():
     cloud_dict = {
         "id": "H[4599,4602,4601,4608,4609,4600]",
         "center": np.array([1, 1, 1]),
-        "coordinates": np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]),
+        "points": np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]),
     }
     cloud = ChemicalFeatureCloud3D(**cloud_dict)
     return cloud
@@ -69,7 +69,7 @@ def superfeature():
     cloud_dict = {
         "id": "H[4599,4602,4601,4608,4609,4600]",
         "center": np.array([1, 1, 1]),
-        "coordinates": np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]),
+        "points": np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]),
     }
 
     superfeature_dict = {
@@ -77,7 +77,10 @@ def superfeature():
         "feature_type": "H",
         "atom_numbers": [4599, 4602, 4601, 4608, 4609, 4600],
         "occurrences": np.array([0, 1, 1]),
-        "envpartners": [EnvPartner(**envpartner1_dict), EnvPartner(**envpartner2_dict)],
+        "envpartners": {
+            envpartner1_dict["id"]: EnvPartner(**envpartner1_dict),
+            envpartner2_dict["id"]: EnvPartner(**envpartner2_dict),
+        },
         "cloud": ChemicalFeatureCloud3D(**cloud_dict),
     }
 

@@ -36,44 +36,72 @@ def test_subprocess_demo(function):
 
 
 @pytest.mark.parametrize(
-    "function, args_dyno, args_pdb, args_dcd, args_workspace",
+    "function, args_dyno, args_workspace, args_pdb, args_dcd",
     [
         (
             "create",
             str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA),
             str(PATH_TEST_DATA / "in/startframe.pdb"),
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
+        ),
+        (
+            "create",
+            str(PATH_TEST_DATA / "out"),
             str(PATH_TEST_DATA),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            None,  # Without trajectory file
         ),
     ],
 )
-def test_subprocess_create(function, args_dyno, args_pdb, args_dcd, args_workspace):
+def test_subprocess_create(function, args_dyno, args_workspace, args_pdb, args_dcd):
     """
     TODO how to catch errors?
     """
 
-    process = subprocess.Popen(
-        [
-            "dynoviz",
-            function,
-            "--dyno",
-            args_dyno,
-            "--pdb",
-            args_pdb,
-            "--dcd",
-            args_dcd,
-            "--workspace",
-            args_workspace,
-        ],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    process.terminate()
+    if args_dcd is not None:
+
+        process = subprocess.Popen(
+            [
+                "dynoviz",
+                function,
+                "--dyno",
+                args_dyno,
+                "--workspace",
+                args_workspace,
+                "--pdb",
+                args_pdb,
+                "--dcd",
+                args_dcd,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        process.terminate()
+
+    else:
+
+        process = subprocess.Popen(
+            [
+                "dynoviz",
+                function,
+                "--dyno",
+                args_dyno,
+                "--workspace",
+                args_workspace,
+                "--pdb",
+                args_pdb,
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        process.terminate()
 
 
 @pytest.mark.parametrize(
-    "function, args_dyno, args_pdb, args_dcd, args_workspace",
+    "function, args_dyno, args_workspace, args_pdb, args_dcd",
     [
         ("create", "xxx", "xxx", "xxx", "xxx"),
         (
@@ -86,15 +114,15 @@ def test_subprocess_create(function, args_dyno, args_pdb, args_dcd, args_workspa
         (
             "create",
             str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            str(PATH_TEST_DATA),
             "xxx",
             "xxx",
         ),
         (
             "create",
             str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA),
             str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
             "xxx",
         ),
     ],
@@ -111,12 +139,12 @@ def test_subprocess_create_raises(function, args_dyno, args_pdb, args_dcd, args_
                 function,
                 "--dyno",
                 args_dyno,
+                "--workspace",
+                args_workspace,
                 "--pdb",
                 args_pdb,
                 "--dcd",
                 args_dcd,
-                "--workspace",
-                args_workspace,
             ],
             check=True,
         )
@@ -184,6 +212,8 @@ def test_copy_notebook(new_notebook_path):
 
     cli._copy_notebook(new_notebook_path)
     assert new_notebook_path.is_file()
+    # Remove copy again (not needed)
+    new_notebook_path.unlink()
 
 
 @pytest.mark.parametrize(

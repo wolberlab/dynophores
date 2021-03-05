@@ -29,6 +29,8 @@ class Dynophore:
     ----------
     id : str
         Dynophore name.
+    superfeature_ids : list of str
+        Superfeature identifiers available for this dynophore.
     superfeatures : list of dynophores.base.SuperFeature
         Dynophore superfeatures.
     """
@@ -36,6 +38,7 @@ class Dynophore:
     def __init__(self):
 
         self.id = None
+        self.superfeature_ids = []
         self.superfeatures = []
 
     @classmethod
@@ -62,15 +65,19 @@ class Dynophore:
             json_path = list(dynophore_path.glob("*.json"))
             if len(json_path) == 1:
                 json_path = json_path[0]
-            elif len(json_path) > 1:
-                raise ValueError(f"Too many JSON files in {dynophore_path}. Only one allowed.")
+            else:
+                raise ValueError(
+                    f"None or too many JSON files in {dynophore_path}. Only one allowed."
+                )
 
             # Set PML path
             pml_path = list(dynophore_path.glob("*.pml"))
             if len(pml_path) == 1:
                 pml_path = pml_path[0]
-            elif len(pml_path) > 1:
-                raise ValueError(f"Too many PML files in {dynophore_path}. Only one allowed.")
+            else:
+                raise ValueError(
+                    f"None or roo many PML files in {dynophore_path}. Only one allowed."
+                )
 
             # Create Dynophore object
             return cls.from_files(json_path, pml_path)
@@ -121,22 +128,24 @@ class Dynophore:
 
         dynophore.id = json_dynophore_dict["id"]
 
-        superfeatures = []
+        superfeatures = {}
         for json_superfeature_dict in json_dynophore_dict["superfeatures"]:
 
-            envpartners = []
+            envpartners = {}
             for json_envpartner_dict in json_superfeature_dict["envpartners"]:
                 try:
                     residue_name = json_envpartner_dict["residue_name"]
                     residue_number = json_envpartner_dict["residue_number"]
                     chain = json_envpartner_dict["chain"]
                 except KeyError:
-                    # TODO Remove this, once updated in DynophoreApp
                     residue_name = json_envpartner_dict["name"].split("_")[0]
                     residue_number = json_envpartner_dict["name"].split("_")[1]
                     chain = json_envpartner_dict["name"].split("_")[2]
+                envpartner_id = json_envpartner_dict["id"]
+                # TODO Remove next line, once updated in DynophoreApp
+                envpartner_id = envpartner_id.replace("_", "-")
                 envpartner = EnvPartner(
-                    json_envpartner_dict["id"],
+                    envpartner_id,
                     residue_name,
                     residue_number,
                     chain,
@@ -144,7 +153,7 @@ class Dynophore:
                     np.array(json_envpartner_dict["occurrences"]),
                     np.array(json_envpartner_dict["distances"]),
                 )
-                envpartners.append(envpartner)
+                envpartners[envpartner_id] = envpartner
 
             superfeature_id = json_superfeature_dict["id"]
             cloud = ChemicalFeatureCloud3D(**pml_dict[superfeature_id])
@@ -157,16 +166,44 @@ class Dynophore:
                 envpartners,
                 cloud,
             )
-            superfeatures.append(superfeature)
+            superfeatures[superfeature_id] = superfeature
         dynophore.superfeatures = superfeatures
+        dynophore.superfeature_ids = list(superfeatures.keys())
 
         return dynophore
 
     @property
     def clouds(self):
+        """
+        Dynophore clouds.
+
+        Returns
+        -------
+        dict of pandas.DataFrame
+            Per superfeature, cloud point coordinates.
+        """
+
         return {
-            superfeature.id: superfeature.cloud._coordinates for superfeature in self.superfeatures
+            superfeature_id: superfeature.cloud.data
+            for superfeature_id, superfeature in self.superfeatures.items()
         }
+
+    def cloud_by_superfeature(self, superfeature_id):
+        """
+        Superfeature cloud.
+
+        Parameters
+        ----------
+        superfeature_id : str
+            Superfeature identifier.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Superfeature cloud point coordinates.
+        """
+
+        return self.superfeatures[superfeature_id].cloud.data
 
     @property
     def superfeatures_occurrences(self):
@@ -180,9 +217,11 @@ class Dynophore:
         """
 
         occurrence_superfeatures = pd.DataFrame(
-            [superfeature.occurrences for superfeature in self.superfeatures],
-            index=[superfeature.id for superfeature in self.superfeatures],
-        ).transpose()
+            {
+                superfeature_id: superfeature.occurrences
+                for superfeature_id, superfeature in self.superfeatures.items()
+            }
+        ).astype("int32")
 
         # Sort columns by feature type (alphabetically)
         superfeature_ids = occurrence_superfeatures.columns.to_list()
@@ -190,6 +229,26 @@ class Dynophore:
         occurrence_superfeatures = occurrence_superfeatures[superfeature_ids]
 
         return occurrence_superfeatures
+
+    def envpartners_occurrences_by_superfeature(self, superfeature_id):
+        """
+        For a given superfeature, get its environmental partners' occurrences per environmental
+        partner and frame.
+
+        Parameters
+        ----------
+        superfeature_id : str
+            Superfeature identifier.
+
+        Returns
+        -------
+        pandas.DataFrame
+            For a given superfeature, occurrences (0=no, 1=yes) of an environmental partner
+            (columns) in each frame (row).
+        """
+
+        superfeature = self.superfeatures[superfeature_id]
+        return superfeature.envpartners_occurrences
 
     @property
     def envpartners_occurrences(self):
@@ -200,26 +259,52 @@ class Dynophore:
         Returns
         -------
         dict of pandas.DataFrame
-            For each superfeature, occurrences (0=no, 1=yes) of an environmental partner (columns)
-            in each frame (row).
+            For each superfeature (keys), occurrences (0=no, 1=yes) of an environmental partner
+            (columns) in each frame (row).
         """
 
-        return self._envpartners_data(type="occurrences")
+        return {
+            superfeature_id: superfeature.envpartners_occurrences
+            for superfeature_id, superfeature in self.superfeatures.items()
+        }
+
+    def envpartners_distances_by_superfeature(self, superfeature_id):
+        """
+        For a given superfeature, get its environmental partners' distances per environmental
+        partner and frame.
+
+        Parameters
+        ----------
+        superfeature_id : str
+            Superfeature identifier.
+
+        Returns
+        -------
+        pandas.DataFrame
+            For a given superfeature, distances to an environmental partner (columns) in each frame
+            (row).
+        """
+
+        superfeature = self.superfeatures[superfeature_id]
+        return superfeature.envpartners_distances
 
     @property
     def envpartners_distances(self):
         """
-        For each superfeature, get its environmental partners' distances per environmental partner
-        and frame.
+        For each superfeature, get its environmental partners' distances per environmental
+        partner and frame.
 
         Returns
         -------
         dict of pandas.DataFrame
-            For each superfeature, distances to an environmental partner (columns) in each frame
-            (row).
+            For each superfeature (keys), distances to an environmental partner (columns) in each
+            frame (row).
         """
 
-        return self._envpartners_data(type="distances")
+        return {
+            superfeature_id: superfeature.envpartners_distances
+            for superfeature_id, superfeature in self.superfeatures.items()
+        }
 
     @property
     def n_superfeatures(self):
@@ -245,7 +330,8 @@ class Dynophore:
             Number of frames.
         """
 
-        return len(self.superfeatures[0].occurrences)
+        superfeature = next(iter(self.superfeatures.values()))
+        return len(superfeature.occurrences)
 
     @property
     def count(self):
@@ -261,7 +347,10 @@ class Dynophore:
         """
 
         dynophore_count = pd.DataFrame(
-            {superfeature.id: superfeature.count for superfeature in self.superfeatures}
+            {
+                superfeature_id: superfeature.count
+                for superfeature_id, superfeature in self.superfeatures.items()
+            }
         )
         dynophore_count.fillna(0, inplace=True)
         dynophore_count = dynophore_count.astype("int32")
@@ -283,49 +372,49 @@ class Dynophore:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
-    def _raise_keyerror_if_invalid_superfeature_name(self, superfeature_name):
+    def _raise_keyerror_if_invalid_superfeature_id(self, superfeature_id):
         """
         Check if dynophore has a certain superfeature (by name).
 
         Parameters
         ----------
-        superfeature_name : str
-            Superfeature name
+        superfeature_id : str
+            Superfeature ID
         """
 
-        if superfeature_name not in self.envpartners_occurrences.keys():
-            raise KeyError(f"Superfeature name {superfeature_name} is unknown.")
+        if superfeature_id not in self.envpartners_occurrences.keys():
+            raise KeyError(f"Superfeature ID {superfeature_id} is unknown.")
 
-    def _superfeature_names_frequencies_strings(self, superfeature_names):
+    def _superfeature_ids_frequencies_strings(self, superfeature_ids):
         """
-        Get superfeature names with frequencies as strings (useful for plotting).
+        Get superfeature IDs with frequencies as strings (useful for plotting).
         TODO unit test
 
         Parameters
         ----------
-        superfeature_names : list of str
-            Superfeature names.
+        superfeature_ids : list of str
+            Superfeature IDs.
 
         Returns
         -------
         list of str
-            Superfeature names with frequencies.
+            Superfeature IDs with frequencies.
         """
 
-        superfeature_names_frequencies = round(self.frequency.loc["any", superfeature_names], 1)
-        superfeature_names_frequencies_strings = (
-            superfeature_names_frequencies.reset_index()
+        superfeature_ids_frequencies = round(self.frequency.loc["any", superfeature_ids], 1)
+        superfeature_ids_frequencies_strings = (
+            superfeature_ids_frequencies.reset_index()
             .apply(lambda x: f"{x['index']} {x['any']}%", axis=1)
             .to_list()
         )
-        return superfeature_names_frequencies_strings
+        return superfeature_ids_frequencies_strings
 
-    def _envpartner_names_frequencies_strings(self, superfeature_name, envpartners_names):
+    def _envpartner_names_frequencies_strings(self, superfeature_id, envpartners_names):
         """
         TODO docstring + unit test
         """
 
-        envpartners_occurrences = self.envpartners_occurrences[superfeature_name]
+        envpartners_occurrences = self.envpartners_occurrences[superfeature_id]
 
         envpartner_names_frequencies = round(
             envpartners_occurrences.sum() / envpartners_occurrences.shape[0] * 100, 1
@@ -338,37 +427,3 @@ class Dynophore:
         )
 
         return envpartner_names_frequencies_strings
-
-    def _envpartners_data(self, type="occurrences"):
-        """
-        Get occurrences or distances of all superfeatures' environmental partners.
-
-        Parameters
-        ----------
-        type : str
-            Data type: occurrences (default) or distances.
-
-        Returns
-        -------
-        dict of DataFrame
-            Occurrences (default) or distances for a superfeature's (dict key) environmental
-            partners (columns) for all frames (rows).
-        """
-
-        types = ["occurrences", "distances"]
-        if type in types:
-            pass
-        else:
-            raise KeyError(f'Wrong type. Select from: {", ".join(types)}')
-
-        envpartners = {}
-
-        for superfeature in self.superfeatures:
-            superfeature_envpartners = pd.DataFrame(
-                [getattr(envpartner, type) for envpartner in superfeature.envpartners],
-                index=[envpartner.id for envpartner in superfeature.envpartners],
-            ).transpose()
-
-            envpartners[superfeature.id] = superfeature_envpartners
-
-        return envpartners

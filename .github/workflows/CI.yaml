@@ -112,12 +112,12 @@ jobs:
         shell: bash -l {0}
         if: always()
         run: |
-          black --check -l 99 $PACKAGE/
+          black --check -l 99 dynophores
 
       - name: Run flake8
         shell: bash -l {0}
         run: |
-          flake8 --config setup.cfg $PACKAGE/
+          flake8 --config setup.cfg dynophores
 
       - name: Run black-nb check
         shell: bash -l {0}
