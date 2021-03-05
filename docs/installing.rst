@@ -63,7 +63,7 @@ the next step is downloading a copy of the current state of the
 1. Download a zipfile of the repository using `this link <https://github.com/dominiquesydow/dynophores/archive/master.zip>`_.
 2. Unzip to your location of choice.
 3. Navigate to ``path/to/your/location/``.
-4. Run ``pip install dynophores``.
+4. Run ``pip install dynophores``. If pip-installation failed, try ``python setup.py install``
 5. Start your dynophore notebook as described above in steps 3-5.
 
 
