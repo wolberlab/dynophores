@@ -22,9 +22,11 @@ class TestsDynophore:
     def test_attributes(self, dynophore, id):
 
         assert dynophore.id == id
-        assert isinstance(dynophore.superfeatures, list)
-        for superfeature in dynophore.superfeatures:
+        assert isinstance(dynophore.superfeatures, dict)
+        for superfeature_id, superfeature in dynophore.superfeatures.items():
+            assert isinstance(superfeature_id, str)
             assert isinstance(superfeature, SuperFeature)
+        assert isinstance(dynophore.superfeature_ids, list)
 
     @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "out"])
     def test_from_file(self, filepath):
@@ -114,12 +116,6 @@ class TestsDynophore:
             distances_sum = distances_sum_dict[superfeature]
             assert pytest.approx(distances_sum_calculated) == distances_sum
 
-    @pytest.mark.parametrize("data_type", ["xxx"])
-    def test_envpartners_data_raises(self, dynophore, data_type):
-
-        with pytest.raises(KeyError):
-            dynophore._envpartners_data(data_type)
-
     @pytest.mark.parametrize("n_superfeatures", [10])
     def test_n_superfeatures(self, dynophore, n_superfeatures):
 
@@ -181,7 +177,7 @@ class TestsDynophore:
     ):
 
         # TODO remove this when fixed in DynophoreApp json export
-        envpartner_names = [i.replace("-", "_") for i in envpartner_names]
+        envpartner_names = [i.replace("_", "-") for i in envpartner_names]
 
         # Count
         assert sorted(dynophore.count.columns.to_list()) == superfeature_names

@@ -18,7 +18,9 @@ class TestsSuperFeature:
         data = superfeature.envpartners_occurrences
         assert isinstance(data, pd.DataFrame)
         assert data.index.to_list() == list(range(0, superfeature.occurrences.size))
-        assert data.columns.to_list() == [envpartner.id for envpartner in superfeature.envpartners]
+        assert data.columns.to_list() == [
+            envpartner.id for _, envpartner in superfeature.envpartners.items()
+        ]
         assert data.dtypes.unique() == "int64"
 
     def test_envpartners_distances(self, superfeature):
@@ -26,7 +28,9 @@ class TestsSuperFeature:
         data = superfeature.envpartners_distances
         assert isinstance(data, pd.DataFrame)
         assert data.index.to_list() == list(range(0, superfeature.occurrences.size))
-        assert data.columns.to_list() == [envpartner.id for envpartner in superfeature.envpartners]
+        assert data.columns.to_list() == [
+            envpartner.id for _, envpartner in superfeature.envpartners.items()
+        ]
         assert data.dtypes.unique() == "float64"
 
     @pytest.mark.parametrize("data_type", ["xxx"])
@@ -43,14 +47,14 @@ class TestsSuperFeature:
     @pytest.mark.parametrize("count", [([2, 1, 1])])
     def test_count(self, superfeature, count):
 
-        envpartner_ids = [envpartner.id for envpartner in superfeature.envpartners]
+        envpartner_ids = [envpartner.id for _, envpartner in superfeature.envpartners.items()]
         count = pd.Series(count, index=["any"] + envpartner_ids)
         assert all(superfeature.count == count)
 
     @pytest.mark.parametrize("frequency", [([2 / 3.0, 1 / 3.0, 1 / 3.0])])
     def test_frequency(self, superfeature, frequency):
 
-        envpartner_ids = [envpartner.id for envpartner in superfeature.envpartners]
+        envpartner_ids = [envpartner.id for _, envpartner in superfeature.envpartners.items()]
         frequency = pd.Series(frequency, index=["any"] + envpartner_ids)
         frequency = round(frequency * 100, 2)
         assert all(superfeature.frequency == frequency)
