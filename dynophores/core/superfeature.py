@@ -16,6 +16,8 @@ class SuperFeature:
     ----------
     id : str
         Superfeature name.
+    envpartner_ids : list of str
+        Environmental partner identifiers available for this superfeature.
     feature_type : str
         Pharmacophoric feature type.
     atom_numbers : list of int
@@ -36,6 +38,7 @@ class SuperFeature:
         self.occurrences = occurrences
         self.envpartners = envpartners
         self.cloud = cloud
+        self.envpartner_ids = list(envpartners.keys())
 
     @property
     def envpartners_occurrences(self):
@@ -94,7 +97,10 @@ class SuperFeature:
 
         superfeature_count = pd.Series({"any": sum(self.occurrences)})
         envpartners_count = pd.Series(
-            {envpartner.id: envpartner.count for envpartner in self.envpartners}
+            {
+                envpartner_id: envpartner.count
+                for envpartner_id, envpartner in self.envpartners.items()
+            }
         )
 
         return superfeature_count.append(envpartners_count)
@@ -136,9 +142,9 @@ class SuperFeature:
         else:
             raise KeyError(f'Wrong type. Select from: {", ".join(types)}')
 
-        envpartners = pd.DataFrame(
-            [getattr(envpartner, type) for envpartner in self.envpartners],
-            index=[envpartner.id for envpartner in self.envpartners],
-        ).transpose()
-
-        return envpartners
+        return pd.DataFrame(
+            {
+                envpartner_id: getattr(envpartner, type)
+                for envpartner_id, envpartner in self.envpartners.items()
+            }
+        )

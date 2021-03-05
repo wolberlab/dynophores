@@ -4,6 +4,8 @@ dynophores.core.chemicalfeaturecloud3d
 Handles the ChemicalFeatureCloud3D class, which describes the point cloud for one superfeature.
 """
 
+import pandas as pd
+
 
 class ChemicalFeatureCloud3D:
     """
@@ -25,3 +27,16 @@ class ChemicalFeatureCloud3D:
         self.id = id
         self.center = center
         self.points = points
+
+    @property
+    def data(self):
+        """
+        Superfeature cloud point data.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Cloud point data (coordinates).
+        """
+
+        return pd.DataFrame(self.points, columns=["x", "y", "z"])
