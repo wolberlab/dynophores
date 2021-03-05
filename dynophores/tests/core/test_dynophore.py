@@ -56,11 +56,11 @@ class TestsDynophore:
     )
     def test_superfeatures_occurrences(self, dynophore, column_names, counts_sum):
 
-        assert dynophore.superfeatures_occurrences.columns.to_list() == column_names
-        assert dynophore.superfeatures_occurrences.index.to_list() == list(
-            range(0, dynophore.n_frames)
-        )
-        assert dynophore.superfeatures_occurrences.sum().sum() == counts_sum
+        data = dynophore.superfeatures_occurrences
+        assert data.columns.to_list() == column_names
+        assert data.index.to_list() == list(range(0, dynophore.n_frames))
+        assert data.sum().sum() == counts_sum
+        assert data.dtypes.unique() == "int32"
 
     @pytest.mark.parametrize(
         "counts_sum_dict",
@@ -183,6 +183,7 @@ class TestsDynophore:
         assert sorted(dynophore.count.columns.to_list()) == superfeature_ids
         assert dynophore.count.index.to_list() == envpartner_names
         assert dynophore.count.sum().sum() == count_sum
+        assert dynophore.count.dtypes.unique() == "int32"
 
         # Frequency
         assert sorted(dynophore.frequency.columns.to_list()) == superfeature_ids

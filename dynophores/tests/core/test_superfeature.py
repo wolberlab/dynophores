@@ -21,7 +21,7 @@ class TestsSuperFeature:
         assert data.columns.to_list() == [
             envpartner.id for _, envpartner in superfeature.envpartners.items()
         ]
-        assert data.dtypes.unique() == "int64"
+        assert data.dtypes.unique() == "int32"
 
     def test_envpartners_distances(self, superfeature):
 

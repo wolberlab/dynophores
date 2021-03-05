@@ -221,7 +221,7 @@ class Dynophore:
                 superfeature_id: superfeature.occurrences
                 for superfeature_id, superfeature in self.superfeatures.items()
             }
-        )
+        ).astype("int32")
 
         # Sort columns by feature type (alphabetically)
         superfeature_ids = occurrence_superfeatures.columns.to_list()

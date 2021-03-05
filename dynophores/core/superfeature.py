@@ -53,7 +53,7 @@ class SuperFeature:
 
         """
 
-        return self._data(type="occurrences")
+        return self._data(type="occurrences").astype("int32")
 
     @property
     def envpartners_distances(self):
