@@ -170,7 +170,7 @@ def envpartners_occurrences(
         ax.set_title(superfeature_title[0])
 
         # Prepare data
-        data = dynophore.envpartners_occurrences[superfeature_name]
+        data = dynophore.envpartners_occurrences_by_superfeature(superfeature_name)
         data = _prepare_dataframe_for_plotting(
             data, frame_range, frame_step_size, is_occurrences=True
         )
@@ -251,7 +251,7 @@ def envpartners_distances(
         ax.set_title(superfeature_title[0])
 
         # Prepare data
-        data = dynophore.envpartners_distances[superfeature_name]
+        data = dynophore.envpartners_distances_by_superfeature(superfeature_name)
         data = _prepare_dataframe_for_plotting(
             data, frame_range, frame_step_size, is_occurrences=False
         )
@@ -307,8 +307,8 @@ def envpartners_all_in_one(dynophore, superfeature_name, frame_range=[0, None], 
     dynophore._raise_keyerror_if_invalid_superfeature_name(superfeature_name)
 
     # Get data
-    occurrences = dynophore.envpartners_occurrences[superfeature_name]
-    distances = dynophore.envpartners_distances[superfeature_name]
+    occurrences = dynophore.envpartners_occurrences_by_superfeature(superfeature_name)
+    distances = dynophore.envpartners_distances_by_superfeature(superfeature_name)
     occurrences = _prepare_dataframe_for_plotting(occurrences, frame_range, frame_step_size)
     distances = _prepare_dataframe_for_plotting(distances, frame_range, frame_step_size)
 

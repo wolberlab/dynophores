@@ -105,7 +105,7 @@ def _add_dynophore(view, dynophore):
         Visualization with the NGL Viewer.
     """
 
-    for superfeature in dynophore.superfeatures:
+    for _, superfeature in dynophore.superfeatures.items():
         sphere_buffer = {"position": [], "color": [], "radius": []}
         for point_coordinates in superfeature.cloud.points:
             sphere_buffer["position"] += point_coordinates.tolist()
