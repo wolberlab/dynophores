@@ -257,6 +257,10 @@ def envpartners_distances(
         data = _prepare_dataframe_for_plotting(
             data, frame_range, frame_step_size, is_occurrences=False
         )
+        # Add % to environmental partners
+        data.columns = dynophore._envpartner_names_frequencies_strings(
+            superfeature_id, data.columns.to_list()
+        )
 
         if kind == "line":
             data.plot(kind="line", ax=ax)
@@ -345,6 +349,10 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
 
     # Subplot (1, 1): Distance histogram
     bins = range(0, math.ceil(distances.max().max()) + 1)
+    # Add % to environmental partners
+    distances.columns = dynophore._envpartner_names_frequencies_strings(
+        superfeature_id, distances.columns.to_list()
+    )
     distances.plot(
         ax=axes[1][1],
         kind="hist",
