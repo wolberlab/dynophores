@@ -8,7 +8,6 @@ import nglview as nv
 import MDAnalysis as mda
 import matplotlib
 
-from ...parsers import _pml_to_dict
 from ...definitions import FEATURE_COLORS
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
