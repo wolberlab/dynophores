@@ -87,7 +87,7 @@ def _show_trajectory(pdb_path, dcd_path):
     return view
 
 
-def _add_dynophore(view, pml_path):
+def _add_dynophore(view, dynophore):
     """
     Add the dynophore point cloud to an existing view of its underlying structure (and optionally
     its trajectory).
@@ -97,8 +97,8 @@ def _add_dynophore(view, pml_path):
     view : nglview.widget.NGLWidget
         NGL Viewer containing the ligand-bound structure (optionally including the trajectory)
         belonging to the dynophore.
-    pml_path : str or pathlib.Path
-        Path to PML file (dynophore).
+    dynophore : Dynophore
+        Dynophore data (includes data from JSON and PML file).
 
     Returns
     -------
@@ -106,19 +106,17 @@ def _add_dynophore(view, pml_path):
         Visualization with the NGL Viewer.
     """
 
-    dynophore3d_dict = _pml_to_dict(pml_path)
-
-    for superfeature_id, cloud in dynophore3d_dict.items():
+    for superfeature in dynophore.superfeatures:
         sphere_buffer = {"position": [], "color": [], "radius": []}
-        for point_coordinates in cloud["points"]:
+        for point_coordinates in superfeature.cloud.points:
             sphere_buffer["position"] += point_coordinates.tolist()
             sphere_buffer["color"] += matplotlib.colors.to_rgb(
-                FEATURE_COLORS[superfeature_id.split("[")[0]]
+                FEATURE_COLORS[superfeature.id.split("[")[0]]
             )
             sphere_buffer["radius"] += [0.1]
         js = f"""
         var params = {sphere_buffer};
-        var shape = new NGL.Shape('{superfeature_id}');
+        var shape = new NGL.Shape('{superfeature.id}');
         var buffer = new NGL.SphereBuffer(params);
         shape.addBuffer(buffer);
         var shapeComp = this.stage.addComponentFromObject(shape);
