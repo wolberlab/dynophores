@@ -106,8 +106,19 @@ def _create_viz(args):
     """
 
     new_notebook_path = Path(args.workspace) / "dynophore.ipynb"
+    dyno_path = Path(args.dyno_path)
+    pdb_path = Path(args.pdb_path)
+    dcd_path = Path(args.dcd_path)
+
+    if not dyno_path.is_dir():
+        raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
+    if not pdb_path.is_file():
+        raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
+    if not dcd_path.is_file():
+        raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
+
     _copy_notebook(new_notebook_path)
-    _update_paths_in_notebook(new_notebook_path, args.dyno_path, args.pdb_path, args.dcd_path)
+    _update_paths_in_notebook(new_notebook_path, dyno_path, pdb_path, dcd_path)
     _open_notebook(new_notebook_path)
 
 
