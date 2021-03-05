@@ -184,6 +184,8 @@ def test_copy_notebook(new_notebook_path):
 
     cli._copy_notebook(new_notebook_path)
     assert new_notebook_path.is_file()
+    # Remove copy again (not needed)
+    new_notebook_path.unlink()
 
 
 @pytest.mark.parametrize(
