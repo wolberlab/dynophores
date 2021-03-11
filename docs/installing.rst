@@ -9,8 +9,7 @@ Eventually, we will have a ``conda`` package, but for now you need to create a n
 .. note::
 
     We are assuming you have a working ``conda`` installation in your computer. 
-    If this is not the case, please refer to the official documentation 
-    `here <https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation>`_. 
+    If this is not the case, please refer to the `official documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation>`_. 
     We recommend using Miniconda.
 
 
@@ -62,8 +61,11 @@ the next step is downloading a copy of the current state of the
 
 1. Download a zipfile of the repository using `this link <https://github.com/dominiquesydow/dynophores/archive/master.zip>`_.
 2. Unzip to your location of choice.
-3. Navigate to ``path/to/your/location/``.
-4. Run ``pip install dynophores``. If pip-installation failed, try ``python setup.py install``
+3. Navigate to ``path/to/directory/that/contains/downloaded/folder``.
+4. Run ``pip install dynophores-master``. 
+
+   * If the ``pip`` installation failed, try ``python setup.py install`` from within the ``dynophores-master`` folder. 
+   * If you cloned instead of downloaded the repository, your folder is called ``dynophores`` not ``dynophores-master``.
 5. Start your dynophore notebook as described above in steps 3-5.
 
 
