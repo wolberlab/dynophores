@@ -16,6 +16,7 @@ dependencies:
   - ipywidgets>=7.5
   - nglview
   - tqdm
+  - rdkit
   - mdanalysis
   # Testing
   - pytest 5.*
