@@ -2,7 +2,6 @@
 Unit tests for dynophore.viz.view3d.parser.
 """
 
-from collections import OrderedDict
 from pathlib import Path
 
 import pytest

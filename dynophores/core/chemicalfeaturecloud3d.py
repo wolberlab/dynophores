@@ -43,4 +43,7 @@ class ChemicalFeatureCloud3D:
             Cloud point data (coordinates).
         """
 
-        return pd.DataFrame(self.points, columns=["x", "y", "z"])
+        return pd.DataFrame(
+            [[point.x, point.y, point.z, point.frame_ix, point.weight] for point in self.points],
+            columns=["x", "y", "z", "frame_ix", "weight"],
+        )

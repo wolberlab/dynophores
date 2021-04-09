@@ -8,12 +8,10 @@ partners.
 from pathlib import Path
 import logging
 
-import numpy as np
 import pandas as pd
 
 from dynophores import parsers
 from dynophores.core.superfeature import SuperFeature
-from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
 
 logger = logging.getLogger(__name__)
 
