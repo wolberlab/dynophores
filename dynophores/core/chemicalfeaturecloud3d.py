@@ -6,27 +6,30 @@ Handles the ChemicalFeatureCloud3D class, which describes the point cloud for on
 
 import pandas as pd
 
+from dynophores.core.chemicalfeaturecloud3dpoint import ChemicalFeatureCloud3DPoint
+
 
 class ChemicalFeatureCloud3D:
     """
     Class to store a chemical feature 3D cloud for one superfeature.
-    TODO: Add frame indices?
 
     Attributes
     ----------
-    id : str
-        Superfeature ID (= chemical feature 3D cloud ID).
     center : numpy.array
         X, Y, and Z coordiantes of geometrical center of all points in point cloud.
-    points : numpy.array
-        X, Y, and Z coordinates (columns) for each cloud point (rows).
+    points : dynophores.core.chemicalfeaturecloud3d.ChemicalFeatureCloud3D
+        Feature cloud points.
     """
 
-    def __init__(self, id, center, points):
+    def __init__(self, center, points, **kwargs):
 
-        self.id = id
         self.center = center
-        self.points = points
+        self.points = [
+            point
+            if isinstance(point, ChemicalFeatureCloud3DPoint)
+            else ChemicalFeatureCloud3DPoint(**point)
+            for point in points
+        ]
 
     @property
     def data(self):
@@ -39,4 +42,7 @@ class ChemicalFeatureCloud3D:
             Cloud point data (coordinates).
         """
 
-        return pd.DataFrame(self.points, columns=["x", "y", "z"])
+        return pd.DataFrame(
+            [[point.x, point.y, point.z, point.frame_ix, point.weight] for point in self.points],
+            columns=["x", "y", "z", "frame_ix", "weight"],
+        )

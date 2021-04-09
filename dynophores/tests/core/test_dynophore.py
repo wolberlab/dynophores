@@ -8,9 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from dynophores import Dynophore, SuperFeature
+from dynophores import parsers
+from dynophores import Dynophore
+from dynophores.core.superfeature import SuperFeature
 
-PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
+
+PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
 
 
 class TestsDynophore:
@@ -18,18 +21,26 @@ class TestsDynophore:
     Test Dynophore class methods.
     """
 
-    @pytest.mark.parametrize("id", ["dynophore_1KE7"])  # TODO: 1KE7
+    @pytest.mark.parametrize("id", ["dynophore_1KE7"])
     def test_attributes(self, dynophore, id):
 
-        assert dynophore.id == id
+        dynophore_dict = parsers._json_pml_to_dict(
+            PATH_TEST_DATA / "out/1KE7_dynophore.json",
+            PATH_TEST_DATA / "out/1KE7_dynophore.pml",
+        )
+        dynophore = Dynophore(**dynophore_dict)
+        assert isinstance(dynophore, Dynophore)
+        assert list(dynophore.__dict__) == ["id", "ligand_name", "ligand_smiles", "superfeatures"]
+
+        # Test class attributes - check for data types
+        assert isinstance(dynophore.id, str)
+        assert isinstance(dynophore.ligand_name, str)
+        assert isinstance(dynophore.ligand_smiles, str)
         assert isinstance(dynophore.superfeatures, dict)
-        for superfeature_id, superfeature in dynophore.superfeatures.items():
-            assert isinstance(superfeature_id, str)
-            assert isinstance(superfeature, SuperFeature)
-        assert isinstance(dynophore.superfeature_ids, list)
+        assert isinstance(next(iter(dynophore.superfeatures.values())), SuperFeature)
 
     @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "out"])
-    def test_from_file(self, filepath):
+    def test_from_dir(self, filepath):
 
         dynophore = Dynophore.from_dir(filepath)
         assert isinstance(dynophore, Dynophore)

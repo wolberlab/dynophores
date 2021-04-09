@@ -6,6 +6,9 @@ Handles the SuperFeature class, which describes one superfeature for one dynopho
 
 import pandas as pd
 
+from dynophores.core.envpartner import EnvPartner
+from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
+
 
 class SuperFeature:
     """
@@ -26,19 +29,28 @@ class SuperFeature:
         Occurrence of superfeature (0=no, 1=yes) in each frame.
     envpartners : list of EnvPartner
         Superfeature's environmental partners.
+    color : str
+        Superfeature color.
     cloud : ChemicalFeatureCloud3D
         Chemical feature cloud.
     """
 
-    def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners, cloud):
+    def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners, color, cloud):
 
         self.id = id
         self.feature_type = feature_type
         self.atom_numbers = atom_numbers
         self.occurrences = occurrences
-        self.envpartners = envpartners
-        self.cloud = cloud
-        self.envpartner_ids = list(envpartners.keys())
+        self.envpartners = {
+            envpartner_id: envpartner
+            if isinstance(envpartner, EnvPartner)
+            else EnvPartner(**envpartner)
+            for envpartner_id, envpartner in envpartners.items()
+        }
+        self.color = color
+        self.cloud = (
+            cloud if isinstance(cloud, ChemicalFeatureCloud3D) else ChemicalFeatureCloud3D(**cloud)
+        )
 
     @property
     def envpartners_occurrences(self):

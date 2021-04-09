@@ -12,166 +12,26 @@ from dynophores import cli
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
-@pytest.mark.parametrize("function", ["cook"])
-def test_subprocess_raises(function):
-    """
-    Test incorrect subprocess name.
-    """
-
-    with pytest.raises(subprocess.CalledProcessError):
-        process = subprocess.run(["dynoviz", function], check=True)
-        process.terminate()
-
-
-@pytest.mark.parametrize("function", ["demo"])
-def test_subprocess_demo(function):
+@pytest.mark.parametrize(
+    "args",
+    [
+        "dynoviz demo",
+        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
+        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'} "
+        f"--dcd {PATH_TEST_DATA / 'in/trajectory.dcd'}",
+        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
+        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'}",
+        f"dynoviz open {PATH_TEST_DATA / 'dynophore.ipynb'}",
+    ],
+)
+def test_subprocess(args):
     """
     TODO how to catch errors?
     """
 
+    args = args.split()
     process = subprocess.Popen(
-        ["dynoviz", function], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    process.terminate()
-
-
-@pytest.mark.parametrize(
-    "function, args_dyno, args_workspace, args_pdb, args_dcd",
-    [
-        (
-            "create",
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
-        ),
-        (
-            "create",
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            None,  # Without trajectory file
-        ),
-    ],
-)
-def test_subprocess_create(function, args_dyno, args_workspace, args_pdb, args_dcd):
-    """
-    TODO how to catch errors?
-    """
-
-    if args_dcd is not None:
-
-        process = subprocess.Popen(
-            [
-                "dynoviz",
-                function,
-                "--dyno",
-                args_dyno,
-                "--workspace",
-                args_workspace,
-                "--pdb",
-                args_pdb,
-                "--dcd",
-                args_dcd,
-            ],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        process.terminate()
-
-    else:
-
-        process = subprocess.Popen(
-            [
-                "dynoviz",
-                function,
-                "--dyno",
-                args_dyno,
-                "--workspace",
-                args_workspace,
-                "--pdb",
-                args_pdb,
-            ],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        process.terminate()
-
-
-@pytest.mark.parametrize(
-    "function, args_dyno, args_workspace, args_pdb, args_dcd",
-    [
-        ("create", "xxx", "xxx", "xxx", "xxx"),
-        (
-            "create",
-            str(PATH_TEST_DATA / "out"),
-            "xxx",
-            "xxx",
-            "xxx",
-        ),
-        (
-            "create",
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA),
-            "xxx",
-            "xxx",
-        ),
-        (
-            "create",
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            "xxx",
-        ),
-    ],
-)
-def test_subprocess_create_raises(function, args_dyno, args_pdb, args_dcd, args_workspace):
-    """
-    Test invalid CLI args for create subprocess.
-    """
-
-    with pytest.raises(subprocess.CalledProcessError):
-        process = subprocess.run(
-            [
-                "dynoviz",
-                function,
-                "--dyno",
-                args_dyno,
-                "--workspace",
-                args_workspace,
-                "--pdb",
-                args_pdb,
-                "--dcd",
-                args_dcd,
-            ],
-            check=True,
-        )
-        process.terminate()
-
-
-@pytest.mark.parametrize(
-    "function, args_notebook",
-    [
-        (
-            "open",
-            str(PATH_TEST_DATA / "dynophore.ipynb"),
-        )
-    ],
-)
-def test_subprocess_open(function, args_notebook):
-    """
-    TODO how to catch errors?
-    """
-
-    process = subprocess.Popen(
-        [
-            "dynoviz",
-            function,
-            "notebook",
-            args_notebook,
-        ],
+        args,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -180,25 +40,25 @@ def test_subprocess_open(function, args_notebook):
 
 
 @pytest.mark.parametrize(
-    "function, args_notebook",
+    "args",
     [
-        (
-            "open",
-            str(PATH_TEST_DATA / "xxx.ipynb"),
-        )
+        "dynoviz cook",
+        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace xxx --pdb xxx --dcd xxx",
+        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
+        f"--pdb xxx --dcd xxx",
+        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
+        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'} --dcd xxx",
+        f"dynoviz open {PATH_TEST_DATA / 'xxx.ipynb'}",
     ],
 )
-def test_subprocess_open_raises(function, args_notebook):
+def test_subprocess_raises(args):
     """
-    Test invalid CLI args for open subprocess.
+    Test invalid CLI args for create subprocess.
     """
 
+    args = args.split()
     with pytest.raises(subprocess.CalledProcessError):
-        process = subprocess.run(
-            ["dynoviz", function, args_notebook],
-            check=True,
-        )
-        process.terminate()
+        subprocess.run(args, check=True)
 
 
 @pytest.mark.parametrize(
@@ -233,24 +93,29 @@ def test_copy_notebook_raises(new_notebook_path):
     "notebook_path, dyno_path, pdb_path, dcd_path",
     [
         (
-            "xxx",
+            str(PATH_TEST_DATA / "test.ipynb"),  # Not a file
             str(PATH_TEST_DATA / "out"),
             str(PATH_TEST_DATA / "in/startframe.pdb"),
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
-            "xxx",
-            "xxx",
+            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
+            "is_not_dir",  # Not a directory
             str(PATH_TEST_DATA / "in/startframe.pdb"),
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
-            "xxx",
-            "xxx",
-            "xxx",
+            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
+            str(PATH_TEST_DATA / "out"),
+            "doesnt_exist.pdb",  # Does not exist
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
-        ("xxx", "xxx", "xxx", "xxx"),
+        (
+            str(PATH_TEST_DATA / "test.ipynb"),
+            str(PATH_TEST_DATA / "out"),
+            str(PATH_TEST_DATA / "in/startframe.pdb"),
+            "doesnt_exist.dcd",  # Does not exist
+        ),
     ],
 )
 def test_update_paths_in_notebook_raises(notebook_path, dyno_path, pdb_path, dcd_path):

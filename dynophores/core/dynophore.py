@@ -8,14 +8,10 @@ partners.
 from pathlib import Path
 import logging
 
-import numpy as np
 import pandas as pd
 
 from dynophores import parsers
 from dynophores.core.superfeature import SuperFeature
-from dynophores.core.envpartner import EnvPartner
-from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +25,25 @@ class Dynophore:
     ----------
     id : str
         Dynophore name.
-    superfeature_ids : list of str
-        Superfeature identifiers available for this dynophore.
-    superfeatures : list of dynophores.base.SuperFeature
-        Dynophore superfeatures.
+    ligand_name : str
+        3-letter name of structure-bound ligand.
+    ligand_smiles : str
+        SMILES of structure-bound ligand.
+    superfeatures : dict of str: dynophores.base.SuperFeature
+        Dynophore superfeatures (values) by superfeature IDs (keys).
     """
 
-    def __init__(self):
+    def __init__(self, id, ligand_name, ligand_smiles, superfeatures, **kwargs):
 
-        self.id = None
-        self.superfeature_ids = []
-        self.superfeatures = []
+        self.id = id
+        self.ligand_name = ligand_name
+        self.ligand_smiles = ligand_smiles
+        self.superfeatures = {
+            superfeature_id: superfeature
+            if isinstance(superfeature, SuperFeature)
+            else SuperFeature(**superfeature)
+            for superfeature_id, superfeature in superfeatures.items()
+        }
 
     @classmethod
     def from_dir(cls, dynophore_path):
@@ -106,70 +110,8 @@ class Dynophore:
             Dynophore.
         """
 
-        json_path = Path(json_path)
-        pml_path = Path(pml_path)
-
-        json_dict = parsers._json_to_dict(json_path)
-        pml_dict = parsers._pml_to_dict(pml_path)
-
-        # Check if superfeatures are the same in both files
-        json_superfeatures = sorted([sp["id"] for sp in json_dict["superfeatures"]])
-        pml_superfeatures = sorted(list(pml_dict.keys()))
-        if json_superfeatures != pml_superfeatures:
-            raise ValueError(
-                f"Your PML and JSON files are not matching. Superfeatures must be the same.\n"
-                f"Your JSON file: {json_path}\n"
-                f"Your PML file: {pml_path}"
-            )
-
-        dynophore = cls()
-
-        json_dynophore_dict = json_dict
-
-        dynophore.id = json_dynophore_dict["id"]
-
-        superfeatures = {}
-        for json_superfeature_dict in json_dynophore_dict["superfeatures"]:
-
-            envpartners = {}
-            for json_envpartner_dict in json_superfeature_dict["envpartners"]:
-                try:
-                    residue_name = json_envpartner_dict["residue_name"]
-                    residue_number = json_envpartner_dict["residue_number"]
-                    chain = json_envpartner_dict["chain"]
-                except KeyError:
-                    residue_name = json_envpartner_dict["name"].split("_")[0]
-                    residue_number = json_envpartner_dict["name"].split("_")[1]
-                    chain = json_envpartner_dict["name"].split("_")[2]
-                envpartner_id = json_envpartner_dict["id"]
-                # TODO Remove next line, once updated in DynophoreApp
-                envpartner_id = envpartner_id.replace("_", "-")
-                envpartner = EnvPartner(
-                    envpartner_id,
-                    residue_name,
-                    residue_number,
-                    chain,
-                    json_envpartner_dict["atom_numbers"],
-                    np.array(json_envpartner_dict["occurrences"]),
-                    np.array(json_envpartner_dict["distances"]),
-                )
-                envpartners[envpartner_id] = envpartner
-
-            superfeature_id = json_superfeature_dict["id"]
-            cloud = ChemicalFeatureCloud3D(**pml_dict[superfeature_id])
-
-            superfeature = SuperFeature(
-                superfeature_id,
-                json_superfeature_dict["feature_type"],
-                json_superfeature_dict["atom_numbers"],
-                np.array(json_superfeature_dict["occurrences"]),
-                envpartners,
-                cloud,
-            )
-            superfeatures[superfeature_id] = superfeature
-        dynophore.superfeatures = superfeatures
-        dynophore.superfeature_ids = list(superfeatures.keys())
-
+        dynophore_dict = parsers._json_pml_to_dict(json_path, pml_path)
+        dynophore = cls(**dynophore_dict)
         return dynophore
 
     @property

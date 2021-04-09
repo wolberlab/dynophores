@@ -13,77 +13,59 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "filepath, superfeature_ids, cloud_keys",
+    "filepath, superfeature_keys, cloud_keys",
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",
-            [
-                "AR[4605,4607,4603,4606,4604]",
-                "AR[4622,4615,4623,4613,4614,4621]",
-                "HBA[4596]",
-                "HBA[4606]",
-                "HBA[4618]",
-                "HBA[4619]",
-                "HBD[4598]",
-                "HBD[4612]",
-                "H[4599,4602,4601,4608,4609,4600]",
-                "H[4615,4623,4622,4613,4621,4614]",
-            ],
-            ["center", "id", "points"],
+            ["id", "color", "center", "points"],
+            ["x", "y", "z", "frame_ix", "weight"],
         )
     ],
 )
-def test_pml_to_dict(filepath, superfeature_ids, cloud_keys):
+def test_pml_to_dict(filepath, superfeature_keys, cloud_keys):
+    """
+    Test data types (not data values) in dict generated from PML file.
+    """
 
     pml_dict = parsers._pml_to_dict(filepath)
-    assert sorted(pml_dict) == superfeature_ids
+    assert isinstance(pml_dict, dict)
+
     for superfeature_id, data in pml_dict.items():
-        assert sorted(data.keys()) == cloud_keys
         assert isinstance(superfeature_id, str)
+        assert list(data.keys()) == superfeature_keys
         assert data["id"] == superfeature_id
+        assert isinstance(data["color"], str)
         assert isinstance(data["center"], np.ndarray)
-        assert isinstance(data["points"], np.ndarray)
+        assert list(data["points"][0].keys()) == cloud_keys
 
 
 @pytest.mark.parametrize(
-    "filepath, dynophore_keys, superfeature_ids, superfeature_keys, envpartner_keys",
+    "filepath, dynophore_keys, superfeature_keys, envpartner_keys",
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
-            ["id", "superfeatures"],
-            [
-                "AR[4605,4607,4603,4606,4604]",
-                "AR[4622,4615,4623,4613,4614,4621]",
-                "HBA[4596]",
-                "HBA[4606]",
-                "HBA[4618]",
-                "HBA[4619]",
-                "HBD[4598]",
-                "HBD[4612]",
-                "H[4599,4602,4601,4608,4609,4600]",
-                "H[4615,4623,4622,4613,4621,4614]",
-            ],
-            [
-                "atom_numbers",
-                "envpartners",
-                "feature_type",
-                "id",
-                "occurrences",
-            ],
-            ["atom_numbers", "distances", "id", "name", "occurrences"],
+            ["id", "ligand_name", "ligand_smiles", "superfeatures"],
+            ["id", "feature_type", "atom_numbers", "occurrences", "envpartners"],
+            ["id", "name", "atom_numbers", "occurrences", "distances"],
         )
     ],
 )
 def test_json_to_dict(
-    filepath, dynophore_keys, superfeature_ids, superfeature_keys, envpartner_keys
+    filepath,
+    dynophore_keys,
+    superfeature_keys,
+    envpartner_keys,
 ):
+    """
+    Test data types (not data values) in dict generated from JSON file.
+    """
 
-    pml_dict = parsers._json_to_dict(filepath)
-    assert sorted(pml_dict.keys()) == dynophore_keys
-    assert isinstance(pml_dict["superfeatures"], list)
+    json_dict = parsers._json_to_dict(filepath)
+    assert list(json_dict.keys()) == dynophore_keys
+    assert isinstance(json_dict["superfeatures"], list)
 
-    for superfeature in pml_dict["superfeatures"]:
-        assert sorted(superfeature.keys()) == superfeature_keys
+    for superfeature in json_dict["superfeatures"]:
+        assert list(superfeature.keys()) == superfeature_keys
         assert isinstance(superfeature["atom_numbers"], list)
         assert isinstance(superfeature["envpartners"], list)
         assert isinstance(superfeature["feature_type"], str)
@@ -91,9 +73,12 @@ def test_json_to_dict(
         assert isinstance(superfeature["occurrences"], list)
 
         for envpartner in superfeature["envpartners"]:
-            assert sorted(envpartner.keys()) == envpartner_keys
+            assert list(envpartner.keys()) == envpartner_keys
             assert isinstance(envpartner["atom_numbers"], list)
             assert isinstance(envpartner["distances"], list)
             assert isinstance(envpartner["id"], str)
             assert isinstance(envpartner["name"], str)
             assert isinstance(envpartner["occurrences"], list)
+
+    assert isinstance(json_dict["ligand_name"], str)
+    assert isinstance(json_dict["ligand_smiles"], str)

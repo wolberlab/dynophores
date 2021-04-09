@@ -1,0 +1,2 @@
+/home/dominique/Desktop/data/1KE7_1/in/startframe.pmz
+/home/dominique/Desktop/data/1KE7_1/in/trajectory.dcd
