@@ -12,14 +12,13 @@ from dynophores.core.chemicalfeaturecloud3dpoint import ChemicalFeatureCloud3DPo
 class ChemicalFeatureCloud3D:
     """
     Class to store a chemical feature 3D cloud for one superfeature.
-    TODO: Add frame indices?
 
     Attributes
     ----------
     center : numpy.array
         X, Y, and Z coordiantes of geometrical center of all points in point cloud.
-    points : numpy.array
-        X, Y, and Z coordinates (columns) for each cloud point (rows).
+    points : dynophores.core.chemicalfeaturecloud3d.ChemicalFeatureCloud3D
+        Feature cloud points.
     """
 
     def __init__(self, center, points, **kwargs):
