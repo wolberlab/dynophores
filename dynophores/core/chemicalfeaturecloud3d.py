@@ -6,6 +6,8 @@ Handles the ChemicalFeatureCloud3D class, which describes the point cloud for on
 
 import pandas as pd
 
+from dynophores.core.chemicalfeaturecloud3dpoint import ChemicalFeatureCloud3DPoint
+
 
 class ChemicalFeatureCloud3D:
     """
@@ -14,19 +16,21 @@ class ChemicalFeatureCloud3D:
 
     Attributes
     ----------
-    id : str
-        Superfeature ID (= chemical feature 3D cloud ID).
     center : numpy.array
         X, Y, and Z coordiantes of geometrical center of all points in point cloud.
     points : numpy.array
         X, Y, and Z coordinates (columns) for each cloud point (rows).
     """
 
-    def __init__(self, id, center, points):
+    def __init__(self, center, points, **kwargs):
 
-        self.id = id
         self.center = center
-        self.points = points
+        self.points = [
+            point
+            if isinstance(point, ChemicalFeatureCloud3DPoint)
+            else ChemicalFeatureCloud3DPoint(**point)
+            for point in points
+        ]
 
     @property
     def data(self):

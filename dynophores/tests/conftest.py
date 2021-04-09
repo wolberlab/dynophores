@@ -9,7 +9,10 @@ from pathlib import Path
 import pytest
 import numpy as np
 
-from dynophores import Dynophore, SuperFeature, EnvPartner, ChemicalFeatureCloud3D
+from dynophores import Dynophore
+from dynophores.core.superfeature import SuperFeature
+from dynophores.core.envpartner import EnvPartner
+from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
@@ -67,14 +70,22 @@ def superfeature():
     }
 
     cloud_dict = {
-        "id": "H[4599,4602,4601,4608,4609,4600]",
         "center": np.array([1, 1, 1]),
-        "points": np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]]),
+        "points": [
+            {
+                "x": np.array([-1, -1, -1]),
+                "y": np.array([0, 0, 0]),
+                "z": np.array([1, 1, 1]),
+                "frame_ix": 10,
+                "weight": 1.0,
+            }
+        ],
     }
 
     superfeature_dict = {
         "id": "H[4599,4602,4601,4608,4609,4600]",
         "feature_type": "H",
+        "color": "f73e3e",
         "atom_numbers": [4599, 4602, 4601, 4608, 4609, 4600],
         "occurrences": np.array([0, 1, 1]),
         "envpartners": {

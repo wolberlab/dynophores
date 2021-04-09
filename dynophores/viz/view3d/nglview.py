@@ -107,8 +107,8 @@ def _add_dynophore(view, dynophore):
 
     for _, superfeature in dynophore.superfeatures.items():
         sphere_buffer = {"position": [], "color": [], "radius": []}
-        for point_coordinates in superfeature.cloud.points:
-            sphere_buffer["position"] += point_coordinates.tolist()
+        for point in superfeature.cloud.points:
+            sphere_buffer["position"] += [point.x, point.y, point.z]
             sphere_buffer["color"] += matplotlib.colors.to_rgb(
                 FEATURE_COLORS[superfeature.id.split("[")[0]]
             )

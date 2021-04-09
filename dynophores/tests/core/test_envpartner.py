@@ -7,7 +7,7 @@ Uses fixture tests.conftest.envpartner.
 import pytest
 import numpy as np
 
-from dynophores import EnvPartner
+from dynophores.core.envpartner import EnvPartner
 
 
 class TestsEnvPartner:

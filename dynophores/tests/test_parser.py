@@ -14,30 +14,30 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "filepath, cloud_keys",
+    "filepath, superfeature_keys, cloud_keys",
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",
             ["id", "color", "center", "points"],
+            ["x", "y", "z", "frame_ix", "weight"],
         )
     ],
 )
-def test_pml_to_dict(filepath, cloud_keys):
+def test_pml_to_dict(filepath, superfeature_keys, cloud_keys):
     """
     Test data types (not data values) in dict generated from PML file.
     """
 
     pml_dict = parsers._pml_to_dict(filepath)
-    assert isinstance(pml_dict, OrderedDict)
+    assert isinstance(pml_dict, dict)
 
     for superfeature_id, data in pml_dict.items():
-        assert isinstance(data, OrderedDict)
-        assert list(data.keys()) == cloud_keys
         assert isinstance(superfeature_id, str)
+        assert list(data.keys()) == superfeature_keys
         assert data["id"] == superfeature_id
         assert isinstance(data["color"], str)
         assert isinstance(data["center"], np.ndarray)
-        assert isinstance(data["points"], np.ndarray)
+        assert list(data["points"][0].keys()) == cloud_keys
 
 
 @pytest.mark.parametrize(

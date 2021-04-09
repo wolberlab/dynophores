@@ -8,7 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from dynophores import Dynophore, SuperFeature
+from dynophores import Dynophore
+from dynophores.core.superfeature import SuperFeature
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
@@ -26,7 +27,6 @@ class TestsDynophore:
         for superfeature_id, superfeature in dynophore.superfeatures.items():
             assert isinstance(superfeature_id, str)
             assert isinstance(superfeature, SuperFeature)
-        assert isinstance(dynophore.superfeature_ids, list)
 
     @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "out"])
     def test_from_file(self, filepath):
