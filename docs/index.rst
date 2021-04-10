@@ -52,6 +52,7 @@ This Python library offers visualization schemes for dynophore data generated wi
    tutorials/explore_data
    tutorials/explore_plots
    tutorials/explore_view3d
+   tutorials/explore_view2d
 
 .. toctree::
    :maxdepth: 1
