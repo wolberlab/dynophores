@@ -6,8 +6,8 @@ import math
 import itertools
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import seaborn as sns
 
 plt.style.use("seaborn")
@@ -88,13 +88,24 @@ def superfeatures_occurrences(
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
-    print(superfeature_ids)
 
     # Prepare data
     data = dynophore.superfeatures_occurrences
     if superfeature_ids != "all":
         data = data[superfeature_ids]
-    data = _prepare_dataframe_for_plotting(data, frame_range, frame_step_size, is_occurrences=True)
+    data = _prepare_dataframe_for_plotting(data, frame_range, frame_step_size)
+
+    # If selected data contains no events, do not plot but raise error
+    if (data == 0).all().all():
+        raise ValueError("Your selection contains no data to plot.")
+
+    # Get frame indices with events
+    events_dict = {
+        superfeature_id: superfeature[superfeature == 1].index.to_list()
+        for superfeature_id, superfeature in data.items()
+    }
+    events = list(events_dict.values())
+    superfeature_ids = list(events_dict.keys())
 
     # Feature type colors?
     if color_by_feature_type:
@@ -106,16 +117,15 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, data.shape[1] / 2))
-    data.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color=colors)
-    # Set y tick labels
-    ax.set_yticks(range(0, data.shape[1] + 2))
-    superfeature_labels = dynophore._superfeature_ids_frequencies_strings(data.columns.to_list())
-    ax.set_yticklabels([""] + superfeature_labels + [""])
-    ax.invert_yaxis()
-    # Set x axis limits and label
-    ax.set_xlabel("Frame index")
-    ax.set_xlim((data.index[0], data.index[-1]))
+    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
+    ax = _occurrences(
+        ax=ax,
+        events=events,
+        colors=colors,
+        yticklabels=dynophore._superfeature_ids_frequencies_strings(superfeature_ids),
+        xlabel="Frame index",
+        xlim=(data.index[0], data.index[-1]),
+    )
 
     return fig, ax
 
@@ -172,33 +182,79 @@ def envpartners_occurrences(
 
         # Prepare data
         data = dynophore.envpartners_occurrences_by_superfeature(superfeature_id)
-        data = _prepare_dataframe_for_plotting(
-            data, frame_range, frame_step_size, is_occurrences=True
-        )
+        data = _prepare_dataframe_for_plotting(data, frame_range, frame_step_size)
         if data.isna().all().all():
             ax.set_yticks([0])
             ax.set_yticklabels([""])
         else:
-            data.plot(
-                marker=".",
-                markersize=5,
-                linestyle="",
-                legend=None,
+
+            # Get frame indices with events
+            events_dict = {
+                envpartner_id: envpartner[envpartner == 1].index.to_list()
+                for envpartner_id, envpartner in data.items()
+            }
+            events = list(events_dict.values())
+            envpartner_ids = list(events_dict.keys())
+
+            ax = _occurrences(
                 ax=ax,
-                color="black",
+                events=events,
+                colors="black",
+                yticklabels=dynophore._envpartner_names_frequencies_strings(
+                    superfeature_id, envpartner_ids
+                ),
+                xlabel="",
+                xlim=(data.index[0], data.index[-1]),
             )
-            # Set y tick labels
-            ax.set_yticks(range(0, data.shape[1] + 2))
-            envpartner_labels = dynophore._envpartner_names_frequencies_strings(
-                superfeature_id, data.columns.to_list()
-            )
-            ax.set_yticklabels([""] + envpartner_labels + [""])
-            ax.invert_yaxis()
-            # Set x axis limits and label
-            ax.set_xlabel("Frame")
-            ax.set_xlim((data.index[0], data.index[-1]))
+
+        if len(superfeature_ids) > 1:
+            axes[-1].set_xlabel("Frame index")
+        else:
+            axes.set_xlabel("Frame index")
 
     return fig, axes
+
+
+def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):
+    """
+    Barcodes for superfeatures and for superfeatures' envpartners are set up in the same way,
+    so use this privat helper function to reduce redundant code.
+
+    Parameters
+    ----------
+    ax : matplotlib.axis.Subplot
+        Subplot that shall be used to plot barcode.
+    events : list of list
+        List of list(s) with frame indices where an event occurs.
+    colors : str or int of str
+        A single color for all barcodes or colors for each barcode (#colors == #barcodes).
+    yticklabels : list of str
+        Y axis ticks labels for each barcode (#ylabels == #barcodes).
+    xlim : str
+        X axis label.
+
+    Returns
+    -------
+    matplotlib.axis.Subplot
+        Subplot with barcode(s).
+    """
+
+    ax.eventplot(events, lineoffsets=1, linelength=0.7, linewidths=1, color=colors)
+    # Format y axis
+    positions = range(0, len(yticklabels))
+    # This might be a bug in matplotlib.pyplot.eventplot:
+    # If only one barcode is drawn it is centered at 1 (y) instead of 0 (for >1 barcodes).
+    # Thus, correct `positions` in case of one barcode from [0] to [1]
+    if len(events) == 1:
+        positions = [1]  # Instead of [0]
+    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter(yticklabels))
+    # Format x axis
+    ax.set_xlabel(xlabel)
+    ax.set_xlim(xlim)
+    ax.invert_yaxis()
+
+    return ax
 
 
 def envpartners_distances(
@@ -253,9 +309,7 @@ def envpartners_distances(
 
         # Prepare data
         data = dynophore.envpartners_distances_by_superfeature(superfeature_id)
-        data = _prepare_dataframe_for_plotting(
-            data, frame_range, frame_step_size, is_occurrences=False
-        )
+        data = _prepare_dataframe_for_plotting(data, frame_range, frame_step_size)
         # Add % to environmental partners
         data.columns = dynophore._envpartner_names_frequencies_strings(
             superfeature_id, data.columns.to_list()
@@ -338,6 +392,36 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     # Show interactions from top to bottom from most common to rarest interactions
     axes[0][0].invert_yaxis()
 
+    """
+        # Get frame indices with events
+    events_dict = {
+        superfeature_id: superfeature[superfeature == 1].index.to_list()
+        for superfeature_id, superfeature in data.items()
+    }
+    events = list(events_dict.values())
+    superfeature_ids = list(events_dict.keys())
+
+    # Feature type colors?
+    if color_by_feature_type:
+        colors = [
+            f"#{dynophore.superfeatures[superfeature_id].color}"
+            for superfeature_id in data.columns
+        ]
+    else:
+        colors = "black"
+
+    # Plot (plot size depending on number barcodes)
+    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
+    ax = _occurrences(
+        ax=ax,
+        events=events,
+        colors=colors,
+        yticklabels=dynophore._superfeature_ids_frequencies_strings(superfeature_ids),
+        xlabel="Frame index",
+        xlim=(data.index[0], data.index[-1]),
+    )
+    """
+
     # Subplot (0, 1): Empty (will hold legend from subplot (1, 1))
     axes[0][1].axis("off")
 
@@ -367,9 +451,7 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     return fig, axes
 
 
-def _prepare_dataframe_for_plotting(
-    dataframe, frame_range=[0, None], frame_step_size=1, is_occurrences=True
-):
+def _prepare_dataframe_for_plotting(dataframe, frame_range=[0, None], frame_step_size=1):
     """
     Prepare DataFrame for plotting.
 
@@ -384,9 +466,6 @@ def _prepare_dataframe_for_plotting(
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
-    is_occurrence : bool
-        If DataFrame contains occurrences data (0/1), all 0s will be set to None and all 1 per
-        column will be set to the rank in the plot.
 
     Returns
     -------
@@ -400,16 +479,6 @@ def _prepare_dataframe_for_plotting(
 
     # Slice rows
     dataframe = _slice_dataframe_rows(dataframe, frame_range, frame_step_size)
-
-    # If data describes occurrences, replace 0 with None and transform 1 to rank position in plot
-
-    # Transform 1 in binary values to rank in plot
-    if is_occurrences:
-        dataframe_plot = {}
-        for i, (name, data) in enumerate(dataframe.items()):
-            data = data.replace([0, 1], [None, i + 1])
-            dataframe_plot[name] = data
-        dataframe = pd.DataFrame(dataframe_plot)
 
     return dataframe
 
