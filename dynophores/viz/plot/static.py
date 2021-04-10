@@ -10,8 +10,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from dynophores.definitions import FEATURE_COLORS
-
 plt.style.use("seaborn")
 
 
@@ -90,6 +88,7 @@ def superfeatures_occurrences(
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
+    print(superfeature_ids)
 
     # Prepare data
     data = dynophore.superfeatures_occurrences
@@ -99,9 +98,9 @@ def superfeatures_occurrences(
 
     # Feature type colors?
     if color_by_feature_type:
-        feature_types = [i.split("[")[0] for i in data.columns]
         colors = [
-            FEATURE_COLORS[i] if i in FEATURE_COLORS.keys() else "black" for i in feature_types
+            f"#{dynophore.superfeatures[superfeature_id].color}"
+            for superfeature_id in data.columns
         ]
     else:
         colors = "black"

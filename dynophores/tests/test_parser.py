@@ -1,5 +1,5 @@
 """
-Unit tests for dynophore.viz.view3d.parser.
+Unit tests for dynophores.parsers.
 """
 
 from pathlib import Path
