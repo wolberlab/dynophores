@@ -26,5 +26,5 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
         ),
     ],
 )
-def test_show_dynophore3d(dynophore, pdb_path, dcd_path):
-    view3d.show_dynophore3d(dynophore, pdb_path, dcd_path)
+def test_show(dynophore, pdb_path, dcd_path):
+    view3d.show(dynophore, pdb_path, dcd_path)
