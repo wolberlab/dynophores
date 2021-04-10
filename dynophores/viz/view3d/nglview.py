@@ -6,9 +6,8 @@ import warnings
 
 import nglview as nv
 import MDAnalysis as mda
-import matplotlib
 
-from ...definitions import FEATURE_COLORS
+from dynophores.utils import hex_to_rgb
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -109,9 +108,7 @@ def _add_dynophore(view, dynophore):
         sphere_buffer = {"position": [], "color": [], "radius": []}
         for point in superfeature.cloud.points:
             sphere_buffer["position"] += [point.x, point.y, point.z]
-            sphere_buffer["color"] += matplotlib.colors.to_rgb(
-                FEATURE_COLORS[superfeature.id.split("[")[0]]
-            )
+            sphere_buffer["color"] += hex_to_rgb(superfeature.color)
             sphere_buffer["radius"] += [0.1]
         js = f"""
         var params = {sphere_buffer};
