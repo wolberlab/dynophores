@@ -2,6 +2,26 @@
 Utility functions.
 """
 
+import os
+import shutil
+import tempfile
+import contextlib
+from pathlib import Path
+
+import MDAnalysis as mda
+
+
+@contextlib.contextmanager
+def enter_temp_directory(remove=True):
+    """Create and enter a temporary directory; used as context manager."""
+    temp_dir = tempfile.mkdtemp()
+    cwd = os.getcwd()
+    os.chdir(temp_dir)
+    yield cwd, temp_dir
+    os.chdir(cwd)
+    if remove:
+        shutil.rmtree(temp_dir)
+
 
 def hex_to_rgb(hex_string, scale=True):
     """
@@ -33,3 +53,40 @@ def hex_to_rgb(hex_string, scale=True):
         rgb = [round(value / float(255), 3) for value in rgb]
 
     return rgb
+
+
+def pdb_ligand_data_for_rdkit(pdb_path, ligand_name):
+    """
+    Extract from structure PDB file ligand by ligand name.
+
+    Parameters
+    ----------
+    pdb_path : str or pathlib.Path
+        Path to PDB file
+    ligand_name : str
+        3-letter name of structure-bound ligand.
+
+    Returns
+    -------
+    pdb_block : str
+        Ligand PDB block
+    pdb_atom_ids : list of int
+        Ligand PDB atom IDs.
+    """
+
+    pdb_path = Path(pdb_path)
+
+    # 1. Extract ligand from PDB using MDAnalysis
+    universe = mda.Universe(pdb_path)
+    ligand_mda = universe.select_atoms(f"resname {ligand_name}")
+    if len(ligand_mda.atoms) == 0:
+        raise ValueError("Input ligand name is not part of input PDB file.")
+
+    # 2. Save ligand as PDB temporily to load it into `rdkit`
+    ligand_pdb_atom_ids = [atom.id for atom in ligand_mda.atoms]
+    with enter_temp_directory():
+        ligand_mda.write("ligand.pdb")
+        with open("ligand.pdb", "r") as f:
+            ligand_pdb_block = f.read()
+
+    return ligand_pdb_block, ligand_pdb_atom_ids
