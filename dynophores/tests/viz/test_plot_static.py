@@ -11,18 +11,21 @@ from dynophores.viz import plot
 
 
 @pytest.mark.parametrize(
-    "superfeature_ids",
+    "superfeature_ids, annotate_heatmap",
     [
-        ("all"),  # Default
-        (("all",)),
-        ("AR[4605,4607,4603,4606,4604]"),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"]),
-        (["all", "AR[4622,4615,4623,4613,4614,4621]"]),
+        ("all", False),  # Default
+        ("all", True),
+        (("all",), False),
+        ("AR[4605,4607,4603,4606,4604]", False),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], False),
+        (["all", "AR[4622,4615,4623,4613,4614,4621]"], False),
     ],
 )
-def test_superfeatures_vs_envpartners(dynophore, superfeature_ids):
+def test_superfeatures_vs_envpartners(dynophore, superfeature_ids, annotate_heatmap):
 
-    fig, ax = plot.static.superfeatures_vs_envpartners(dynophore, superfeature_ids)
+    fig, ax = plot.static.superfeatures_vs_envpartners(
+        dynophore, superfeature_ids, annotate_heatmap
+    )
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert isinstance(ax, matplotlib.axes.Subplot)

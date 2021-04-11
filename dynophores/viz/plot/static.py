@@ -13,7 +13,7 @@ import seaborn as sns
 plt.style.use("seaborn")
 
 
-def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
+def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_heatmap=False):
     """
     Plot heatmap of interactions between superfeatures and interaction partners.
 
@@ -24,6 +24,8 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
     superfeature_ids : str or list of str
         Show all superfeatures (default) or select one or more superfeatures by their superfeature
         identifier.
+    annotate_heatmap : bool
+        Annotate heatmap cells (default: False).
 
     Returns
     -------
@@ -45,7 +47,12 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
 
     fig, ax = plt.subplots(1, 1)
     sns.heatmap(
-        data, cmap="Blues", cbar_kws={"label": "Occurrence frequency [%]"}, vmin=0, vmax=100
+        data,
+        annot=annotate_heatmap,
+        cmap="Blues",
+        cbar_kws={"label": "Occurrence frequency [%]"},
+        vmin=0,
+        vmax=100,
     )
     ax.set_xlabel("Superfeature IDs")
     ax.set_ylabel("Environmental partner IDs")

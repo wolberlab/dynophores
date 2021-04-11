@@ -51,6 +51,7 @@ def superfeatures_vs_envpartners(dynophore):
             description="Superfeature ID(s):",
             style=style,
         ),
+        annotate_heatmap=widgets.Checkbox(value=False, description="Annotate heatmap cells"),
     )
 
     return func
