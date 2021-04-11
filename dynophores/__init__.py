@@ -5,8 +5,7 @@ Dynamic pharmacophore modeling of molecular interactions
 
 # Add imports here
 from .core.dynophore import Dynophore
-from .viz import plot
-from .viz import view3d
+from .viz import plot, view2d, view3d
 
 # Handle versioneer
 from ._version import get_versions

@@ -1,5 +1,5 @@
 """
-Contains NGLview visualizations.
+Contains NGLview 3D visualizations.
 """
 
 import warnings
@@ -12,7 +12,7 @@ from dynophores.utils import hex_to_rgb
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def show_dynophore3d(pml_path, pdb_path, dcd_path=None):
+def show(pml_path, pdb_path, dcd_path=None):
     """
     Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
     MD trajectory.
