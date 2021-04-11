@@ -158,19 +158,18 @@ class Dynophore:
             Occurrences (0=no, 1=yes) of a superfeature (columns) in each frame (row).
         """
 
-        occurrence_superfeatures = pd.DataFrame(
+        occurrences = pd.DataFrame(
             {
                 superfeature_id: superfeature.occurrences
                 for superfeature_id, superfeature in self.superfeatures.items()
             }
         ).astype("int32")
 
-        # Sort columns by feature type (alphabetically)
-        superfeature_ids = occurrence_superfeatures.columns.to_list()
-        superfeature_ids.sort()
-        occurrence_superfeatures = occurrence_superfeatures[superfeature_ids]
+        # Sort columns by superfeature occurrence
+        sorted_columns = occurrences.apply(sum).sort_values(ascending=False).index
+        occurrences = occurrences[sorted_columns]
 
-        return occurrence_superfeatures
+        return occurrences
 
     def envpartners_occurrences_by_superfeature(self, superfeature_id):
         """
