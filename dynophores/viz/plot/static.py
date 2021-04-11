@@ -222,48 +222,6 @@ def envpartners_occurrences(
     return fig, axes
 
 
-def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):
-    """
-    Barcodes for superfeatures and for superfeatures' envpartners are set up in the same way,
-    so use this privat helper function to reduce redundant code.
-
-    Parameters
-    ----------
-    ax : matplotlib.axis.Subplot
-        Subplot that shall be used to plot barcode.
-    events : list of list
-        List of list(s) with frame indices where an event occurs.
-    colors : str or int of str
-        A single color for all barcodes or colors for each barcode (#colors == #barcodes).
-    yticklabels : list of str
-        Y axis ticks labels for each barcode (#ylabels == #barcodes).
-    xlim : str
-        X axis label.
-
-    Returns
-    -------
-    matplotlib.axis.Subplot
-        Subplot with barcode(s).
-    """
-
-    ax.eventplot(events, lineoffsets=1, linelength=0.7, linewidths=1, color=colors)
-    # Format y axis
-    positions = range(0, len(yticklabels))
-    # This might be a bug in matplotlib.pyplot.eventplot:
-    # If only one barcode is drawn it is centered at 1 (y) instead of 0 (for >1 barcodes).
-    # Thus, correct `positions` in case of one barcode from [0] to [1]
-    if len(events) == 1:
-        positions = [1]  # Instead of [0]
-    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
-    ax.yaxis.set_major_formatter(ticker.FixedFormatter(yticklabels))
-    # Format x axis
-    ax.set_xlabel(xlabel)
-    ax.set_xlim(xlim)
-    ax.invert_yaxis()
-
-    return ax
-
-
 def envpartners_distances(
     dynophore, superfeature_ids, kind="line", frame_range=[0, None], frame_step_size=1
 ):
@@ -438,6 +396,48 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
 
     return fig, axes
+
+
+def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):
+    """
+    Barcodes for superfeatures and for superfeatures' envpartners are set up in the same way,
+    so use this privat helper function to reduce redundant code.
+
+    Parameters
+    ----------
+    ax : matplotlib.axis.Subplot
+        Subplot that shall be used to plot barcode.
+    events : list of list
+        List of list(s) with frame indices where an event occurs.
+    colors : str or int of str
+        A single color for all barcodes or colors for each barcode (#colors == #barcodes).
+    yticklabels : list of str
+        Y axis ticks labels for each barcode (#ylabels == #barcodes).
+    xlim : str
+        X axis label.
+
+    Returns
+    -------
+    matplotlib.axis.Subplot
+        Subplot with barcode(s).
+    """
+
+    ax.eventplot(events, lineoffsets=1, linelength=0.7, linewidths=1, color=colors)
+    # Format y axis
+    positions = range(0, len(yticklabels))
+    # This might be a bug in matplotlib.pyplot.eventplot:
+    # If only one barcode is drawn it is centered at 1 (y) instead of 0 (for >1 barcodes).
+    # Thus, correct `positions` in case of one barcode from [0] to [1]
+    if len(events) == 1:
+        positions = [1]  # Instead of [0]
+    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter(yticklabels))
+    # Format x axis
+    ax.set_xlabel(xlabel)
+    ax.set_xlim(xlim)
+    ax.invert_yaxis()
+
+    return ax
 
 
 def _prepare_dataframe_for_plotting(dataframe, frame_range=[0, None], frame_step_size=1):
