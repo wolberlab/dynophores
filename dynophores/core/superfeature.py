@@ -68,7 +68,7 @@ class SuperFeature:
         occurrences = self._data(type="occurrences").astype("int32")
 
         # Sort columns by superfeature occurrence
-        sorted_columns = occurrences.apply(sum).sort_values(ascending=False).index
+        sorted_columns = occurrences.sum().sort_values(ascending=False).index
         occurrences = occurrences[sorted_columns]
 
         return occurrences
