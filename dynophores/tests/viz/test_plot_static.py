@@ -144,7 +144,6 @@ def test_envpartners_all_in_one(dynophore, superfeature_id, frames_range, frames
     fig, axes = plot.static.envpartners_all_in_one(
         dynophore, superfeature_id, frames_range, frames_step_size
     )
-    print(axes.size)
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert axes.size == 4
