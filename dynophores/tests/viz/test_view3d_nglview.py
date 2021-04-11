@@ -1,5 +1,5 @@
 """
-Unit tests for dynophore.viz.view3d.nglview.
+Unit tests for dynophore.viz.view3d.interactive.
 
 Will only test if viewer raises errors.
 """
