@@ -462,10 +462,6 @@ def _prepare_dataframe_for_plotting(dataframe, frame_range=[0, None], frame_step
         DataFrame ready for plotting.
     """
 
-    # Sort columns by superfeature/envpartner frequency
-    sorted_columns = dataframe.apply(sum).sort_values(ascending=False).index
-    dataframe = dataframe[sorted_columns]
-
     # Slice rows
     dataframe = _slice_dataframe_rows(dataframe, frame_range, frame_step_size)
 
