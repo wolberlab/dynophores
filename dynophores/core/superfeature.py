@@ -65,7 +65,13 @@ class SuperFeature:
 
         """
 
-        return self._data(type="occurrences").astype("int32")
+        occurrences = self._data(type="occurrences").astype("int32")
+
+        # Sort columns by superfeature occurrence
+        sorted_columns = occurrences.apply(sum).sort_values(ascending=False).index
+        occurrences = occurrences[sorted_columns]
+
+        return occurrences
 
     @property
     def envpartners_distances(self):
@@ -79,7 +85,12 @@ class SuperFeature:
             Distances to an environmental partner (columns) in each frame (row)
         """
 
-        return self._data(type="distances")
+        distances = self._data(type="distances")
+
+        # Sort columns by superfeature occurrence
+        distances = distances[self.envpartners_occurrences.columns]
+
+        return distances
 
     @property
     def n_frames(self):
