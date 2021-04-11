@@ -51,6 +51,7 @@ def superfeatures_vs_envpartners(dynophore):
             description="Superfeature ID(s):",
             style=style,
         ),
+        annotate_heatmap=widgets.Checkbox(value=False, description="Annotate heatmap cells"),
     )
 
     return func
@@ -154,6 +155,14 @@ def envpartners_occurrences(dynophore):
             description="Frames step size:",
             style=style,
         ),
+        occurrence_min=widgets.BoundedFloatText(
+            value=0,
+            min=0,
+            max=100,
+            step=1,
+            description="Occurrence minimum [%]:",
+            style=style,
+        ),
     )
 
     return func
@@ -211,6 +220,14 @@ def envpartners_distances(dynophore):
             description="Frames step size:",
             style=style,
         ),
+        occurrence_min=widgets.BoundedFloatText(
+            value=0,
+            min=0,
+            max=100,
+            step=1,
+            description="Occurrence minimum [%]:",
+            style=style,
+        ),
     )
 
     return func
@@ -261,6 +278,14 @@ def envpartners_all_in_one(dynophore):
             max=dynophore.n_frames - 1,
             step=1,
             description="Frames step size:",
+            style=style,
+        ),
+        occurrence_min=widgets.BoundedFloatText(
+            value=0,
+            min=0,
+            max=100,
+            step=1,
+            description="Occurrence minimum [%]:",
             style=style,
         ),
     )

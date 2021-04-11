@@ -65,7 +65,13 @@ class SuperFeature:
 
         """
 
-        return self._data(type="occurrences").astype("int32")
+        occurrences = self._data(type="occurrences").astype("int32")
+
+        # Sort columns by superfeature occurrence
+        sorted_columns = occurrences.sum().sort_values(ascending=False).index
+        occurrences = occurrences[sorted_columns]
+
+        return occurrences
 
     @property
     def envpartners_distances(self):
@@ -79,7 +85,12 @@ class SuperFeature:
             Distances to an environmental partner (columns) in each frame (row)
         """
 
-        return self._data(type="distances")
+        distances = self._data(type="distances")
+
+        # Sort columns by superfeature occurrence
+        distances = distances[self.envpartners_occurrences.columns]
+
+        return distances
 
     @property
     def n_frames(self):
@@ -107,13 +118,10 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
-        superfeature_count = pd.Series({"any": sum(self.occurrences)})
-        envpartners_count = pd.Series(
-            {
-                envpartner_id: envpartner.count
-                for envpartner_id, envpartner in self.envpartners.items()
-            }
+        superfeature_count = pd.Series(
+            {"any": (self.envpartners_occurrences.sum(axis=1) != 0).sum()}
         )
+        envpartners_count = self.envpartners_occurrences.sum()
 
         return superfeature_count.append(envpartners_count)
 

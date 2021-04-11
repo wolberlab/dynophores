@@ -6,14 +6,14 @@ import math
 import itertools
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import seaborn as sns
 
 plt.style.use("seaborn")
 
 
-def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
+def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_heatmap=False):
     """
     Plot heatmap of interactions between superfeatures and interaction partners.
 
@@ -24,6 +24,8 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
     superfeature_ids : str or list of str
         Show all superfeatures (default) or select one or more superfeatures by their superfeature
         identifier.
+    annotate_heatmap : bool
+        Annotate heatmap cells (default: False).
 
     Returns
     -------
@@ -45,7 +47,12 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all"):
 
     fig, ax = plt.subplots(1, 1)
     sns.heatmap(
-        data, cmap="Blues", cbar_kws={"label": "Occurrence frequency [%]"}, vmin=0, vmax=100
+        data,
+        annot=annotate_heatmap,
+        cmap="Blues",
+        cbar_kws={"label": "Occurrence frequency [%]"},
+        vmin=0,
+        vmax=100,
     )
     ax.set_xlabel("Superfeature IDs")
     ax.set_ylabel("Environmental partner IDs")
@@ -88,13 +95,23 @@ def superfeatures_occurrences(
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
-    print(superfeature_ids)
 
     # Prepare data
-    data = dynophore.superfeatures_occurrences
-    if superfeature_ids != "all":
-        data = data[superfeature_ids]
-    data = _prepare_dataframe_for_plotting(data, frame_range, frame_step_size, is_occurrences=True)
+    data = _prepare_superfeature_plotting_data(
+        dynophore, superfeature_ids, frame_range, frame_step_size
+    )
+
+    # If selected data contains no events, do not plot but raise error
+    if (data == 0).all().all() or data.shape[1] == 0:
+        raise ValueError("Your selection contains no data to plot.")
+
+    # Get frame indices with events
+    events_dict = {
+        superfeature_id: superfeature[superfeature == 1].index.to_list()
+        for superfeature_id, superfeature in data.items()
+    }
+    events = list(events_dict.values())
+    superfeature_ids = list(events_dict.keys())
 
     # Feature type colors?
     if color_by_feature_type:
@@ -106,25 +123,21 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, data.shape[1] / 2))
-    data.plot(marker=".", markersize=5, linestyle="", legend=None, ax=ax, color=colors)
-    # Set y tick labels
-    ax.set_yticks(range(0, data.shape[1] + 2))
-    superfeature_labels = dynophore._superfeature_ids_frequencies_strings(data.columns.to_list())
-    ax.set_yticklabels([""] + superfeature_labels + [""])
-    ax.invert_yaxis()
-    # Set x axis limits and label
-    ax.set_xlabel("Frame index")
-    ax.set_xlim((data.index[0], data.index[-1]))
+    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
+    ax = _occurrences(
+        ax=ax,
+        events=events,
+        colors=colors,
+        yticklabels=dynophore._superfeature_ids_frequencies_strings(superfeature_ids),
+        xlabel="Frame index",
+        xlim=(data.index[0], data.index[-1]),
+    )
 
     return fig, ax
 
 
 def envpartners_occurrences(
-    dynophore,
-    superfeature_ids,
-    frame_range=[0, None],
-    frame_step_size=1,
+    dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1, occurrence_min=0
 ):
     """
     Plot a superfeature's interaction ocurrences with its interaction partners.
@@ -141,6 +154,8 @@ def envpartners_occurrences(
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
+    occurrence_min : int or float
+        Remove all envpartners below the occurrence cutoff (default: 0).
 
     Returns
     -------
@@ -171,38 +186,48 @@ def envpartners_occurrences(
         ax.set_title(superfeature_title[0])
 
         # Prepare data
-        data = dynophore.envpartners_occurrences_by_superfeature(superfeature_id)
-        data = _prepare_dataframe_for_plotting(
-            data, frame_range, frame_step_size, is_occurrences=True
+        data, _ = _prepare_envpartner_plotting_data(
+            dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min
         )
-        if data.isna().all().all():
+        if (data == 0).all().all() or data.shape[1] == 0:
             ax.set_yticks([0])
             ax.set_yticklabels([""])
         else:
-            data.plot(
-                marker=".",
-                markersize=5,
-                linestyle="",
-                legend=None,
+
+            # Get frame indices with events
+            events_dict = {
+                envpartner_id: envpartner[envpartner == 1].index.to_list()
+                for envpartner_id, envpartner in data.items()
+            }
+            events = list(events_dict.values())
+            envpartner_ids = list(events_dict.keys())
+
+            ax = _occurrences(
                 ax=ax,
-                color="black",
+                events=events,
+                colors="black",
+                yticklabels=dynophore._envpartner_names_frequencies_strings(
+                    superfeature_id, envpartner_ids
+                ),
+                xlabel="",
+                xlim=(data.index[0], data.index[-1]),
             )
-            # Set y tick labels
-            ax.set_yticks(range(0, data.shape[1] + 2))
-            envpartner_labels = dynophore._envpartner_names_frequencies_strings(
-                superfeature_id, data.columns.to_list()
-            )
-            ax.set_yticklabels([""] + envpartner_labels + [""])
-            ax.invert_yaxis()
-            # Set x axis limits and label
-            ax.set_xlabel("Frame")
-            ax.set_xlim((data.index[0], data.index[-1]))
+
+        if len(superfeature_ids) > 1:
+            axes[-1].set_xlabel("Frame index")
+        else:
+            axes.set_xlabel("Frame index")
 
     return fig, axes
 
 
 def envpartners_distances(
-    dynophore, superfeature_ids, kind="line", frame_range=[0, None], frame_step_size=1
+    dynophore,
+    superfeature_ids,
+    kind="line",
+    frame_range=[0, None],
+    frame_step_size=1,
+    occurrence_min=0,
 ):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
@@ -222,6 +247,8 @@ def envpartners_distances(
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
+    occurrence_min : int or float
+        Remove all envpartners below the occurrence cutoff (default: 0).
 
     Returns
     -------
@@ -252,35 +279,44 @@ def envpartners_distances(
         ax.set_title(superfeature_title[0])
 
         # Prepare data
-        data = dynophore.envpartners_distances_by_superfeature(superfeature_id)
-        data = _prepare_dataframe_for_plotting(
-            data, frame_range, frame_step_size, is_occurrences=False
-        )
-        # Add % to environmental partners
-        data.columns = dynophore._envpartner_names_frequencies_strings(
-            superfeature_id, data.columns.to_list()
+        _, data = _prepare_envpartner_plotting_data(
+            dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min
         )
 
-        if kind == "line":
-            data.plot(kind="line", ax=ax)
-            ax.set_xlim((data.index[0], data.index[-1]))
-            ax.set_xlabel("Frame index")
-            ax.set_ylabel(r"Distance [$\AA$]")
-            ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
-        elif kind == "hist":
-            value_floor = int(np.floor(data.min().min()))
-            value_ceil = int(np.ceil(data.max().max()))
-            data.plot(kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8)
-            ax.set_xlim((value_floor, value_ceil))
-            ax.set_xlabel(r"Distance [$\AA$]")
-            ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+        if data.shape[1] == 0:
+            ax.set_yticks([0])
+            ax.set_yticklabels([""])
         else:
-            raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
+
+            # Add % to environmental partners
+            data.columns = dynophore._envpartner_names_frequencies_strings(
+                superfeature_id, data.columns.to_list()
+            )
+
+            if kind == "line":
+                data.plot(kind="line", ax=ax)
+                ax.set_xlim((data.index[0], data.index[-1]))
+                ax.set_xlabel("Frame index")
+                ax.set_ylabel(r"Distance [$\AA$]")
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+            elif kind == "hist":
+                value_floor = int(np.floor(data.min().min()))
+                value_ceil = int(np.ceil(data.max().max()))
+                data.plot(
+                    kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8
+                )
+                ax.set_xlim((value_floor, value_ceil))
+                ax.set_xlabel(r"Distance [$\AA$]")
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+            else:
+                raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
 
     return fig, axes
 
 
-def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], frame_step_size=1):
+def envpartners_all_in_one(
+    dynophore, superfeature_id, frame_range=[0, None], frame_step_size=1, occurrence_min=0
+):
     """
     Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances
     (frame series and histogram).
@@ -297,6 +333,8 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
+    occurrence_min : int or float
+        Remove all envpartners below the occurrence cutoff (default: 0).
 
     Returns
     -------
@@ -312,10 +350,12 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id)
 
     # Get data
-    occurrences = dynophore.envpartners_occurrences_by_superfeature(superfeature_id)
-    distances = dynophore.envpartners_distances_by_superfeature(superfeature_id)
-    occurrences = _prepare_dataframe_for_plotting(occurrences, frame_range, frame_step_size)
-    distances = _prepare_dataframe_for_plotting(distances, frame_range, frame_step_size)
+    occurrences, distances = _prepare_envpartner_plotting_data(
+        dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min
+    )
+    # If selected data contains no events, do not plot but raise error
+    if (occurrences.shape[1] == 0) or (distances.shape[1] == 0):
+        raise ValueError("Your selection contains no data to plot.")
 
     # Set up plot
     fig, axes = plt.subplots(
@@ -328,15 +368,27 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     )
 
     # Subplot (0, 0): Interaction occurrences (barplot)
-    occurrences.plot(ax=axes[0][0], kind="line", legend=None, marker=".", linestyle="")
-    # Set y tick labels (tick per envpartner but do not show label)
-    axes[0][0].set_yticks(range(0, occurrences.shape[1] + 2))
+    events_dict = {
+        envpartner_id: envpartner[envpartner == 1].index.to_list()
+        for envpartner_id, envpartner in occurrences.items()
+    }
+    events = list(events_dict.values())
+    # This is an unpretty fix: eventplot does not circle over default colors, so we have to get
+    # default colors and add a few circles to the list
+    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"] * 5
+    envpartner_ids = list(events_dict.keys())
+    axes[0][0] = _occurrences(
+        ax=axes[0][0],
+        events=events,
+        colors=colors[: len(envpartner_ids)],
+        yticklabels=dynophore._envpartner_names_frequencies_strings(
+            superfeature_id, envpartner_ids
+        ),
+        xlabel="",
+        xlim=(occurrences.index[0], occurrences.index[-1]),
+    )
+    # Set y tick labels
     axes[0][0].set_yticklabels("")
-    # Set x axis limits and label
-    axes[0][0].set_xlabel("Frame index")
-    axes[0][0].set_xlim((occurrences.index[0], occurrences.index[-1]))
-    # Show interactions from top to bottom from most common to rarest interactions
-    axes[0][0].invert_yaxis()
 
     # Subplot (0, 1): Empty (will hold legend from subplot (1, 1))
     axes[0][1].axis("off")
@@ -367,26 +419,73 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     return fig, axes
 
 
-def _prepare_dataframe_for_plotting(
-    dataframe, frame_range=[0, None], frame_step_size=1, is_occurrences=True
-):
+def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):
     """
-    Prepare DataFrame for plotting.
+    Barcodes for superfeatures and for superfeatures' envpartners are set up in the same way,
+    so use this privat helper function to reduce redundant code.
 
     Parameters
     ----------
-    dataframe : pandas.DataFrame
-        DataFrame of occurrences (or distances) of superfeatures/envpartners (columns) over
-        trajectory frames (rows).
+    ax : matplotlib.axis.Subplot
+        Subplot that shall be used to plot barcode.
+    events : list of list
+        List of list(s) with frame indices where an event occurs.
+    colors : str or int of str
+        A single color for all barcodes or colors for each barcode (#colors == #barcodes).
+    yticklabels : list of str
+        Y axis ticks labels for each barcode (#ylabels == #barcodes).
+    xlim : str
+        X axis label.
+
+    Returns
+    -------
+    matplotlib.axis.Subplot
+        Subplot with barcode(s).
+    """
+
+    ax.eventplot(events, lineoffsets=1, linelength=0.7, linewidths=1, color=colors)
+    # Format y axis
+    positions = range(0, len(yticklabels))
+    # This might be a bug in matplotlib.pyplot.eventplot:
+    # If only one barcode is drawn it is centered at 1 (y) instead of 0 (for >1 barcodes).
+    # Thus, correct `positions` in case of one barcode from [0] to [1]
+    if len(events) == 1:
+        positions = [1]  # Instead of [0]
+    ax.yaxis.set_major_locator(ticker.FixedLocator(positions))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter(yticklabels))
+    # Format x axis
+    ax.set_xlabel(xlabel)
+    ax.set_xlim(xlim)
+    ax.invert_yaxis()
+
+    return ax
+
+
+def _prepare_envpartner_plotting_data(
+    dynophore,
+    superfeature_id,
+    frame_range=[0, None],
+    frame_step_size=1,
+    occurrence_min=0,
+):
+
+    """
+    Prepare envpartner data for plotting.
+
+    Parameters
+    ----------
+    dynophore : dynophores.Dynophore
+        Dynophore.
+    superfeature_ids : list of str or str
+        Superfeature ID.
     frame_range : list of int or list of [int, None]
         Select frame range [start, end]. If end is None, last available frame will be used.
         Default: Select first (0) and last (None) frames.
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
-    is_occurrence : bool
-        If DataFrame contains occurrences data (0/1), all 0s will be set to None and all 1 per
-        column will be set to the rank in the plot.
+    occurrence_min : int or float
+        Remove all envpartners below the occurrence cutoff (default: 0).
 
     Returns
     -------
@@ -394,24 +493,65 @@ def _prepare_dataframe_for_plotting(
         DataFrame ready for plotting.
     """
 
-    # Sort columns by superfeature/envpartner frequency
-    sorted_columns = dataframe.apply(sum).sort_values(ascending=False).index
-    dataframe = dataframe[sorted_columns]
+    superfeature = dynophore.superfeatures[superfeature_id]
 
+    # Prepare occurrences
+    occurrences = superfeature.envpartners_occurrences
+    # Sort columns by envpartner frequency
+    sorted_columns = occurrences.sum().sort_values(ascending=False).index
+    occurrences = occurrences[sorted_columns]
+    # Select columns by occurrence_min
+    frequency = superfeature.frequency.drop("any")
+    selected_columns = frequency[frequency >= occurrence_min].index
+    occurrences = occurrences[selected_columns]
     # Slice rows
-    dataframe = _slice_dataframe_rows(dataframe, frame_range, frame_step_size)
+    occurrences = _slice_dataframe_rows(occurrences, frame_range, frame_step_size)
 
-    # If data describes occurrences, replace 0 with None and transform 1 to rank position in plot
+    # Prepare distances
+    distances = dynophore.envpartners_distances_by_superfeature(superfeature_id)
+    # Select distances by occurrences columns/indices
+    distances = distances.loc[occurrences.index, occurrences.columns]
 
-    # Transform 1 in binary values to rank in plot
-    if is_occurrences:
-        dataframe_plot = {}
-        for i, (name, data) in enumerate(dataframe.items()):
-            data = data.replace([0, 1], [None, i + 1])
-            dataframe_plot[name] = data
-        dataframe = pd.DataFrame(dataframe_plot)
+    return occurrences, distances
 
-    return dataframe
+
+def _prepare_superfeature_plotting_data(
+    dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1
+):
+    """
+    Prepare superfeature data for plotting.
+
+    Parameters
+    ----------
+    dynophore : dynophores.Dynophore
+        Dynophore.
+    superfeature_ids : list of str or str
+        List of superfeature IDs or "all".
+    frame_range : list of int or list of [int, None]
+        Select frame range [start, end]. If end is None, last available frame will be used.
+        Default: Select first (0) and last (None) frames.
+    frame_step_size : int
+        Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
+        If e.g. step size is 10, every 10th frame will be selected.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame ready for plotting.
+    """
+
+    data = dynophore.superfeatures_occurrences
+    if superfeature_ids != "all":
+        data = data[superfeature_ids]
+
+    # Sort columns by superfeature frequency
+    sorted_columns = data.sum().sort_values(ascending=False).index
+    data = data[sorted_columns]
+
+    # Select rows
+    data = _slice_dataframe_rows(data, frame_range, frame_step_size)
+
+    return data
 
 
 def _slice_dataframe_rows(dataframe, ix_range, ix_step_size):

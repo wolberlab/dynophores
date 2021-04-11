@@ -11,18 +11,21 @@ from dynophores.viz import plot
 
 
 @pytest.mark.parametrize(
-    "superfeature_ids",
+    "superfeature_ids, annotate_heatmap",
     [
-        ("all"),  # Default
-        (("all",)),
-        ("AR[4605,4607,4603,4606,4604]"),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"]),
-        (["all", "AR[4622,4615,4623,4613,4614,4621]"]),
+        ("all", False),  # Default
+        ("all", True),
+        (("all",), False),
+        ("AR[4605,4607,4603,4606,4604]", False),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], False),
+        (["all", "AR[4622,4615,4623,4613,4614,4621]"], False),
     ],
 )
-def test_superfeatures_vs_envpartners(dynophore, superfeature_ids):
+def test_superfeatures_vs_envpartners(dynophore, superfeature_ids, annotate_heatmap):
 
-    fig, ax = plot.static.superfeatures_vs_envpartners(dynophore, superfeature_ids)
+    fig, ax = plot.static.superfeatures_vs_envpartners(
+        dynophore, superfeature_ids, annotate_heatmap
+    )
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert isinstance(ax, matplotlib.axes.Subplot)
@@ -71,18 +74,20 @@ def test_superfeatures_occurrences_raises(dynophore, superfeature_ids):
 
 
 @pytest.mark.parametrize(
-    "superfeature_ids, frames_range, frames_step_size",
+    "superfeature_ids, frames_range, frames_step_size, occurrence_min",
     [
-        ("AR[4605,4607,4603,4606,4604]", [0, None], 1),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [0, None], 10),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 1),
-        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 10),
+        ("AR[4605,4607,4603,4606,4604]", [0, None], 1, 50),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [0, None], 10, 50),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 1, 50),
+        (["AR[4605,4607,4603,4606,4604]", "AR[4622,4615,4623,4613,4614,4621]"], [10, 90], 10, 50),
     ],
 )
-def test_envpartners_occurrences(dynophore, superfeature_ids, frames_range, frames_step_size):
+def test_envpartners_occurrences(
+    dynophore, superfeature_ids, frames_range, frames_step_size, occurrence_min
+):
 
     fig, axes = plot.static.envpartners_occurrences(
-        dynophore, superfeature_ids, frames_range, frames_step_size
+        dynophore, superfeature_ids, frames_range, frames_step_size, occurrence_min
     )
 
     assert isinstance(fig, matplotlib.figure.Figure)
@@ -141,7 +146,6 @@ def test_envpartners_all_in_one(dynophore, superfeature_id, frames_range, frames
     fig, axes = plot.static.envpartners_all_in_one(
         dynophore, superfeature_id, frames_range, frames_step_size
     )
-    print(axes.size)
 
     assert isinstance(fig, matplotlib.figure.Figure)
     assert axes.size == 4
