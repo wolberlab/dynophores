@@ -1,7 +1,11 @@
 """
 Unit tests for dynophore.viz.view3d.interactive.
 
-Will only test if viewer raises errors.
+Will only test if function signature is correct.
+Does not test if called function executes without error (but those functions are tested elsewhere
+anyways).
+Issue reported here: https://github.com/jupyter-widgets/ipywidgets/issues/2949
+
 """
 
 from pathlib import Path

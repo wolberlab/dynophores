@@ -59,16 +59,16 @@ class Ligand:
         self._pdb_atom_ids = pdb_atom_ids
 
     @classmethod
-    def from_pdb(cls, pdb_path, dynophore):
+    def from_dynophore(cls, dynophore, pdb_path):
         """
         Load ligand data from PDB file and dynophore object.  # TODO add ligand PDB content to PML
 
         Parameters
         ----------
-        pdb_path : str or pathlib.Path
-            Path to PDB file
         dynophore : dynophores.Dynophore
             Dynophore object.
+        pdb_path : str or pathlib.Path
+            Path to PDB file
 
         Returns
         -------
@@ -85,7 +85,7 @@ class Ligand:
                 for superfeature_id, superfeature in dynophore.superfeatures.items()
             },
             superfeatures_colors={
-                superfeature_id: tuple(hex_to_rgb(superfeature.color))
+                superfeature_id: superfeature.color
                 for superfeature_id, superfeature in dynophore.superfeatures.items()
             },
             pdb_block=pdb_block,
@@ -103,6 +103,8 @@ class Ligand:
 
         Returns
         -------
+        mol : rdkit.Chem.rdchem.Mol
+            Molecule.
 
 
         Notes
@@ -143,6 +145,16 @@ class Ligand:
         """
         2D view of ligand with highlighted superfeatures. Uses rdkit.
 
+        Parameters
+        ----------
+        show_pdb_serial_numbers : bool
+            Show PDB serial numbers of ligand atoms (default: False).
+
+        Returns
+        -------
+        IPython.core.display.Image
+            2D view of ligand with superfeatures.
+
         Notes
         -----
         Code to highlight substructures is taken from Greg Landrum's blog post:
@@ -151,7 +163,10 @@ class Ligand:
 
         mol = self.view2d(show_pdb_serial_numbers)
         superfeatures_pdb_atom_ids = self._superfeatures_pdb_atom_ids
-        superfeatures_colors = self._superfeatures_colors
+        superfeatures_colors = {
+            superfeature_id: tuple(hex_to_rgb(color))
+            for superfeature_id, color in self._superfeatures_colors.items()
+        }
 
         (
             highlight_atoms,

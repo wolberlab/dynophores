@@ -83,7 +83,7 @@ def pdb_ligand_data_for_rdkit(pdb_path, ligand_name):
         raise ValueError("Input ligand name is not part of input PDB file.")
 
     # 2. Save ligand as PDB temporily to load it into `rdkit`
-    ligand_pdb_atom_ids = [atom.id for atom in ligand_mda.atoms]
+    ligand_pdb_atom_ids = [int(atom.id) for atom in ligand_mda.atoms]
     with enter_temp_directory():
         ligand_mda.write("ligand.pdb")
         with open("ligand.pdb", "r") as f:

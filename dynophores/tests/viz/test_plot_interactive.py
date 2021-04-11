@@ -1,7 +1,10 @@
 """
 Unit tests for dynophore.viz.plot.interactive.
 
-Will only test if interactive plotting raises errors.
+Will only test if function signature is correct.
+Does not test if called function executes without error (but those functions are tested elsewhere
+anyways).
+Issue reported here: https://github.com/jupyter-widgets/ipywidgets/issues/2949
 """
 
 from dynophores.viz import plot

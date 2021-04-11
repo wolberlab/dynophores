@@ -22,7 +22,7 @@ def show(dynophore, pdb_path, show_superfeatures=False, show_pdb_serial_numbers=
         Molecule (with/without superfeatures).
     """
 
-    ligand = Ligand.from_pdb(pdb_path, dynophore)
+    ligand = Ligand.from_dynophore(dynophore, pdb_path)
     if show_superfeatures:
         return ligand.view2d_superfeatures(show_pdb_serial_numbers)
     else:
