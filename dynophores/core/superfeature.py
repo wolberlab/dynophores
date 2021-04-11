@@ -118,13 +118,10 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
-        superfeature_count = pd.Series({"any": sum(self.occurrences)})
-        envpartners_count = pd.Series(
-            {
-                envpartner_id: envpartner.count
-                for envpartner_id, envpartner in self.envpartners.items()
-            }
+        superfeature_count = pd.Series(
+            {"any": (self.envpartners_occurrences.sum(axis=1) != 0).sum()}
         )
+        envpartners_count = self.envpartners_occurrences.sum()
 
         return superfeature_count.append(envpartners_count)
 
