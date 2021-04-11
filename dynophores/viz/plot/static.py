@@ -389,45 +389,27 @@ def envpartners_all_in_one(dynophore, superfeature_id, frame_range=[0, None], fr
     )
 
     # Subplot (0, 0): Interaction occurrences (barplot)
-    occurrences.plot(ax=axes[0][0], kind="line", legend=None, marker=".", linestyle="")
-    # Set y tick labels (tick per envpartner but do not show label)
-    axes[0][0].set_yticks(range(0, occurrences.shape[1] + 2))
-    axes[0][0].set_yticklabels("")
-    # Set x axis limits and label
-    axes[0][0].set_xlabel("Frame index")
-    axes[0][0].set_xlim((occurrences.index[0], occurrences.index[-1]))
-    # Show interactions from top to bottom from most common to rarest interactions
-    axes[0][0].invert_yaxis()
-
-    """
-        # Get frame indices with events
     events_dict = {
-        superfeature_id: superfeature[superfeature == 1].index.to_list()
-        for superfeature_id, superfeature in data.items()
+        envpartner_id: envpartner[envpartner == 1].index.to_list()
+        for envpartner_id, envpartner in occurrences.items()
     }
     events = list(events_dict.values())
-    superfeature_ids = list(events_dict.keys())
-
-    # Feature type colors?
-    if color_by_feature_type:
-        colors = [
-            f"#{dynophore.superfeatures[superfeature_id].color}"
-            for superfeature_id in data.columns
-        ]
-    else:
-        colors = "black"
-
-    # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
-    ax = _occurrences(
-        ax=ax,
+    # This is an unpretty fix: eventplot does not circle over default colors, so we have to get
+    # default colors and add a few circles to the list
+    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"] * 5
+    envpartner_ids = list(events_dict.keys())
+    axes[0][0] = _occurrences(
+        ax=axes[0][0],
         events=events,
-        colors=colors,
-        yticklabels=dynophore._superfeature_ids_frequencies_strings(superfeature_ids),
-        xlabel="Frame index",
-        xlim=(data.index[0], data.index[-1]),
+        colors=colors[: len(envpartner_ids)],
+        yticklabels=dynophore._envpartner_names_frequencies_strings(
+            superfeature_id, envpartner_ids
+        ),
+        xlabel="",
+        xlim=(occurrences.index[0], occurrences.index[-1]),
     )
-    """
+    # Set y tick labels
+    axes[0][0].set_yticklabels("")
 
     # Subplot (0, 1): Empty (will hold legend from subplot (1, 1))
     axes[0][1].axis("off")
