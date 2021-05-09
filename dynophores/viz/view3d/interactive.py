@@ -15,7 +15,14 @@ MACROMOLECULE_COLOR = "#005780"  # blue
 LIGAND_COLOR = "#808080"  # grey
 
 
-def show(dynophore, pdb_path, dcd_path=None, visualization_type="spheres", macromolecule_color=MACROMOLECULE_COLOR, ligand_color=LIGAND_COLOR):
+def show(
+    dynophore,
+    pdb_path,
+    dcd_path=None,
+    visualization_type="spheres",
+    macromolecule_color=MACROMOLECULE_COLOR,
+    ligand_color=LIGAND_COLOR,
+):
     """
     Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
     MD trajectory.
@@ -49,7 +56,9 @@ def show(dynophore, pdb_path, dcd_path=None, visualization_type="spheres", macro
 
     # Add interacting pocket residues
     envpartners = dynophore.unique_envpartners_chain_residue_number
-    envpartners = " or ".join([f"(:{chain} and {residue_number})" for chain, residue_number in envpartners])
+    envpartners = " or ".join(
+        [f"(:{chain} and {residue_number})" for chain, residue_number in envpartners]
+    )
     view.add_representation("hyperball", selection=envpartners)
 
     # Add dynophore
@@ -123,17 +132,20 @@ def _add_dynophore(view, dynophore, visualization_type):
             buffer["position"] += [point.x, point.y, point.z]
             buffer["color"] += hex_to_rgb(superfeature.color)
             buffer["radius"] += [0.1]
-        
+
         if visualization_type == "spheres":
             js = _js_sphere_buffer(buffer, superfeature.id)
         elif visualization_type == "points":
             js = _js_point_buffer(buffer, superfeature.id)
         else:
-            raise ValueError("Visualization style unknown. Please choose from `spheres` or `points`.")
+            raise ValueError(
+                "Visualization style unknown. Please choose from `spheres` or `points`."
+            )
 
         view._js(js)
 
     return view
+
 
 def _js_sphere_buffer(buffer, superfeature_id):
 
@@ -147,9 +159,10 @@ def _js_sphere_buffer(buffer, superfeature_id):
         shapeComp.addRepresentation("buffer", {{opacity:0.55}});
         """
 
+
 def _js_point_buffer(buffer, superfeature_id):
 
-        return f"""
+    return f"""
         var point_buffer = new NGL.PointBuffer(
             {{
                 position: new Float32Array({buffer["position"]}),

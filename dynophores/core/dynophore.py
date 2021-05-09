@@ -316,7 +316,7 @@ class Dynophore:
     @property
     def unique_envpartners_chain_residue_number(self):
         """
-        List of unique environmental partners (chain and residue number). 
+        List of unique environmental partners (chain and residue number).
         Useful for 3D visualization of interacting pocket residues.
 
         Returns
@@ -327,10 +327,8 @@ class Dynophore:
 
         envpartners = [
             (envpartner.chain, envpartner.residue_number)
-            for superfeature_id, superfeature 
-            in self.superfeatures.items() 
-            for envpartner_id, envpartner 
-            in superfeature.envpartners.items()
+            for superfeature_id, superfeature in self.superfeatures.items()
+            for envpartner_id, envpartner in superfeature.envpartners.items()
         ]
         envpartners = set(envpartners)
         return envpartners
