@@ -18,17 +18,34 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "pdb_path, dcd_path",
+    "pdb_path, dcd_path, visualization_type",
     [
         (
             PATH_TEST_DATA / "in/startframe.pdb",
             None,
+            "spheres"
         ),
         (
             PATH_TEST_DATA / "in/startframe.pdb",
             PATH_TEST_DATA / "in/trajectory.dcd",
+            "points"
         ),
     ],
 )
-def test_show(dynophore, pdb_path, dcd_path):
-    view3d.show(dynophore, pdb_path, dcd_path)
+def test_show(dynophore, pdb_path, dcd_path, visualization_type):
+    view3d.show(dynophore, pdb_path, dcd_path, visualization_type)
+
+@pytest.mark.parametrize(
+    "pdb_path, dcd_path, visualization_type",
+    [
+        (
+            PATH_TEST_DATA / "in/startframe.pdb",
+            None,
+            "xxx"
+        ),
+    ],
+)
+def test_show_raises(dynophore, pdb_path, dcd_path, visualization_type):
+    
+    with pytest.raises(ValueError):
+        view3d.show(dynophore, pdb_path, dcd_path, visualization_type)
