@@ -11,8 +11,11 @@ from dynophores.utils import hex_to_rgb
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+MACROMOLECULE_COLOR = "#005780"  # blue
+LIGAND_COLOR = "#808080"  # grey
 
-def show(dynophore, pdb_path, dcd_path=None, visualization_type="spheres"):
+
+def show(dynophore, pdb_path, dcd_path=None, visualization_type="spheres", macromolecule_color=MACROMOLECULE_COLOR, ligand_color=LIGAND_COLOR):
     """
     Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
     MD trajectory.
@@ -34,15 +37,22 @@ def show(dynophore, pdb_path, dcd_path=None, visualization_type="spheres"):
         Visualization with the NGL Viewer.
     """
 
+    # Show structure or trajectory
     if dcd_path is None:
         view = _show_structure(pdb_path)
     else:
         view = _show_trajectory(pdb_path, dcd_path)
-
+    # Set representation and color for protein and ligand
     view.clear_representations()
-    view.add_representation("cartoon", selection="protein", color="grey")
+    view.add_representation("cartoon", selection="protein", color=macromolecule_color)
     view.add_representation("hyperball", selection="ligand")
-    
+
+    # Add interacting pocket residues
+    envpartners = dynophore.unique_envpartners_chain_residue_number
+    envpartners = " or ".join([f"(:{chain} and {residue_number})" for chain, residue_number in envpartners])
+    view.add_representation("hyperball", selection=envpartners)
+
+    # Add dynophore
     _add_dynophore(view, dynophore, visualization_type)
 
     return view
