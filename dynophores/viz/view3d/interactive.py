@@ -21,7 +21,6 @@ def show(
     dcd_path=None,
     visualization_type="spheres",
     macromolecule_color=MACROMOLECULE_COLOR,
-    ligand_color=LIGAND_COLOR,
 ):
     """
     Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
@@ -37,6 +36,8 @@ def show(
         Optionally: Path to DCD file (trajectory).
     visualization_type : str
         Visualization type for dynophore cloud: `spheres` or `points`
+    macromolecule_color : str
+        Hex code for macromolecule color.
 
     Returns
     -------
@@ -56,11 +57,10 @@ def show(
 
     # Add interacting pocket residues
     envpartners = dynophore.unique_envpartners_chain_residue_number
-    envpartners = " or ".join(
+    envpartners_string = " or ".join(
         [f"(:{chain} and {residue_number})" for chain, residue_number in envpartners]
     )
-    view.add_representation("hyperball", selection=envpartners)
-
+    view.add_representation("licorice", selection=envpartners_string)
     # Add dynophore
     _add_dynophore(view, dynophore, visualization_type)
 
@@ -93,6 +93,8 @@ def _show_trajectory(pdb_path, dcd_path):
 
     Parameters
     ----------
+    pdb_path : str or pathlib.Path
+        Path to PDB file (structure/topology)
     dcd_path : None or str or pathlib.Path
         Optionally: Path to DCD file (trajectory).
 
@@ -119,6 +121,9 @@ def _add_dynophore(view, dynophore, visualization_type):
         belonging to the dynophore.
     dynophore : Dynophore
         Dynophore data (includes data from JSON and PML file).
+    visualization_type : str
+        Visualization type for dynophore cloud: `spheres` or `points`
+
 
     Returns
     -------
@@ -148,6 +153,20 @@ def _add_dynophore(view, dynophore, visualization_type):
 
 
 def _js_sphere_buffer(buffer, superfeature_id):
+    """
+    Create JavaScript string generating a sphere buffer from buffer parameters.
+
+    Parameters
+    ----------
+    buffer : str
+        Buffer parameters.
+    superfeature_id : str
+        Superfeature ID.
+
+    Returns
+    -------
+    JavaScript string generating a sphere buffer.
+    """
 
     return f"""
         var params = {buffer};
@@ -161,6 +180,21 @@ def _js_sphere_buffer(buffer, superfeature_id):
 
 
 def _js_point_buffer(buffer, superfeature_id):
+    """
+    Create JavaScript string generating a point buffer from buffer parameters.
+    TODO: Visualization contains artifacts
+
+    Parameters
+    ----------
+    buffer : str
+        Buffer parameters.
+    superfeature_id : str
+        Superfeature ID.
+
+    Returns
+    -------
+    JavaScript string generating a point buffer.
+    """
 
     return f"""
         var point_buffer = new NGL.PointBuffer(
