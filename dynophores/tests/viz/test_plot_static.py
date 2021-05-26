@@ -23,12 +23,7 @@ from dynophores.viz import plot
 )
 def test_superfeatures_vs_envpartners(dynophore, superfeature_ids, annotate_heatmap):
 
-    fig, ax = plot.static.superfeatures_vs_envpartners(
-        dynophore, superfeature_ids, annotate_heatmap
-    )
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    assert isinstance(ax, matplotlib.axes.Subplot)
+    plot.static.superfeatures_vs_envpartners(dynophore, superfeature_ids, annotate_heatmap)
 
 
 @pytest.mark.parametrize("superfeature_ids", ["xxx"])
@@ -58,12 +53,9 @@ def test_superfeatures_occurrences(
     dynophore, superfeature_ids, color_by_feature_type, frames_range, frames_step_size
 ):
 
-    fig, ax = plot.static.superfeatures_occurrences(
+    plot.static.superfeatures_occurrences(
         dynophore, superfeature_ids, color_by_feature_type, frames_range, frames_step_size
     )
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    assert isinstance(ax, matplotlib.axes.Subplot)
 
 
 @pytest.mark.parametrize("superfeature_ids", ["xxx"])
@@ -86,16 +78,9 @@ def test_envpartners_occurrences(
     dynophore, superfeature_ids, frames_range, frames_step_size, occurrence_min
 ):
 
-    fig, axes = plot.static.envpartners_occurrences(
+    plot.static.envpartners_occurrences(
         dynophore, superfeature_ids, frames_range, frames_step_size, occurrence_min
     )
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    if isinstance(superfeature_ids, str):
-        assert isinstance(axes, matplotlib.axes.Subplot)
-    else:
-        for ax in axes:
-            assert isinstance(ax, matplotlib.axes.Subplot)
 
 
 @pytest.mark.parametrize("superfeature_id", ["xxx", ["AR[4605,4607,4603,4606,4604]", "xxx"]])
@@ -115,14 +100,7 @@ def test_envpartners_occurrences_raises(dynophore, superfeature_id):
 )
 def test_envpartners_distances(dynophore, superfeature_ids, kind):
 
-    fig, axes = plot.static.envpartners_distances(dynophore, superfeature_ids, kind)
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    if isinstance(superfeature_ids, str):
-        assert isinstance(axes, matplotlib.axes.Subplot)
-    else:
-        for ax in axes:
-            assert isinstance(ax, matplotlib.axes.Subplot)
+    plot.static.envpartners_distances(dynophore, superfeature_ids, kind)
 
 
 @pytest.mark.parametrize(
@@ -143,13 +121,7 @@ def test_envpartner_distances_raises(dynophore, superfeature_id, kind):
 )
 def test_envpartners_all_in_one(dynophore, superfeature_id, frames_range, frames_step_size):
 
-    fig, axes = plot.static.envpartners_all_in_one(
-        dynophore, superfeature_id, frames_range, frames_step_size
-    )
-
-    assert isinstance(fig, matplotlib.figure.Figure)
-    assert axes.size == 4
-    assert isinstance(axes[0][0], matplotlib.axes.Subplot)
+    plot.static.envpartners_all_in_one(dynophore, superfeature_id, frames_range, frames_step_size)
 
 
 @pytest.mark.parametrize("superfeature_id", ["xxx"])
