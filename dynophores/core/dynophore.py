@@ -12,6 +12,7 @@ import pandas as pd
 
 from dynophores import parsers
 from dynophores.core.superfeature import SuperFeature
+from dynophores.core.ligand import Ligand
 
 logger = logging.getLogger(__name__)
 
@@ -25,19 +26,22 @@ class Dynophore:
     ----------
     id : str
         Dynophore name.
-    ligand_name : str
-        3-letter name of structure-bound ligand.
-    ligand_smiles : str
-        SMILES of structure-bound ligand.
-    superfeatures : dict of str: dynophores.base.SuperFeature
+    ligand : dynophores.Ligand
+        Ligand information.
+    superfeatures : dict of str: dynophores.SuperFeature
         Dynophore superfeatures (values) by superfeature IDs (keys).
     """
 
-    def __init__(self, id, ligand_name, ligand_smiles, superfeatures, **kwargs):
+    def __init__(
+        self,
+        id,
+        ligand,
+        superfeatures,
+        **kwargs,
+    ):
 
         self.id = id
-        self.ligand_name = ligand_name
-        self.ligand_smiles = ligand_smiles
+        self.ligand = ligand if isinstance(ligand, Ligand) else Ligand(**ligand)
         self.superfeatures = {
             superfeature_id: superfeature
             if isinstance(superfeature, SuperFeature)
@@ -388,3 +392,21 @@ class Dynophore:
         )
 
         return envpartner_names_frequencies_strings
+
+    @property
+    def superfeatures_atom_serials(self):
+        """TODO"""
+
+        return {
+            superfeature_id: superfeature.atom_numbers
+            for superfeature_id, superfeature in self.superfeatures.items()
+        }
+
+    @property
+    def superfeatures_colors(self):
+        """TODO"""
+
+        return {
+            superfeature_id: superfeature.color
+            for superfeature_id, superfeature in self.superfeatures.items()
+        }

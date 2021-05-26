@@ -29,6 +29,8 @@ def _json_to_dict(json_path):
         - id : str
         - ligand_name : str
         - ligand_smiles : str
+        - ligand_mdl_mol_buffer : str
+        - ligand_atom_serials : str
         - superfeatures : list
             - id : str
             - feature_type : str
@@ -135,8 +137,11 @@ def _json_pml_to_dict(json_path, pml_path):
     dict
         Dynophore data with the following keys and nested keys (key : value data type):
         - "id" : str
-        - "ligand_name" : str
-        - "ligand_smiles" : str
+        - "ligand" : dict
+          - "name" : str
+          - "smiles" : str
+          - "mdl_mol_buffer" : str
+          - "atoms_serials" : list of int
         - "superfeatures" : dict
             - <superfeature id> : str
                 - "id" : str
@@ -180,13 +185,64 @@ def _json_pml_to_dict(json_path, pml_path):
         )
 
     # Merge dicts from JSON and PML files
-    dynophore_dict = json_dict
+    dynophore_dict = {}
+    dynophore_dict["id"] = json_dict["id"]
+    dynophore_dict["ligand"] = _format_ligand_dict(json_dict)
+    dynophore_dict["superfeatures"] = _format_superfeatures_dict(json_dict, pml_dict)
+
+    return dynophore_dict
+
+
+def _format_ligand_dict(json_dict):
+    """
+    Format ligand dictionary.
+
+    Parameters
+    ----------
+    json_dict : dict
+        Dictionary with JSON file information.
+
+    Returns
+    -------
+    dict
+        Formatted dictionary as needed to initialize a Ligand object using **kwargs.
+    """
+
+    ligand_dict = {}
+    ligand_dict["name"] = json_dict["ligand_name"]
+    ligand_dict["smiles"] = json_dict["ligand_smiles"]
+    ligand_dict["mdl_mol_buffer"] = json_dict["ligand_mdl_mol_buffer"]
+    ligand_dict["atom_serials"] = [
+        int(serial) for serial in json_dict["ligand_atom_serials"].split(",")
+    ]
+
+    return ligand_dict
+
+
+def _format_superfeatures_dict(json_dict, pml_dict):
+    """
+    Format superfeatures dictionary.
+
+    Parameters
+    ----------
+    json_dict : dict
+        Dictionary with JSON file information.
+    pml_dict : dict
+        Dictionary with PML file information.
+
+    Returns
+    -------
+    dict
+        Formatted dictionary as needed to initialize the dynophore's SuperFeature object using
+        **kwargs.
+    """
+
     # Save superfeatures as dict with superfeature IDs as keys
-    dynophore_dict["superfeatures"] = {
-        superfeature["id"]: superfeature for superfeature in dynophore_dict["superfeatures"]
+    superfeatures_dict = {
+        superfeature["id"]: superfeature for superfeature in json_dict["superfeatures"]
     }
 
-    for superfeature_id, superfeature in dynophore_dict["superfeatures"].items():
+    for superfeature_id, superfeature in superfeatures_dict.items():
         # Add color to superfeatures
         color = pml_dict[superfeature_id]["color"]
         superfeature["color"] = color
@@ -206,4 +262,4 @@ def _json_pml_to_dict(json_path, pml_path):
             envpartner["id"]: envpartner for envpartner in superfeature["envpartners"]
         }
 
-    return dynophore_dict
+    return superfeatures_dict
