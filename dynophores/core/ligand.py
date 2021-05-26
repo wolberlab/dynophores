@@ -34,7 +34,7 @@ class Ligand:
         Per superfeature ID (keys): involved atom PDB IDs of ligand.
     _superfeatures_colors : dict of str: tuple of float
         Per superfeature ID (keys): superfeature color as scaled RGB values.
-    _pdb_block : str
+    _pdb_block : str  TODO mdl_mol_block
         Ligand PDB block
     _pdb_atom_ids : list of int
         Ligand PDB atom IDs.
