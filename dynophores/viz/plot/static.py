@@ -26,13 +26,6 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
         identifier.
     annotate_heatmap : bool
         Annotate heatmap cells (default: False).
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    ax : matplotlib.axis.Subplot
-        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -56,8 +49,6 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
     )
     ax.set_xlabel("Superfeature IDs")
     ax.set_ylabel("Environmental partner IDs")
-
-    return fig, ax
 
 
 def superfeatures_occurrences(
@@ -85,13 +76,6 @@ def superfeatures_occurrences(
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    ax : matplotlib.axis.Subplot
-        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -133,8 +117,6 @@ def superfeatures_occurrences(
         xlim=(data.index[0], data.index[-1]),
     )
 
-    return fig, ax
-
 
 def envpartners_occurrences(
     dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1, occurrence_min=0
@@ -156,13 +138,6 @@ def envpartners_occurrences(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    axes : matplotlib.axis.Subplot or numpy.array of matplotlib.axis.Subplot
-        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -218,8 +193,6 @@ def envpartners_occurrences(
         else:
             axes.set_xlabel("Frame index")
 
-    return fig, axes
-
 
 def envpartners_distances(
     dynophore,
@@ -249,13 +222,6 @@ def envpartners_distances(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    ax : matplotlib.axis.Subplot
-        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -311,8 +277,6 @@ def envpartners_distances(
             else:
                 raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
 
-    return fig, axes
-
 
 def envpartners_all_in_one(
     dynophore, superfeature_id, frame_range=[0, None], frame_step_size=1, occurrence_min=0
@@ -335,13 +299,6 @@ def envpartners_all_in_one(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        Plot figure.
-    axes : matplotlib.axis.Subplot
-        Plot axes.
     """
 
     # IPyWidgets' interact function: Cast tuple > str
@@ -415,8 +372,6 @@ def envpartners_all_in_one(
     )
     axes[1][1].set_xlabel("Frequency", fontsize=16)
     axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
-
-    return fig, axes
 
 
 def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):
