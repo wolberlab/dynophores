@@ -5,7 +5,6 @@ Will only test if static plotting raises errors.
 """
 
 import pytest
-import matplotlib
 
 from dynophores.viz import plot
 
