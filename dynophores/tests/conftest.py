@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 
 from dynophores import Dynophore
-from dynophores.core.ligand import Ligand
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
 
@@ -52,5 +51,4 @@ def envpartner(superfeature):
 @pytest.fixture(scope="module")
 def ligand(dynophore):
 
-    ligand = Ligand.from_dynophore(dynophore, PATH_TEST_DATA / "in/startframe.pdb")
-    return ligand
+    return dynophore.ligand

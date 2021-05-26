@@ -11,6 +11,7 @@ import pytest
 from dynophores import parsers
 from dynophores import Dynophore
 from dynophores.core.superfeature import SuperFeature
+from dynophores.core.ligand import Ligand
 
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
@@ -30,12 +31,17 @@ class TestsDynophore:
         )
         dynophore = Dynophore(**dynophore_dict)
         assert isinstance(dynophore, Dynophore)
-        assert list(dynophore.__dict__) == ["id", "ligand_name", "ligand_smiles", "superfeatures"]
+        assert list(dynophore.__dict__) == ["id", "ligand", "superfeatures"]
 
         # Test class attributes - check for data types
         assert isinstance(dynophore.id, str)
-        assert isinstance(dynophore.ligand_name, str)
-        assert isinstance(dynophore.ligand_smiles, str)
+        assert isinstance(dynophore.ligand, Ligand)
+        assert list(dynophore.ligand.__dict__) == [
+            "name",
+            "smiles",
+            "mdl_mol_buffer",
+            "atom_serials",
+        ]
         assert isinstance(dynophore.superfeatures, dict)
         assert isinstance(next(iter(dynophore.superfeatures.values())), SuperFeature)
 
@@ -214,3 +220,18 @@ class TestsDynophore:
         else:
             with pytest.raises(KeyError):
                 dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id)
+
+    def test_superfeatures_atom_serials(self, dynophore):
+
+        atom_serials = dynophore.superfeatures_atom_serials
+        assert isinstance(atom_serials, dict)
+        assert list(atom_serials) == list(dynophore.superfeatures)
+        assert isinstance(next(iter(atom_serials.values()))[0], int)
+
+    def test_superfeatures_colors(self, dynophore):
+
+        colors = dynophore.superfeatures_colors
+        assert isinstance(colors, dict)
+        assert list(colors) == list(dynophore.superfeatures)
+        assert isinstance(next(iter(colors.values())), str)
+        assert len(next(iter(colors.values()))) in [6, 7]  # With/without #-prefix

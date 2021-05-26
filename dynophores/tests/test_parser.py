@@ -44,7 +44,14 @@ def test_pml_to_dict(filepath, superfeature_keys, cloud_keys):
     [
         (
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
-            ["id", "ligand_name", "ligand_smiles", "superfeatures"],
+            [
+                "id",
+                "ligand_name",
+                "ligand_smiles",
+                "ligand_mdl_mol_buffer",
+                "ligand_atom_serials",
+                "superfeatures",
+            ],
             ["id", "feature_type", "atom_numbers", "occurrences", "envpartners"],
             ["id", "name", "atom_numbers", "occurrences", "distances"],
         )

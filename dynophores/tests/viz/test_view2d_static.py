@@ -14,13 +14,25 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
 
 
 @pytest.mark.parametrize(
-    "pdb_path, show_superfeatures, show_pdb_serial_numbers",
+    "show_superfeatures, show_pdb_serial_numbers",
     [
-        (PATH_TEST_DATA / "in/startframe.pdb", False, False),
-        (PATH_TEST_DATA / "in/startframe.pdb", False, True),
-        (PATH_TEST_DATA / "in/startframe.pdb", True, False),
-        (PATH_TEST_DATA / "in/startframe.pdb", True, True),
+        (False, False),
+        (False, True),
+        (True, False),
+        (True, True),
     ],
 )
-def test_show(dynophore, pdb_path, show_superfeatures, show_pdb_serial_numbers):
-    view2d.static.show(dynophore, pdb_path, show_superfeatures, show_pdb_serial_numbers)
+def test_show(dynophore, show_superfeatures, show_pdb_serial_numbers):
+    view2d.static.show(dynophore, show_superfeatures, show_pdb_serial_numbers)
+
+    @pytest.mark.parametrize("show_pdb_serial_numbers", [False, True])
+    def test_view2d(self, ligand, show_pdb_serial_numbers):
+
+        mol = ligand.view2d(show_pdb_serial_numbers)
+        assert isinstance(mol, Chem.rdchem.Mol)
+
+    @pytest.mark.parametrize("show_pdb_serial_numbers", [False, True])
+    def test_view2d_superfeatures(self, ligand, show_pdb_serial_numbers):
+
+        img = ligand.view2d_superfeatures(show_pdb_serial_numbers)
+        assert isinstance(img, Image)
