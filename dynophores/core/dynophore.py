@@ -313,6 +313,26 @@ class Dynophore:
 
         return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
+    @property
+    def unique_envpartners_chain_residue_number(self):
+        """
+        List of unique environmental partners (chain and residue number).
+        Useful for 3D visualization of interacting pocket residues.
+
+        Returns
+        -------
+        list of tuple (str, int)
+            List of (chain, residue number) tuples.
+        """
+
+        envpartners = [
+            (envpartner.chain, envpartner.residue_number)
+            for superfeature_id, superfeature in self.superfeatures.items()
+            for envpartner_id, envpartner in superfeature.envpartners.items()
+        ]
+        envpartners = set(envpartners)
+        return envpartners
+
     def _raise_keyerror_if_invalid_superfeature_id(self, superfeature_id):
         """
         Check if dynophore has a certain superfeature (by name).

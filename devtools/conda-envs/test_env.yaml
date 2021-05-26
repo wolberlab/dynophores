@@ -11,11 +11,9 @@ dependencies:
   - matplotlib
   - seaborn
   - jupyter
-  - jupyterlab=2
-  - nodejs  # Remove when using JLab3
+  - jupyterlab>=3
   - ipywidgets>=7.5
-  - nglview
-  - tqdm
+  - nglview>=3
   - rdkit
   - mdanalysis
   # Testing
@@ -36,6 +34,3 @@ dependencies:
   - pip:
     - black-nb
     - flake8-nb
-
-## For Jupyter lab extensions, run:
-# jupyter labextension install @jupyter-widgets/jupyterlab-manager nglview-js-widgets @jupyterlab/toc @ijmbarr/jupyterlab_spellchecker
