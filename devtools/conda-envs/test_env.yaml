@@ -34,3 +34,6 @@ dependencies:
   - pip:
     - black-nb
     - flake8-nb
+
+## For Jupyter lab extensions, run:
+# jupyter labextension install @jupyter-widgets/jupyterlab-manager nglview-js-widgets @ijmbarr/jupyterlab_spellchecker @jupyter-widgets/html-manager
