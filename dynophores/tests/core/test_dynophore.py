@@ -4,9 +4,11 @@ Unit tests for dynophore.core.dynophore.Dynophore class.
 Uses fixture tests.conftest.dynophore.
 """
 
+from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
 from pathlib import Path
 
 import pytest
+import pandas as pd
 
 from dynophores import parsers
 from dynophores import Dynophore
@@ -50,6 +52,21 @@ class TestsDynophore:
 
         dynophore = Dynophore.from_dir(filepath)
         assert isinstance(dynophore, Dynophore)
+
+    def test_clouds_and_cloud_by_superfeature(self, dynophore):
+
+        # Property `cloud`
+        assert isinstance(dynophore.clouds, dict)
+        assert list(dynophore.clouds.keys()) == list(dynophore.superfeatures.keys())
+        example_df = next(iter(dynophore.clouds.values()))
+        assert isinstance(example_df, pd.DataFrame)
+        assert example_df.columns.to_list() == ["x", "y", "z", "frame_ix", "weight"]
+
+        # Method `cloud_by_superfeature`
+        example_superfeature_id = next(iter(dynophore.clouds.keys()))
+        example_df = dynophore.cloud_by_superfeature(example_superfeature_id)
+        assert isinstance(example_df, pd.DataFrame)
+        assert example_df.columns.to_list() == ["x", "y", "z", "frame_ix", "weight"]
 
     @pytest.mark.parametrize(
         "column_names, counts_sum",
@@ -96,8 +113,11 @@ class TestsDynophore:
             }
         ],
     )
-    def test_envpartners_occurrences(self, dynophore, counts_sum_dict):
+    def test_envpartners_occurrences_and_envpartners_occurrences_by_superfeature(
+        self, dynophore, counts_sum_dict
+    ):
 
+        # Test `envpartners_occurrences`
         assert sorted(list(dynophore.envpartners_occurrences.keys())) == sorted(
             list(counts_sum_dict.keys())
         )
@@ -105,6 +125,13 @@ class TestsDynophore:
             counts_sum_calculated = occurrences.sum().sum()
             counts_sum = counts_sum_dict[superfeature]
             assert counts_sum_calculated == counts_sum
+
+        # Test `envpartners_occurrences_by_superfeature`
+        for superfeature_id, counts_sum in counts_sum_dict.items():
+            envpartner_occurrences = dynophore.envpartners_occurrences_by_superfeature(
+                superfeature_id
+            )
+            assert envpartner_occurrences.sum().sum() == counts_sum
 
     @pytest.mark.parametrize(
         "distances_sum_dict",
