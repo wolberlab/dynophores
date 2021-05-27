@@ -60,9 +60,9 @@ class TestsSuperFeature:
         data = superfeature.envpartners_occurrences
         assert isinstance(data, pd.DataFrame)
         assert data.index.to_list() == list(range(0, len(superfeature.occurrences)))
-        assert data.columns.to_list() == [
-            envpartner.id for _, envpartner in superfeature.envpartners.items()
-        ]
+        assert sorted(data.columns.to_list()) == sorted(
+            [envpartner.id for _, envpartner in superfeature.envpartners.items()]
+        )
         assert data.dtypes.unique() == "int32"
 
     def test_envpartners_distances(self, superfeature):
@@ -73,9 +73,9 @@ class TestsSuperFeature:
         data = superfeature.envpartners_distances
         assert isinstance(data, pd.DataFrame)
         assert data.index.to_list() == list(range(0, len(superfeature.occurrences)))
-        assert data.columns.to_list() == [
-            envpartner.id for _, envpartner in superfeature.envpartners.items()
-        ]
+        assert sorted(data.columns.to_list()) == sorted(
+            [envpartner.id for _, envpartner in superfeature.envpartners.items()]
+        )
         assert data.dtypes.unique() == "float64"
 
     @pytest.mark.parametrize("data_type", ["xxx"])

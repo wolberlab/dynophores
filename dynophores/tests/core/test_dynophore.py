@@ -7,10 +7,12 @@ Uses fixture tests.conftest.dynophore.
 from pathlib import Path
 
 import pytest
+import pandas as pd
 
 from dynophores import parsers
 from dynophores import Dynophore
 from dynophores.core.superfeature import SuperFeature
+from dynophores.core.ligand import Ligand
 
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
@@ -30,12 +32,17 @@ class TestsDynophore:
         )
         dynophore = Dynophore(**dynophore_dict)
         assert isinstance(dynophore, Dynophore)
-        assert list(dynophore.__dict__) == ["id", "ligand_name", "ligand_smiles", "superfeatures"]
+        assert list(dynophore.__dict__) == ["id", "ligand", "superfeatures"]
 
         # Test class attributes - check for data types
         assert isinstance(dynophore.id, str)
-        assert isinstance(dynophore.ligand_name, str)
-        assert isinstance(dynophore.ligand_smiles, str)
+        assert isinstance(dynophore.ligand, Ligand)
+        assert list(dynophore.ligand.__dict__) == [
+            "name",
+            "smiles",
+            "mdl_mol_buffer",
+            "atom_serials",
+        ]
         assert isinstance(dynophore.superfeatures, dict)
         assert isinstance(next(iter(dynophore.superfeatures.values())), SuperFeature)
 
@@ -44,6 +51,21 @@ class TestsDynophore:
 
         dynophore = Dynophore.from_dir(filepath)
         assert isinstance(dynophore, Dynophore)
+
+    def test_clouds_and_cloud_by_superfeature(self, dynophore):
+
+        # Property `cloud`
+        assert isinstance(dynophore.clouds, dict)
+        assert list(dynophore.clouds.keys()) == list(dynophore.superfeatures.keys())
+        example_df = next(iter(dynophore.clouds.values()))
+        assert isinstance(example_df, pd.DataFrame)
+        assert example_df.columns.to_list() == ["x", "y", "z", "frame_ix", "weight"]
+
+        # Method `cloud_by_superfeature`
+        example_superfeature_id = next(iter(dynophore.clouds.keys()))
+        example_df = dynophore.cloud_by_superfeature(example_superfeature_id)
+        assert isinstance(example_df, pd.DataFrame)
+        assert example_df.columns.to_list() == ["x", "y", "z", "frame_ix", "weight"]
 
     @pytest.mark.parametrize(
         "column_names, counts_sum",
@@ -90,8 +112,11 @@ class TestsDynophore:
             }
         ],
     )
-    def test_envpartners_occurrences(self, dynophore, counts_sum_dict):
+    def test_envpartners_occurrences_and_envpartners_occurrences_by_superfeature(
+        self, dynophore, counts_sum_dict
+    ):
 
+        # Test `envpartners_occurrences`
         assert sorted(list(dynophore.envpartners_occurrences.keys())) == sorted(
             list(counts_sum_dict.keys())
         )
@@ -99,6 +124,13 @@ class TestsDynophore:
             counts_sum_calculated = occurrences.sum().sum()
             counts_sum = counts_sum_dict[superfeature]
             assert counts_sum_calculated == counts_sum
+
+        # Test `envpartners_occurrences_by_superfeature`
+        for superfeature_id, counts_sum in counts_sum_dict.items():
+            envpartner_occurrences = dynophore.envpartners_occurrences_by_superfeature(
+                superfeature_id
+            )
+            assert envpartner_occurrences.sum().sum() == counts_sum
 
     @pytest.mark.parametrize(
         "distances_sum_dict",
@@ -214,3 +246,18 @@ class TestsDynophore:
         else:
             with pytest.raises(KeyError):
                 dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id)
+
+    def test_superfeatures_atom_serials(self, dynophore):
+
+        atom_serials = dynophore.superfeatures_atom_serials
+        assert isinstance(atom_serials, dict)
+        assert list(atom_serials) == list(dynophore.superfeatures)
+        assert isinstance(next(iter(atom_serials.values()))[0], int)
+
+    def test_superfeatures_colors(self, dynophore):
+
+        colors = dynophore.superfeatures_colors
+        assert isinstance(colors, dict)
+        assert list(colors) == list(dynophore.superfeatures)
+        assert isinstance(next(iter(colors.values())), str)
+        assert len(next(iter(colors.values()))) in [6, 7]  # With/without #-prefix

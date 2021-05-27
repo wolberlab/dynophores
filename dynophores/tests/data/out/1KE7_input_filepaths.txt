@@ -1,2 +1,2 @@
-/home/dominique/Desktop/data/1KE7_1/in/startframe.pmz
-/home/dominique/Desktop/data/1KE7_1/in/trajectory.dcd
+/home/dominique/Documents/GitHub/dynophores/dynophores/tests/data/in/startframe.pmz
+/home/dominique/Documents/GitHub/dynophores/dynophores/tests/data/in/trajectory.dcd
