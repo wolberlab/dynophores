@@ -7,6 +7,8 @@ Will only test if static 2D view raises errors.
 from pathlib import Path
 
 import pytest
+from rdkit import Chem
+from IPython.display import Image
 
 from dynophores.viz import view2d
 

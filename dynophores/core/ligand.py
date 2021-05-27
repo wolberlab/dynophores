@@ -63,8 +63,8 @@ class Ligand:
                 atom.SetIntProp("pdb_atom_serial", int(pdb_atom_serial))
         else:
             raise ValueError(
-                f"Number of atoms in RDKit ({len(self.atom_serials)}) and "
-                f"MDAnalysis ({mol.GetNumAtoms()}) are not the same."
+                f"Number of atoms serials ({len(self.atom_serials)}) and "
+                f"number of atoms in RDKit molecule ({mol.GetNumAtoms()}) are not the same."
             )
 
         # Remove hydrogens
