@@ -4,7 +4,6 @@ Unit tests for dynophore.core.dynophore.Dynophore class.
 Uses fixture tests.conftest.dynophore.
 """
 
-from dynophores.core.chemicalfeaturecloud3d import ChemicalFeatureCloud3D
 from pathlib import Path
 
 import pytest
