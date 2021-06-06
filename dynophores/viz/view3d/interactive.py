@@ -4,9 +4,12 @@ Contains NGLview 3D visualizations.
 
 import warnings
 
+import numpy as np
 import nglview as nv
 import MDAnalysis as mda
 from matplotlib import colors
+
+from dynophores.utils import hex_to_rgb_saturation_sequence
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -19,6 +22,7 @@ def show(
     pdb_path,
     dcd_path=None,
     visualization_type="spheres",
+    cloud_by_frame=False,
     macromolecule_color=MACROMOLECULE_COLOR,
 ):
     """
@@ -35,6 +39,8 @@ def show(
         Optionally: Path to DCD file (trajectory).
     visualization_type : str
         Visualization type for dynophore cloud: `spheres` or `points`
+    cloud_by_frame : bool
+        Use color saturation to indicate frame index of each cloud point (default: False).
     macromolecule_color : str
         Hex code for macromolecule color.
 
@@ -61,7 +67,7 @@ def show(
     )
     view.add_representation("licorice", selection=envpartners_string)
     # Add dynophore
-    _add_dynophore(view, dynophore, visualization_type)
+    _add_dynophore(view, dynophore, visualization_type, cloud_by_frame)
 
     return view
 
@@ -108,7 +114,7 @@ def _show_trajectory(pdb_path, dcd_path):
     return view
 
 
-def _add_dynophore(view, dynophore, visualization_type):
+def _add_dynophore(view, dynophore, visualization_type, cloud_by_frame=False):
     """
     Add the dynophore point cloud to an existing view of its underlying structure (and optionally
     its trajectory).
@@ -122,6 +128,8 @@ def _add_dynophore(view, dynophore, visualization_type):
         Dynophore data (includes data from JSON and PML file).
     visualization_type : str
         Visualization type for dynophore cloud: `spheres` or `points`
+    cloud_by_frame : bool
+        Use color saturation to indicate frame index of each cloud point (default: False).
 
 
     Returns
@@ -132,15 +140,32 @@ def _add_dynophore(view, dynophore, visualization_type):
 
     for _, superfeature in dynophore.superfeatures.items():
         buffer = {"position": [], "color": [], "radius": []}
-        for point in superfeature.cloud.points:
-            buffer["position"] += [point.x, point.y, point.z]
-            buffer["color"] += colors.hex2color(f"#{superfeature.color}")
+        cloud = superfeature.cloud.data.copy()
+
+        # Use color saturation to indicate frame index per point
+        if cloud_by_frame:
+            colors_by_frame = hex_to_rgb_saturation_sequence(
+                f"#{superfeature.color}", dynophore.n_frames
+            )
+            color_matrix = colors_by_frame[cloud["frame_ix"].to_list()]
+            cloud["rgb"] = color_matrix.tolist()
+            opacity = 0.8
+        # Use the same color for all points of the same feature type
+        else:
+            color = colors.hex2color(f"#{superfeature.color}")
+            color_matrix = np.repeat(np.array([color]), [len(cloud)], axis=0)
+            cloud["rgb"] = color_matrix.tolist()
+            opacity = 0.55
+
+        for _, point in cloud.iterrows():
+            buffer["position"] += [point["x"], point["y"], point["z"]]
             buffer["radius"] += [0.1]
+            buffer["color"] += point["rgb"]
 
         if visualization_type == "spheres":
-            js = _js_sphere_buffer(buffer, superfeature.id)
+            js = _js_sphere_buffer(buffer, superfeature.id, opacity)
         elif visualization_type == "points":
-            js = _js_point_buffer(buffer, superfeature.id)
+            js = _js_point_buffer(buffer, superfeature.id, opacity)
         else:
             raise ValueError(
                 "Visualization style unknown. Please choose from `spheres` or `points`."
@@ -151,7 +176,7 @@ def _add_dynophore(view, dynophore, visualization_type):
     return view
 
 
-def _js_sphere_buffer(buffer, superfeature_id):
+def _js_sphere_buffer(buffer, superfeature_id, opacity):
     """
     Create JavaScript string generating a sphere buffer from buffer parameters.
 
@@ -161,6 +186,8 @@ def _js_sphere_buffer(buffer, superfeature_id):
         Buffer parameters.
     superfeature_id : str
         Superfeature ID.
+    opacity : float
+        Sphere opacity (the higher the less transparent).
 
     Returns
     -------
@@ -174,7 +201,7 @@ def _js_sphere_buffer(buffer, superfeature_id):
 
         shape.addBuffer(buffer);
         var shapeComp = this.stage.addComponentFromObject(shape);
-        shapeComp.addRepresentation("buffer", {{opacity:0.55}});
+        shapeComp.addRepresentation("buffer", {{opacity:{opacity}}});
         """
 
 
