@@ -6,8 +6,7 @@ import warnings
 
 import nglview as nv
 import MDAnalysis as mda
-
-from dynophores.utils import hex_to_rgb
+from matplotlib import colors
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -135,7 +134,7 @@ def _add_dynophore(view, dynophore, visualization_type):
         buffer = {"position": [], "color": [], "radius": []}
         for point in superfeature.cloud.points:
             buffer["position"] += [point.x, point.y, point.z]
-            buffer["color"] += hex_to_rgb(superfeature.color)
+            buffer["color"] += colors.hex2color(f"#{superfeature.color}")
             buffer["radius"] += [0.1]
 
         if visualization_type == "spheres":

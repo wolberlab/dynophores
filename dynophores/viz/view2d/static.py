@@ -6,8 +6,7 @@ from collections import defaultdict
 from rdkit import Geometry
 from rdkit.Chem.Draw import rdMolDraw2D, IPythonConsole
 from IPython.display import Image
-
-from dynophores.utils import hex_to_rgb
+from matplotlib import colors
 
 # Set width/height of molecule view
 IMAGE_WIDTH = 700
@@ -63,7 +62,7 @@ def _add_superfeatures(mol, dynophore):
 
     superfeatures_atom_serials = dynophore.superfeatures_atom_serials
     superfeatures_colors = {
-        superfeature_id: tuple(hex_to_rgb(color))
+        superfeature_id: tuple(colors.hex2color(f"#{color}"))
         for superfeature_id, color in dynophore.superfeatures_colors.items()
     }
 
