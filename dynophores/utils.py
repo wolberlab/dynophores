@@ -32,7 +32,7 @@ def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
     # HSV sequence
     hsv_saturation_sequence = np.array(
         [
-            [color_hsv[0], (1 - i / sequence_length) * min_saturation, color_hsv[2]]
+            [color_hsv[0], 1 - i / sequence_length * (1 - min_saturation), color_hsv[2]]
             for i in range(1, sequence_length + 1)
         ]
     )
