@@ -15,7 +15,7 @@ Resources:
 
 import math
 
-from ipywidgets import interact_manual, fixed
+from ipywidgets import interactive, fixed
 import ipywidgets as widgets
 
 from dynophores.viz import plot
@@ -42,7 +42,7 @@ def superfeatures_vs_envpartners(dynophore):
     )
     superfeature_ids = ["all"] + superfeature_ids
 
-    func = interact_manual(
+    return interactive(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -53,8 +53,6 @@ def superfeatures_vs_envpartners(dynophore):
         ),
         annotate_heatmap=widgets.Checkbox(value=False, description="Annotate heatmap cells"),
     )
-
-    return func
 
 
 def superfeatures_occurrences(dynophore):
@@ -77,7 +75,7 @@ def superfeatures_occurrences(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    return interactive(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -106,8 +104,6 @@ def superfeatures_occurrences(dynophore):
         ),
     )
 
-    return func
-
 
 def envpartners_occurrences(dynophore):
     """
@@ -129,7 +125,7 @@ def envpartners_occurrences(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    return interactive(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -165,8 +161,6 @@ def envpartners_occurrences(dynophore):
         ),
     )
 
-    return func
-
 
 def envpartners_distances(dynophore):
     """
@@ -188,7 +182,7 @@ def envpartners_distances(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    return interactive(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -230,8 +224,6 @@ def envpartners_distances(dynophore):
         ),
     )
 
-    return func
-
 
 def envpartners_all_in_one(dynophore):
     """
@@ -254,7 +246,7 @@ def envpartners_all_in_one(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    return interactive(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
         superfeature_id=widgets.Select(
@@ -289,5 +281,3 @@ def envpartners_all_in_one(dynophore):
             style=style,
         ),
     )
-
-    return func
