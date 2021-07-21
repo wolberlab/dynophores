@@ -29,11 +29,6 @@ def superfeatures_vs_envpartners(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
     style = {"description_width": "initial"}
@@ -63,11 +58,6 @@ def superfeatures_occurrences(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
     style = {"description_width": "initial"}
@@ -113,11 +103,6 @@ def envpartners_occurrences(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
     style = {"description_width": "initial"}
@@ -170,11 +155,6 @@ def envpartners_distances(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
     style = {"description_width": "initial"}
@@ -234,11 +214,6 @@ def envpartners_all_in_one(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
     style = {"description_width": "initial"}
