@@ -60,8 +60,6 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
     ax.set_xlabel("Superfeature IDs")
     ax.set_ylabel("Environmental partner IDs")
 
-    plt.show()
-
     return fig, ax
 
 
@@ -137,8 +135,6 @@ def superfeatures_occurrences(
         xlabel="Frame index",
         xlim=(data.index[0], data.index[-1]),
     )
-
-    plt.show()
 
     return fig, ax
 
@@ -224,8 +220,6 @@ def envpartners_occurrences(
             axes[-1].set_xlabel("Frame index")
         else:
             axes.set_xlabel("Frame index")
-
-    plt.show()
 
     return fig, axes
 
@@ -319,8 +313,6 @@ def envpartners_distances(
                 ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
             else:
                 raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
-
-    plt.show()
 
     return fig, axes
 
@@ -426,8 +418,6 @@ def envpartners_all_in_one(
     )
     axes[1][1].set_xlabel("Frequency", fontsize=16)
     axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
-
-    plt.show()
 
     return fig, axes
 
