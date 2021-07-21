@@ -7,12 +7,9 @@ import itertools
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker, rcParams
+from matplotlib import ticker
 import seaborn as sns
 
-
-# Set global plotting parameters and styles
-rcParams.update({"figure.autolayout": True})
 plt.style.use("seaborn")
 
 
@@ -48,7 +45,7 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
         data = data[superfeature_ids]
         data = data[~(data == 0).all(axis=1)]
 
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots(1, 1, tight_layout=True)
     sns.heatmap(
         data,
         annot=annotate_heatmap,
@@ -126,7 +123,7 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(8, 0.5 + len(events) / 2))
+    fig, ax = plt.subplots(figsize=(8, 0.5 + len(events) / 2), tight_layout=True)
     ax = _occurrences(
         ax=ax,
         events=events,
@@ -175,6 +172,7 @@ def envpartners_occurrences(
         ncols=1,
         figsize=(8, len(superfeature_ids) * 2),
         sharex=True,
+        tight_layout=True,
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
@@ -268,6 +266,7 @@ def envpartners_distances(
         ncols=1,
         figsize=(8, len(superfeature_ids) * 4),
         sharex=True,
+        tight_layout=True,
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
@@ -368,6 +367,7 @@ def envpartners_all_in_one(
         sharey="row",
         sharex="col",
         gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.15},
+        constrained_layout=True,
     )
     fig.suptitle(superfeature_id)
 
