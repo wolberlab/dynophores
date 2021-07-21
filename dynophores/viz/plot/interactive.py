@@ -15,7 +15,7 @@ Resources:
 
 import math
 
-from ipywidgets import interactive, fixed
+from ipywidgets import interact, fixed
 import ipywidgets as widgets
 
 from dynophores.viz import plot
@@ -42,7 +42,7 @@ def superfeatures_vs_envpartners(dynophore):
     )
     superfeature_ids = ["all"] + superfeature_ids
 
-    return interactive(
+    interact(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -75,7 +75,7 @@ def superfeatures_occurrences(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    return interactive(
+    interact(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -125,7 +125,7 @@ def envpartners_occurrences(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    return interactive(
+    interact(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -182,7 +182,7 @@ def envpartners_distances(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    return interactive(
+    interact(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
@@ -246,7 +246,7 @@ def envpartners_all_in_one(dynophore):
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    return interactive(
+    interact(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
         superfeature_id=widgets.Select(
