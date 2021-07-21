@@ -367,7 +367,7 @@ def envpartners_all_in_one(
         figsize=(8, 5),
         sharey="row",
         sharex="col",
-        gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.05},
+        gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.15},
     )
     fig.suptitle(superfeature_id)
 
@@ -392,9 +392,6 @@ def envpartners_all_in_one(
         xlim=(occurrences.index[0], occurrences.index[-1]),
     )
 
-    # Set y tick labels
-    axes[0][0].set_yticklabels("")
-
     # Subplot (0, 1): Empty (will hold legend from subplot (1, 1))
     axes[0][1].axis("off")
 
@@ -417,9 +414,9 @@ def envpartners_all_in_one(
         alpha=0.8,
         density=True,
         xlim=(0, 1),
+        legend=None,
     )
     axes[1][1].set_xlabel("Frequency")
-    axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5))
 
     return fig, axes
 
