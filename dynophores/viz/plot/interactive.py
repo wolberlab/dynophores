@@ -20,6 +20,9 @@ import ipywidgets as widgets
 
 from dynophores.viz import plot
 
+WIDGET_STYLE = {"description_width": "150px"}
+WIDGET_LAYOUT = {"width": "550px"}
+
 
 def superfeatures_vs_envpartners(dynophore):
     """
@@ -31,7 +34,6 @@ def superfeatures_vs_envpartners(dynophore):
         Dynophore.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
@@ -43,10 +45,17 @@ def superfeatures_vs_envpartners(dynophore):
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=["all"],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
-        annotate_heatmap=widgets.Checkbox(value=False, description="Annotate heatmap cells"),
+        annotate_heatmap=widgets.ToggleButtons(
+            options=[False, True],
+            description="Annotate heatmap",
+            button_style="",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
+        ),
     )
 
 
@@ -60,7 +69,6 @@ def superfeatures_occurrences(dynophore):
         Dynophore.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
@@ -71,17 +79,25 @@ def superfeatures_occurrences(dynophore):
         superfeature_ids=widgets.SelectMultiple(
             options=["all"] + superfeature_ids,
             value=["all"],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
-        color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
+        color_by_feature_type=widgets.ToggleButtons(
+            options=[True, False],
+            description="Color by feature type",
+            button_style="",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
+        ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -89,8 +105,9 @@ def superfeatures_occurrences(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
 
@@ -105,7 +122,6 @@ def envpartners_occurrences(dynophore):
         Dynophore.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
@@ -116,16 +132,18 @@ def envpartners_occurrences(dynophore):
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -133,16 +151,18 @@ def envpartners_occurrences(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
 
@@ -157,7 +177,6 @@ def envpartners_distances(dynophore):
         Dynophore.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
@@ -168,22 +187,26 @@ def envpartners_distances(dynophore):
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         kind=widgets.ToggleButtons(
             options=["line", "hist"],
             description="Plot style",
             button_style="",
             tooltips=["Series", "Histogram"],
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -191,16 +214,18 @@ def envpartners_distances(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
 
@@ -216,7 +241,6 @@ def envpartners_all_in_one(dynophore):
         Dynophore.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
@@ -227,16 +251,18 @@ def envpartners_all_in_one(dynophore):
         superfeature_id=widgets.Select(
             options=superfeature_ids,
             value=superfeature_ids[0],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -244,15 +270,17 @@ def envpartners_all_in_one(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
