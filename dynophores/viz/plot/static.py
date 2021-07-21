@@ -301,7 +301,7 @@ def envpartners_distances(
                 ax.set_xlim((data.index[0], data.index[-1]))
                 ax.set_xlabel("Frame index")
                 ax.set_ylabel(r"Distance [$\AA$]")
-                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
             elif kind == "hist":
                 value_floor = int(np.floor(data.min().min()))
                 value_ceil = int(np.ceil(data.max().max()))
@@ -310,7 +310,7 @@ def envpartners_distances(
                 )
                 ax.set_xlim((value_floor, value_ceil))
                 ax.set_xlabel(r"Distance [$\AA$]")
-                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
             else:
                 raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
 
@@ -398,8 +398,8 @@ def envpartners_all_in_one(
 
     # Subplot (1, 0): Distance time series
     distances.plot(ax=axes[1][0], kind="line", legend=None, linewidth=1)
-    axes[1][0].set_xlabel("Frame index", fontsize=16)
-    axes[1][0].set_ylabel(r"Distance [$\AA$]", fontsize=16)
+    axes[1][0].set_xlabel("Frame index")
+    axes[1][0].set_ylabel(r"Distance [$\AA$]")
 
     # Subplot (1, 1): Distance histogram
     bins = range(0, math.ceil(distances.max().max()) + 1)
@@ -416,8 +416,8 @@ def envpartners_all_in_one(
         density=True,
         xlim=(0, 1),
     )
-    axes[1][1].set_xlabel("Frequency", fontsize=16)
-    axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
+    axes[1][1].set_xlabel("Frequency")
+    axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5))
 
     return fig, axes
 
