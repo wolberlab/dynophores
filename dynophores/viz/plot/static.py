@@ -126,7 +126,7 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
+    fig, ax = plt.subplots(figsize=(8, 0.5 + len(events) / 2))
     ax = _occurrences(
         ax=ax,
         events=events,
@@ -173,7 +173,7 @@ def envpartners_occurrences(
     fig, axes = plt.subplots(
         nrows=len(superfeature_ids),
         ncols=1,
-        figsize=(10, len(superfeature_ids) * 2),
+        figsize=(8, len(superfeature_ids) * 2),
         sharex=True,
     )
 
@@ -266,7 +266,7 @@ def envpartners_distances(
     fig, axes = plt.subplots(
         nrows=len(superfeature_ids),
         ncols=1,
-        figsize=(10, len(superfeature_ids) * 4),
+        figsize=(8, len(superfeature_ids) * 4),
         sharex=True,
     )
 
@@ -364,7 +364,7 @@ def envpartners_all_in_one(
     fig, axes = plt.subplots(
         nrows=2,
         ncols=2,
-        figsize=(15, 7),
+        figsize=(8, 5),
         sharey="row",
         sharex="col",
         gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.05},
