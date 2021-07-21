@@ -7,9 +7,12 @@ import itertools
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker
+from matplotlib import ticker, rcParams
 import seaborn as sns
 
+
+# Set global plotting parameters and styles
+rcParams.update({"figure.autolayout": True})
 plt.style.use("seaborn")
 
 
