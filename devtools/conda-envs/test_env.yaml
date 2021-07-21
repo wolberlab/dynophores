@@ -13,6 +13,7 @@ dependencies:
   - jupyter
   - jupyterlab>=3
   - ipywidgets>=7.5
+  - ipympl
   - nglview>=3
   - rdkit
   - mdanalysis
