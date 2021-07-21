@@ -369,6 +369,7 @@ def envpartners_all_in_one(
         sharex="col",
         gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.05},
     )
+    fig.suptitle(superfeature_id)
 
     # Subplot (0, 0): Interaction occurrences (barplot)
     events_dict = {
@@ -390,6 +391,7 @@ def envpartners_all_in_one(
         xlabel="",
         xlim=(occurrences.index[0], occurrences.index[-1]),
     )
+
     # Set y tick labels
     axes[0][0].set_yticklabels("")
 
