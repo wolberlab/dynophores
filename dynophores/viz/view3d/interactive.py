@@ -22,7 +22,7 @@ def show(
     pdb_path,
     dcd_path=None,
     visualization_type="spheres",
-    cloud_by_frame=False,
+    color_cloud_by_frame=False,
     macromolecule_color=MACROMOLECULE_COLOR,
 ):
     """
@@ -39,7 +39,7 @@ def show(
         Optionally: Path to DCD file (trajectory).
     visualization_type : str
         Visualization type for dynophore cloud: `spheres` or `points`
-    cloud_by_frame : bool
+    color_cloud_by_frame : bool
         Use color saturation to indicate frame index of each cloud point (default: False).
     macromolecule_color : str
         Hex code for macromolecule color.
@@ -67,7 +67,7 @@ def show(
     )
     view.add_representation("licorice", selection=envpartners_string)
     # Add dynophore
-    _add_dynophore(view, dynophore, visualization_type, cloud_by_frame)
+    _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame)
 
     return view
 
@@ -114,7 +114,7 @@ def _show_trajectory(pdb_path, dcd_path):
     return view
 
 
-def _add_dynophore(view, dynophore, visualization_type, cloud_by_frame=False):
+def _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame=False):
     """
     Add the dynophore point cloud to an existing view of its underlying structure (and optionally
     its trajectory).
@@ -128,7 +128,7 @@ def _add_dynophore(view, dynophore, visualization_type, cloud_by_frame=False):
         Dynophore data (includes data from JSON and PML file).
     visualization_type : str
         Visualization type for dynophore cloud: `spheres` or `points`
-    cloud_by_frame : bool
+    color_cloud_by_frame : bool
         Use color saturation to indicate frame index of each cloud point (default: False).
 
 
@@ -143,7 +143,7 @@ def _add_dynophore(view, dynophore, visualization_type, cloud_by_frame=False):
         cloud = superfeature.cloud.data.copy()
 
         # Use color saturation to indicate frame index per point
-        if cloud_by_frame:
+        if color_cloud_by_frame:
             colors_by_frame = hex_to_rgb_saturation_sequence(
                 f"#{superfeature.color}", dynophore.n_frames
             )
@@ -208,7 +208,9 @@ def _js_sphere_buffer(buffer, superfeature_id, opacity):
 def _js_point_buffer(buffer, superfeature_id, opacity):
     """
     Create JavaScript string generating a point buffer from buffer parameters.
-    TODO: Visualization contains artifacts
+    TODO: Visualization contains artifacts: 
+    - https://github.com/dominiquesydow/dynophores/issues/27
+    - https://github.com/nglviewer/ngl/issues/868
 
     Parameters
     ----------
