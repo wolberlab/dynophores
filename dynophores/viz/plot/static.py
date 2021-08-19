@@ -308,7 +308,7 @@ def envpartners_distances(
                 data.plot(kind="line", ax=ax, linewidth=0.5)
 
                 # Plot all interaction-relevant distances as dot plot
-                data_interaction_frames.plot(ax=ax, style=".", markersize=5)
+                data_interaction_frames.plot(kind="line", ax=ax, style=".", markersize=5)
 
                 ax.set_xlim((data.index[0], data.index[-1]))
                 ax.set_xlabel("Frame index")
