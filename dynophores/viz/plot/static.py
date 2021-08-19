@@ -281,8 +281,15 @@ def envpartners_distances(
         ax.set_title(superfeature_title[0])
 
         # Prepare data
-        _, data = _prepare_envpartner_plotting_data(
+        occurrences, distances = _prepare_envpartner_plotting_data(
             dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min
+        )
+        # Use all distances
+        data = distances
+        # Use interaction-relevant distances only:
+        # Where occurrence is 0, distances will be 0; set those distances to None
+        data_interaction_frames = (distances * occurrences).applymap(
+            lambda x: x if x > 0 else None
         )
 
         if data.shape[1] == 0:
@@ -296,22 +303,36 @@ def envpartners_distances(
             )
 
             if kind == "line":
-                data.plot(kind="line", ax=ax)
+
+                # Plot all distances as line plot
+                data.plot(kind="line", ax=ax, linewidth=0.5)
+
+                # Plot all interaction-relevant distances as dot plot
+                data_interaction_frames.plot(ax=ax, style=".", markersize=5)
+
                 ax.set_xlim((data.index[0], data.index[-1]))
                 ax.set_xlabel("Frame index")
                 ax.set_ylabel(r"Distance [$\AA$]")
-                ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
+                # Currently we have legends from both plots; we only need it once!
+                legend_labels = data.columns.to_list()
+                ax.legend(labels=legend_labels, loc=6, bbox_to_anchor=(1, 0.5))
+
             elif kind == "hist":
-                value_floor = int(np.floor(data.min().min()))
-                value_ceil = int(np.ceil(data.max().max()))
-                data.plot(
+
+                # TODO or use min/max in full dataset instead of per superfeature?
+                value_floor = int(np.floor(data_interaction_frames.min().min()))
+                value_ceil = int(np.ceil(data_interaction_frames.max().max()))
+
+                data_interaction_frames.plot(
                     kind="hist", ax=ax, bins=np.arange(value_floor, value_ceil, 0.1), alpha=0.8
                 )
+
                 ax.set_xlim((value_floor, value_ceil))
                 ax.set_xlabel(r"Distance [$\AA$]")
                 ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
+
             else:
-                raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
+                raise KeyError("Plotting kind is unknown. Choose from 'line' and 'hist'.")
 
     return fig, axes
 
