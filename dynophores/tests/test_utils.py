@@ -2,39 +2,43 @@
 Unit tests for dynophores.utils.
 """
 
-from pathlib import Path
-
 import pytest
+import numpy as np
 
 from dynophores import utils
 
-PATH_TEST_DATA = Path(__name__).parent / "dynophores/tests/data"
-
 
 @pytest.mark.parametrize(
-    "hex_string, scale, rgb",
+    "hex, sequence_length, min_saturation, rgb_saturation_sequence",
     [
-        ("ffc20e", True, [1.0, 0.761, 0.055]),
-        ("ffc20e", False, [255, 194, 14]),
-        ("#ffc20e", False, [255, 194, 14]),
+        (
+            "#f73e3e",
+            4,
+            0.2,
+            np.array(
+                [
+                    [0.96862745, 0.24313725, 0.24313725],
+                    [0.96862745, 0.42039216, 0.42039216],
+                    [0.96862745, 0.59764706, 0.59764706],
+                    [0.96862745, 0.77490196, 0.77490196],
+                ]
+            ),
+        )
     ],
 )
-def test_hex_to_rgb(hex_string, scale, rgb):
-    """
-    Test hex to RGB conversion.
-    """
-
-    assert utils.hex_to_rgb(hex_string, scale) == rgb
+def test_hex_to_rgb_saturation_sequence(
+    hex, sequence_length, min_saturation, rgb_saturation_sequence
+):
+    rgb_saturation_sequence_calculated = utils.hex_to_rgb_saturation_sequence(
+        hex, sequence_length, min_saturation
+    )
+    assert np.allclose(rgb_saturation_sequence_calculated, rgb_saturation_sequence, equal_nan=True)
 
 
 @pytest.mark.parametrize(
-    "hex_string",
-    ["a", 0],
+    "hex, sequence_length, min_saturation",
+    [("#f73e3e", 1, 0.2), ("#f73e3e", 4, 10)],  # Sequence too short  # Saturation not in [0, 1]
 )
-def test_hex_to_rgb_raises(hex_string):
-    """
-    Test hex to RGB conversion.
-    """
-
+def test_hex_to_rgb_saturation_sequence_raise(hex, sequence_length, min_saturation):
     with pytest.raises(ValueError):
-        assert utils.hex_to_rgb(hex_string)
+        utils.hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation)

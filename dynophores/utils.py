@@ -1,35 +1,61 @@
 """
-Utility functions.
+Contains utility functions.
 """
 
+import numpy as np
+from matplotlib import colors
 
-def hex_to_rgb(hex_string, scale=True):
+
+def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
     """
-    Convert hex code to RGB code.
+    Generate a sequence of RGB values from an input hex color that changes in saturation from high
+    saturation at the beginning (100%) to low saturation at the end (by default 20%).
 
     Parameters
     ----------
-    hex_string : str
-        6-letter hex string.
-
-    Return
-    ------
-    list of int or float
-        RGB code, e.g. (255, 255, 255).
+    hex : str
+        Hex string for input color.
+    sequence_length : int
+        Lenght of output sequence.
+    min_saturation : float
+        Minimum saturation value that can be used to avoid running into grey (default: 0.2).
     """
 
-    if not isinstance(hex_string, str):
-        raise ValueError(f"Input must be string but is {type(hex_string)}.")
-    hex_string = hex_string.lstrip("#")
-    if len(hex_string) != 6:
-        raise ValueError(f"Input hex string must be of length 6 but is '{hex_string}'.")
-    r_hex = hex_string[0:2]
-    g_hex = hex_string[2:4]
-    b_hex = hex_string[4:6]
+    if sequence_length < 2:
+        raise ValueError(f"Sequence must have at least 2 elements but has {sequence_length}.")
+    if not 0 <= min_saturation <= 1:
+        raise ValueError(f"Saturation value must be in [0, 1] but is {min_saturation}.")
 
-    rgb = [int(r_hex, 16), int(g_hex, 16), int(b_hex, 16)]
+    # Hex to (scaled) RGB
+    color_rgb = colors.hex2color(hex)
+    color_rgb = np.array(color_rgb)
 
-    if scale:
-        rgb = [round(value / float(255), 3) for value in rgb]
+    # RGB to HSV [hue, saturation, value]
+    color_hsv = colors.rgb_to_hsv(color_rgb)
 
-    return rgb
+    # HSV sequence
+    # We want to generate a sequence of colors in HSV format with descending saturation
+    # (colors shall grow paler):
+    # H: Keep fixed
+    # S: Decrease (XXX)
+    # V: Keep fixed
+    hsv_saturation_sequence = []
+    # Add first colors = input color
+    hsv_saturation_sequence.append(color_hsv)
+    # Define saturation width: Maximum (input HSV saturation) to minimum (default 0.2)
+    s_width = color_hsv[1] - min_saturation
+    # Define saturation step size
+    s_step_size = s_width / (sequence_length - 1)
+    # Add decreasing colors
+    for i in range(1, sequence_length):
+        h = color_hsv[0]
+        # Define step size (maximum: , minimum: )
+        s = color_hsv[1] - i * s_step_size
+        v = color_hsv[2]
+        hsv_saturation_sequence.append([h, s, v])
+    hsv_saturation_sequence = np.array(hsv_saturation_sequence)
+
+    # HSV sequence to RGB sequence
+    rgb_saturation_sequence = np.apply_along_axis(colors.hsv_to_rgb, 1, hsv_saturation_sequence)
+    rgb_saturation_sequence = rgb_saturation_sequence
+    return rgb_saturation_sequence

@@ -18,23 +18,63 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "pdb_path, dcd_path, visualization_type",
+    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range",
     [
-        (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres"),
-        (PATH_TEST_DATA / "in/startframe.pdb", PATH_TEST_DATA / "in/trajectory.dcd", "points"),
+        (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", False, None),
+        (
+            PATH_TEST_DATA / "in/startframe.pdb",
+            PATH_TEST_DATA / "in/trajectory.dcd",
+            "points",
+            False,
+            None,
+        ),
+        (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", True, None),
+        (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", False, [100, 200]),
     ],
 )
-def test_show(dynophore, pdb_path, dcd_path, visualization_type):
-    view3d.show(dynophore, pdb_path, dcd_path, visualization_type)
+def test_show(
+    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range
+):
+    view3d.show(
+        dynophore,
+        pdb_path,
+        dcd_path=dcd_path,
+        visualization_type=visualization_type,
+        color_cloud_by_frame=color_cloud_by_frame,
+        select_cloud_range=select_cloud_range,
+    )
 
 
 @pytest.mark.parametrize(
-    "pdb_path, dcd_path, visualization_type",
+    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range",
     [
-        (PATH_TEST_DATA / "in/startframe.pdb", None, "xxx"),
+        (PATH_TEST_DATA / "in/startframe.pdb", None, "xxx", None, None),  # Unknown viz type
+        (
+            PATH_TEST_DATA / "in/startframe.pdb",
+            None,
+            "spheres",
+            None,
+            [0],
+        ),  # Range needs two numbers
+        (
+            PATH_TEST_DATA / "in/startframe.pdb",
+            None,
+            "spheres",
+            None,
+            [100, 0],
+        ),  # Range needs increasing numbers
     ],
 )
-def test_show_raises(dynophore, pdb_path, dcd_path, visualization_type):
+def test_show_raises(
+    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range
+):
 
     with pytest.raises(ValueError):
-        view3d.show(dynophore, pdb_path, dcd_path, visualization_type)
+        view3d.show(
+            dynophore,
+            pdb_path,
+            dcd_path=dcd_path,
+            visualization_type=visualization_type,
+            color_cloud_by_frame=color_cloud_by_frame,
+            select_cloud_range=select_cloud_range,
+        )
