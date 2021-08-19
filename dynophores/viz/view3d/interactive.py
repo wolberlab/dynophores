@@ -205,7 +205,7 @@ def _js_sphere_buffer(buffer, superfeature_id, opacity):
         """
 
 
-def _js_point_buffer(buffer, superfeature_id):
+def _js_point_buffer(buffer, superfeature_id, opacity):
     """
     Create JavaScript string generating a point buffer from buffer parameters.
     TODO: Visualization contains artifacts
@@ -216,6 +216,8 @@ def _js_point_buffer(buffer, superfeature_id):
         Buffer parameters.
     superfeature_id : str
         Superfeature ID.
+    opacity : float
+        Sphere opacity (the higher the less transparent).
 
     Returns
     -------
@@ -243,5 +245,5 @@ def _js_point_buffer(buffer, superfeature_id):
 
         shape.addBuffer(point_buffer);
         var shapeComp = this.stage.addComponentFromObject(shape);
-        shapeComp.addRepresentation("buffer", {{ opacity: 0.55 }});
+        shapeComp.addRepresentation("buffer", {{ opacity: {opacity} }});
         """
