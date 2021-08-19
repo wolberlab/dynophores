@@ -26,6 +26,13 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
         identifier.
     annotate_heatmap : bool
         Annotate heatmap cells (default: False).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -38,7 +45,7 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
         data = data[superfeature_ids]
         data = data[~(data == 0).all(axis=1)]
 
-    fig, ax = plt.subplots(1, 1)
+    fig, ax = plt.subplots(1, 1, tight_layout=True)
     sns.heatmap(
         data,
         annot=annotate_heatmap,
@@ -50,7 +57,7 @@ def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_hea
     ax.set_xlabel("Superfeature IDs")
     ax.set_ylabel("Environmental partner IDs")
 
-    plt.close(fig)
+    return fig, ax
 
 
 def superfeatures_occurrences(
@@ -78,6 +85,13 @@ def superfeatures_occurrences(
     frame_step_size : int
         Define frame slicing by step size. Default is 1, i.e. every frame will be selected.
         If e.g. step size is 10, every 10th frame will be selected.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    ax : matplotlib.axis.Subplot
+        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -109,7 +123,7 @@ def superfeatures_occurrences(
         colors = "black"
 
     # Plot (plot size depending on number barcodes)
-    fig, ax = plt.subplots(figsize=(10, 0.5 + len(events) / 2))
+    fig, ax = plt.subplots(figsize=(8, 0.5 + len(events) / 2), tight_layout=True)
     ax = _occurrences(
         ax=ax,
         events=events,
@@ -119,7 +133,7 @@ def superfeatures_occurrences(
         xlim=(data.index[0], data.index[-1]),
     )
 
-    plt.close(fig)
+    return fig, ax
 
 
 def envpartners_occurrences(
@@ -142,6 +156,13 @@ def envpartners_occurrences(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    axes : matplotlib.axis.Subplot or numpy.array of matplotlib.axis.Subplot
+        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -149,8 +170,9 @@ def envpartners_occurrences(
     fig, axes = plt.subplots(
         nrows=len(superfeature_ids),
         ncols=1,
-        figsize=(10, len(superfeature_ids) * 2),
+        figsize=(8, len(superfeature_ids) * 2),
         sharex=True,
+        tight_layout=True,
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
@@ -197,7 +219,7 @@ def envpartners_occurrences(
         else:
             axes.set_xlabel("Frame index")
 
-    plt.close(fig)
+    return fig, axes
 
 
 def envpartners_distances(
@@ -228,6 +250,13 @@ def envpartners_distances(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    axes : matplotlib.axis.Subplot or numpy.array of matplotlib.axis.Subplot
+        Plot axes.
     """
 
     superfeature_ids = _format_superfeature_ids(dynophore, superfeature_ids)
@@ -235,8 +264,9 @@ def envpartners_distances(
     fig, axes = plt.subplots(
         nrows=len(superfeature_ids),
         ncols=1,
-        figsize=(10, len(superfeature_ids) * 4),
+        figsize=(8, len(superfeature_ids) * 4),
         sharex=True,
+        tight_layout=True,
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
@@ -270,7 +300,7 @@ def envpartners_distances(
                 ax.set_xlim((data.index[0], data.index[-1]))
                 ax.set_xlabel("Frame index")
                 ax.set_ylabel(r"Distance [$\AA$]")
-                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
             elif kind == "hist":
                 value_floor = int(np.floor(data.min().min()))
                 value_ceil = int(np.ceil(data.max().max()))
@@ -279,11 +309,11 @@ def envpartners_distances(
                 )
                 ax.set_xlim((value_floor, value_ceil))
                 ax.set_xlabel(r"Distance [$\AA$]")
-                ax.legend(loc=6, bbox_to_anchor=(1, 0.5), fontsize=12)
+                ax.legend(loc=6, bbox_to_anchor=(1, 0.5))
             else:
                 raise KeyError('Plotting kind is unknown. Choose from "line" and "hist".')
 
-    plt.close(fig)
+    return fig, axes
 
 
 def envpartners_all_in_one(
@@ -307,6 +337,13 @@ def envpartners_all_in_one(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Plot figure.
+    axes : matplotlib.axis.Subplot
+        Plot axes.
     """
 
     # IPyWidgets' interact function: Cast tuple > str
@@ -326,11 +363,13 @@ def envpartners_all_in_one(
     fig, axes = plt.subplots(
         nrows=2,
         ncols=2,
-        figsize=(15, 7),
+        figsize=(8, 5),
         sharey="row",
         sharex="col",
-        gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.05},
+        gridspec_kw={"width_ratios": [3, 1], "wspace": 0.05, "hspace": 0.15},
+        constrained_layout=True,
     )
+    fig.suptitle(superfeature_id)
 
     # Subplot (0, 0): Interaction occurrences (barplot)
     events_dict = {
@@ -352,16 +391,14 @@ def envpartners_all_in_one(
         xlabel="",
         xlim=(occurrences.index[0], occurrences.index[-1]),
     )
-    # Set y tick labels
-    axes[0][0].set_yticklabels("")
 
     # Subplot (0, 1): Empty (will hold legend from subplot (1, 1))
     axes[0][1].axis("off")
 
     # Subplot (1, 0): Distance time series
     distances.plot(ax=axes[1][0], kind="line", legend=None, linewidth=1)
-    axes[1][0].set_xlabel("Frame index", fontsize=16)
-    axes[1][0].set_ylabel(r"Distance [$\AA$]", fontsize=16)
+    axes[1][0].set_xlabel("Frame index")
+    axes[1][0].set_ylabel(r"Distance [$\AA$]")
 
     # Subplot (1, 1): Distance histogram
     bins = range(0, math.ceil(distances.max().max()) + 1)
@@ -377,11 +414,11 @@ def envpartners_all_in_one(
         alpha=0.8,
         density=True,
         xlim=(0, 1),
+        legend=None,
     )
-    axes[1][1].set_xlabel("Frequency", fontsize=16)
-    axes[1][1].legend(loc=6, bbox_to_anchor=(0, 1.5), fontsize=12)
+    axes[1][1].set_xlabel("Frequency")
 
-    plt.close(fig)
+    return fig, axes
 
 
 def _occurrences(ax, events, colors, yticklabels, xlabel, xlim):

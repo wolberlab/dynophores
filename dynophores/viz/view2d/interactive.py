@@ -17,14 +17,9 @@ def show(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore object.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    func = interact(
+    interact(
         view2d.static.show,
         dynophore=fixed(dynophore),
         show_superfeatures=widgets.Checkbox(value=False, description="Show superfeatures"),
@@ -32,5 +27,3 @@ def show(dynophore):
             value=False, description="Show atom serial numbers"
         ),
     )
-
-    return func

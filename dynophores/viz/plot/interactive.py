@@ -15,10 +15,13 @@ Resources:
 
 import math
 
-from ipywidgets import interact_manual, fixed
+from ipywidgets import interact, fixed
 import ipywidgets as widgets
 
 from dynophores.viz import plot
+
+WIDGET_STYLE = {"description_width": "150px"}
+WIDGET_LAYOUT = {"width": "550px"}
 
 
 def superfeatures_vs_envpartners(dynophore):
@@ -29,32 +32,31 @@ def superfeatures_vs_envpartners(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
     superfeature_ids = ["all"] + superfeature_ids
 
-    func = interact_manual(
+    interact(
         plot.static.superfeatures_vs_envpartners,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=["all"],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
-        annotate_heatmap=widgets.Checkbox(value=False, description="Annotate heatmap cells"),
+        annotate_heatmap=widgets.ToggleButtons(
+            options=[False, True],
+            description="Annotate heatmap",
+            button_style="",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
+        ),
     )
-
-    return func
 
 
 def superfeatures_occurrences(dynophore):
@@ -65,35 +67,37 @@ def superfeatures_occurrences(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    interact(
         plot.static.superfeatures_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
             options=["all"] + superfeature_ids,
             value=["all"],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
-        color_by_feature_type=widgets.Checkbox(value=True, description="Color by feature type"),
+        color_by_feature_type=widgets.ToggleButtons(
+            options=[True, False],
+            description="Color by feature type",
+            button_style="",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
+        ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -101,12 +105,11 @@ def superfeatures_occurrences(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
-
-    return func
 
 
 def envpartners_occurrences(dynophore):
@@ -117,34 +120,30 @@ def envpartners_occurrences(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    interact(
         plot.static.envpartners_occurrences,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -152,20 +151,20 @@ def envpartners_occurrences(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
-
-    return func
 
 
 def envpartners_distances(dynophore):
@@ -176,40 +175,38 @@ def envpartners_distances(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    interact(
         plot.static.envpartners_distances,
         dynophore=fixed(dynophore),
         superfeature_ids=widgets.SelectMultiple(
             options=superfeature_ids,
             value=[superfeature_ids[0]],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         kind=widgets.ToggleButtons(
             options=["line", "hist"],
             description="Plot style",
             button_style="",
             tooltips=["Series", "Histogram"],
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -217,20 +214,20 @@ def envpartners_distances(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
-
-    return func
 
 
 def envpartners_all_in_one(dynophore):
@@ -242,34 +239,30 @@ def envpartners_all_in_one(dynophore):
     ----------
     dynophore : dynophores.Dynophore
         Dynophore.
-
-    Returns
-    -------
-    function
-        Parameterized IPyWidgets interact function.
     """
 
-    style = {"description_width": "initial"}
     superfeature_ids = (
         dynophore.frequency.loc["any", :].sort_values(ascending=False).index.to_list()
     )
 
-    func = interact_manual(
+    interact(
         plot.static.envpartners_all_in_one,
         dynophore=fixed(dynophore),
         superfeature_id=widgets.Select(
             options=superfeature_ids,
             value=superfeature_ids[0],
-            description="Superfeature ID(s):",
-            style=style,
+            description="Superfeature ID(s)",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_range=widgets.IntRangeSlider(
             value=[0, dynophore.n_frames],
             min=0,
             max=dynophore.n_frames,
             step=1,
-            description="Frames range:",
-            style=style,
+            description="Frames range",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         frame_step_size=widgets.BoundedIntText(
             # Default value results in displayed 1000 frames
@@ -277,17 +270,17 @@ def envpartners_all_in_one(dynophore):
             min=1,
             max=dynophore.n_frames - 1,
             step=1,
-            description="Frames step size:",
-            style=style,
+            description="Frames step size",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
         occurrence_min=widgets.BoundedFloatText(
             value=0,
             min=0,
             max=100,
             step=1,
-            description="Occurrence minimum [%]:",
-            style=style,
+            description="Occurrence minimum [%]",
+            style=WIDGET_STYLE,
+            layout=WIDGET_LAYOUT,
         ),
     )
-
-    return func
