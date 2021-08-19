@@ -21,7 +21,12 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
     "pdb_path, dcd_path, visualization_type, color_cloud_by_frame",
     [
         (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", False),
-        (PATH_TEST_DATA / "in/startframe.pdb", PATH_TEST_DATA / "in/trajectory.dcd", "points", False),
+        (
+            PATH_TEST_DATA / "in/startframe.pdb",
+            PATH_TEST_DATA / "in/trajectory.dcd",
+            "points",
+            False,
+        ),
         (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", True),
     ],
 )

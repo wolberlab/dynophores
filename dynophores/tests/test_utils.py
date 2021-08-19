@@ -34,15 +34,11 @@ def test_hex_to_rgb_saturation_sequence(
     )
     assert np.allclose(rgb_saturation_sequence_calculated, rgb_saturation_sequence, equal_nan=True)
 
+
 @pytest.mark.parametrize(
     "hex, sequence_length, min_saturation",
-    [
-        ("#f73e3e", 1, 0.2),  # Sequence too short
-        ("#f73e3e", 4, 10)  # Saturation not in [0, 1]
-    ],
+    [("#f73e3e", 1, 0.2), ("#f73e3e", 4, 10)],  # Sequence too short  # Saturation not in [0, 1]
 )
-def test_hex_to_rgb_saturation_sequence_raise(
-    hex, sequence_length, min_saturation
-):
+def test_hex_to_rgb_saturation_sequence_raise(hex, sequence_length, min_saturation):
     with pytest.raises(ValueError):
         utils.hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation)

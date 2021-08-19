@@ -34,7 +34,7 @@ def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
     color_hsv = colors.rgb_to_hsv(color_rgb)
 
     # HSV sequence
-    # We want to generate a sequence of colors in HSV format with descending saturation 
+    # We want to generate a sequence of colors in HSV format with descending saturation
     # (colors shall grow paler):
     # H: Keep fixed
     # S: Decrease (XXX)
@@ -54,7 +54,7 @@ def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
         v = color_hsv[2]
         hsv_saturation_sequence.append([h, s, v])
     hsv_saturation_sequence = np.array(hsv_saturation_sequence)
-    
+
     # HSV sequence to RGB sequence
     rgb_saturation_sequence = np.apply_along_axis(colors.hsv_to_rgb, 1, hsv_saturation_sequence)
     rgb_saturation_sequence = rgb_saturation_sequence
