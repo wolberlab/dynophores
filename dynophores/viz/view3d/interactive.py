@@ -24,6 +24,7 @@ def show(
     visualization_type="spheres",
     color_cloud_by_frame=False,
     macromolecule_color=MACROMOLECULE_COLOR,
+    select_cloud_range=None,
 ):
     """
     Show the dynophore point cloud with its ligand-bound structure and optionally the underlying
@@ -43,6 +44,8 @@ def show(
         Use color saturation to indicate frame index of each cloud point (default: False).
     macromolecule_color : str
         Hex code for macromolecule color.
+    select_cloud_range : list of in
+        Select frame range to display (list of two integers). If None (default), use all points.
 
     Returns
     -------
@@ -67,7 +70,7 @@ def show(
     )
     view.add_representation("licorice", selection=envpartners_string)
     # Add dynophore
-    _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame)
+    _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame, select_cloud_range)
 
     return view
 
@@ -102,6 +105,8 @@ def _show_trajectory(pdb_path, dcd_path):
         Path to PDB file (structure/topology)
     dcd_path : None or str or pathlib.Path
         Optionally: Path to DCD file (trajectory).
+    select_cloud_range : list of in
+        Select frame range to display (list of two integers). If None (default), use all points.
 
     Returns
     -------
@@ -114,7 +119,9 @@ def _show_trajectory(pdb_path, dcd_path):
     return view
 
 
-def _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame=False):
+def _add_dynophore(
+    view, dynophore, visualization_type, color_cloud_by_frame=False, select_cloud_range=None
+):
     """
     Add the dynophore point cloud to an existing view of its underlying structure (and optionally
     its trajectory).
@@ -141,6 +148,19 @@ def _add_dynophore(view, dynophore, visualization_type, color_cloud_by_frame=Fal
     for _, superfeature in dynophore.superfeatures.items():
         buffer = {"position": [], "color": [], "radius": []}
         cloud = superfeature.cloud.data.copy()
+
+        # Optionally: Select cloud points by frame index
+        if select_cloud_range is not None:
+            # Check if the range contains two values and is decreasing!
+            if len(select_cloud_range) != 2 or select_cloud_range[0] >= select_cloud_range[1]:
+                raise ValueError(
+                    f"Selected range must consist of two decreasing numbers "
+                    f"but is {select_cloud_range}."
+                )
+            cloud = cloud[
+                (cloud["frame_ix"] >= select_cloud_range[0])
+                & (cloud["frame_ix"] <= select_cloud_range[1])
+            ]
 
         # Use color saturation to indicate frame index per point
         if color_cloud_by_frame:
