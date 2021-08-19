@@ -232,6 +232,8 @@ def envpartners_distances(
 ):
     """
     Plot interaction distances for a superfeatures as frame series or histogram.
+    - Frame series: Add interaction-relevant distances as dots
+    - Histogram: Show ONLY interaction-relevant distances
 
     Parameters
     ----------
@@ -343,6 +345,7 @@ def envpartners_all_in_one(
     """
     Plot interaction data for a superfeature, i.e. occurrences (frame series) and distances
     (frame series and histogram).
+    TODO Uses all distances (regardless of forming interactions)
 
     Parameters
     ----------
