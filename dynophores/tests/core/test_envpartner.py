@@ -68,6 +68,14 @@ class TestsEnvPartner:
         with pytest.raises(ValueError):
             EnvPartner(**envpartner_dict)
 
+    @pytest.mark.parametrize("residue_id", ["ILE-10-A"])
+    def test_residue_id(self, envpartner, residue_id):
+        """
+        Test class property.
+        """
+
+        assert envpartner.residue_id == residue_id
+
     @pytest.mark.parametrize("n_frames", [1002])
     def test_n_frames(self, envpartner, n_frames):
         """

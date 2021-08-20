@@ -117,7 +117,7 @@ class SuperFeature:
 
             occurrences_dict[id_collapsed] = occurrences
 
-        occurrences = pd.DataFrame(occurrences_dict)
+        occurrences = pd.DataFrame(occurrences_dict, dtype="int32")
 
         return occurrences
 
