@@ -137,7 +137,7 @@ def superfeatures_occurrences(
 
 
 def envpartners_occurrences(
-    dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1, occurrence_min=0
+    dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1, occurrence_min=0, collapse_residues=False
 ):
     """
     Plot a superfeature's interaction ocurrences with its interaction partners.
@@ -156,6 +156,9 @@ def envpartners_occurrences(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
+    collapse_residues : bool
+        Collapse environmental partners part of the same residue. 
+        Example: ALA-100-A[100,101] and ALA-100-A[101,102] collapse to ALA-100-A[100,101,102]
 
     Returns
     -------
@@ -188,7 +191,7 @@ def envpartners_occurrences(
 
         # Prepare data
         data, _ = _prepare_envpartner_plotting_data(
-            dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min
+            dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min, collapse_residues
         )
         if (data == 0).all().all() or data.shape[1] == 0:
             ax.set_yticks([0])
@@ -493,6 +496,7 @@ def _prepare_envpartner_plotting_data(
     frame_range=[0, None],
     frame_step_size=1,
     occurrence_min=0,
+    collapse_residues=False
 ):
 
     """
@@ -512,6 +516,9 @@ def _prepare_envpartner_plotting_data(
         If e.g. step size is 10, every 10th frame will be selected.
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
+    collapse_residues : bool
+        Collapse environmental partners part of the same residue. 
+        Example: ALA-100-A[100,101] and ALA-100-A[101,102] collapse to ALA-100-A[100,101,102]
 
     Returns
     -------
@@ -521,13 +528,18 @@ def _prepare_envpartner_plotting_data(
 
     superfeature = dynophore.superfeatures[superfeature_id]
 
-    # Prepare occurrences
-    occurrences = superfeature.envpartners_occurrences
+    # Prepare occurrences (from collapsed or un-collapsed envpartners)
+    if collapse_residues:
+        occurrences = superfeature.envpartners_occurrences_collapsed
+        frequency = superfeature.frequency_collapsed.drop("any")
+    else:
+        occurrences = superfeature.envpartners_occurrences
+        frequency = superfeature.frequency.drop("any")
+    
     # Sort columns by envpartner frequency
     sorted_columns = occurrences.sum().sort_values(ascending=False).index
     occurrences = occurrences[sorted_columns]
     # Select columns by occurrence_min
-    frequency = superfeature.frequency.drop("any")
     selected_columns = frequency[frequency >= occurrence_min].index
     occurrences = occurrences[selected_columns]
     # Slice rows
