@@ -137,7 +137,12 @@ def superfeatures_occurrences(
 
 
 def envpartners_occurrences(
-    dynophore, superfeature_ids, frame_range=[0, None], frame_step_size=1, occurrence_min=0, collapse_residues=False
+    dynophore,
+    superfeature_ids,
+    frame_range=[0, None],
+    frame_step_size=1,
+    occurrence_min=0,
+    collapse_residues=False,
 ):
     """
     Plot a superfeature's interaction ocurrences with its interaction partners.
@@ -157,7 +162,7 @@ def envpartners_occurrences(
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
     collapse_residues : bool
-        Collapse environmental partners part of the same residue. 
+        Collapse environmental partners part of the same residue.
         Example: ALA-100-A[100,101] and ALA-100-A[101,102] collapse to ALA-100-A[100,101,102]
 
     Returns
@@ -191,7 +196,12 @@ def envpartners_occurrences(
 
         # Prepare data
         data, _ = _prepare_envpartner_plotting_data(
-            dynophore, superfeature_id, frame_range, frame_step_size, occurrence_min, collapse_residues
+            dynophore,
+            superfeature_id,
+            frame_range,
+            frame_step_size,
+            occurrence_min,
+            collapse_residues,
         )
         if (data == 0).all().all() or data.shape[1] == 0:
             ax.set_yticks([0])
@@ -496,7 +506,7 @@ def _prepare_envpartner_plotting_data(
     frame_range=[0, None],
     frame_step_size=1,
     occurrence_min=0,
-    collapse_residues=False
+    collapse_residues=False,
 ):
 
     """
@@ -517,7 +527,7 @@ def _prepare_envpartner_plotting_data(
     occurrence_min : int or float
         Remove all envpartners below the occurrence cutoff (default: 0).
     collapse_residues : bool
-        Collapse environmental partners part of the same residue. 
+        Collapse environmental partners part of the same residue.
         Example: ALA-100-A[100,101] and ALA-100-A[101,102] collapse to ALA-100-A[100,101,102]
 
     Returns
@@ -535,7 +545,7 @@ def _prepare_envpartner_plotting_data(
     else:
         occurrences = superfeature.envpartners_occurrences
         frequency = superfeature.frequency.drop("any")
-    
+
     # Sort columns by envpartner frequency
     sorted_columns = occurrences.sum().sort_values(ascending=False).index
     occurrences = occurrences[sorted_columns]

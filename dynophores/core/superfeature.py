@@ -172,7 +172,7 @@ class SuperFeature:
         ---------
         property : property_envpartners_occurrences
             If you want un-collapsed environmental partners, use `self.envpartners_occurrences`.
-            If you want collapsed environmental partners, use 
+            If you want collapsed environmental partners, use
             `self.envpartners_occurrences_collapsed`.
 
         Returns
@@ -218,7 +218,6 @@ class SuperFeature:
         """
 
         return self._frequency(self.count_collapsed)
-
 
     def _frequency(self, property_count):
         """
@@ -270,8 +269,6 @@ class SuperFeature:
 
     def _data_collapsed(self):
         """TODO"""
-
-
 
         # List of environmental partner IDs (e.g. ILE-10-A[169,171,172])
         ids = self.envpartners_occurrences.columns

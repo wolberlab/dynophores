@@ -65,10 +65,9 @@ class TestsSuperFeature:
         )
         assert data.dtypes.unique() == "int32"
 
-    
-    @pytest.mark.parametrize("envpartners_collapsed", [
-        ["ILE-10-A[169,171,172]", "PHE-82-A[1245,1246,1247,1248,1249,1250]"]
-        ]
+    @pytest.mark.parametrize(
+        "envpartners_collapsed",
+        [["ILE-10-A[169,171,172]", "PHE-82-A[1245,1246,1247,1248,1249,1250]"]],
     )
     def test_envpartners_occurrences_collapsed(self, superfeature, envpartners_collapsed):
         """

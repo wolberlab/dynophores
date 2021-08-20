@@ -166,7 +166,7 @@ def envpartners_occurrences(dynophore):
         ),
         collapse_residues=widgets.ToggleButtons(
             options=[False, True],
-            description='Collapse residues?',
+            description="Collapse residues?",
             button_style="",
             tooltips=["False", "True"],
             style=WIDGET_STYLE,
