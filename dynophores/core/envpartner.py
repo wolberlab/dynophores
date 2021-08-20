@@ -43,6 +43,18 @@ class EnvPartner:
         self.distances = distances
 
     @property
+    def residue_id(self):
+        """
+        Get the residue's ID (residue name - residue number - chain).
+
+        Returns
+        -------
+        str
+            Residue's ID.
+        """
+        return f"{self.residue_name}-{self.residue_number}-{self.chain}"
+
+    @property
     def n_frames(self):
         """
         Get environmental partner's number of frames.

@@ -62,10 +62,39 @@ class SuperFeature:
         -------
         pandas.DataFrame
             Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
-
         """
 
-        occurrences = self._data(type="occurrences").astype("int32")
+        return self._envpartners_occurrences(self._data(type="occurrences"))
+
+    @property
+    def envpartners_occurrences_collapsed(self):
+        """
+        Get the superfeature's environmental partners' occurrences per environmental partner and
+        frame.
+        If an environmental partner interacts multiple times with the same superfeature,
+        aggregate them. This can happen if differen atoms of an environmental partner are involved
+        in the same superfeature.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
+        """
+
+        return self._envpartners_occurrences(self._data_collapsed())
+
+    def _envpartners_occurrences(self, method_data):
+        """
+        Get the superfeature's environmental partners' occurrences per environmental partner and
+        frame.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
+        """
+
+        occurrences = method_data.astype("int32")
 
         # Sort columns by superfeature occurrence
         sorted_columns = occurrences.sum().sort_values(ascending=False).index
@@ -118,10 +147,45 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
+        return self._count(self.envpartners_occurrences)
+
+    @property
+    def count_collapsed(self):
+        """
+        Get number of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences (collapsed if they share the same residue!).
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature count: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return self._count(self.envpartners_occurrences_collapsed)
+
+    def _count(self, property_envpartners_occurrences):
+        """
+        Count the occurrence of the superfeature's environmental partners.
+
+        Parameter
+        ---------
+        property : property_envpartners_occurrences
+            If you want un-collapsed environmental partners, use `self.envpartners_occurrences`.
+            If you want collapsed environmental partners, use
+            `self.envpartners_occurrences_collapsed`.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature count: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
         superfeature_count = pd.Series(
-            {"any": (self.envpartners_occurrences.sum(axis=1) != 0).sum()}
+            {"any": (property_envpartners_occurrences.sum(axis=1) != 0).sum()}
         )
-        envpartners_count = self.envpartners_occurrences.sum()
+        envpartners_count = property_envpartners_occurrences.sum()
 
         return superfeature_count.append(envpartners_count)
 
@@ -138,7 +202,41 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
-        return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
+        return self._frequency(self.count)
+
+    @property
+    def frequency_collapsed(self):
+        """
+        Get frequency of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences (collapsed if they share the same residue!).
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature frequency: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return self._frequency(self.count_collapsed)
+
+    def _frequency(self, property_count):
+        """
+        Get the frequency of the occurrence of the superfeature's environmental partners.
+
+        Parameter
+        ---------
+        property : property_count
+            If you want un-collapsed environmental partners, use `self.count`.
+            If you want collapsed environmental partners, use `self.count_collapsed`.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature frequency: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return property_count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
     def _data(self, type="occurrences"):
         """
@@ -168,3 +266,40 @@ class SuperFeature:
                 for envpartner_id, envpartner in self.envpartners.items()
             }
         )
+
+    def _data_collapsed(self):
+        """TODO"""
+
+        # List of environmental partner IDs (e.g. ILE-10-A[169,171,172])
+        ids = self.envpartners_occurrences.columns
+        # Unique list of residue IDs (e.g. ILE-10-A)
+        residue_ids = [envpartner.residue_id for _, envpartner in self.envpartners.items()]
+        residue_ids = list(set(residue_ids))
+
+        occurrences_dict = {}
+
+        # For each unique residue ID,
+        # we want to aggregate data for all environmental partners that belong to the same residue
+        for residue_id in residue_ids:
+
+            # Get all environmental partner IDs that belong to this residue
+            ids_to_be_collapsed = [_id for _id in ids if _id.startswith(residue_id)]
+
+            # Merge all atom numbers
+            atom_numbers = []
+            for _id in ids_to_be_collapsed:
+                atom_numbers.extend(self.envpartners[_id].atom_numbers)
+            atom_numbers = sorted(list(set(atom_numbers)))
+            id_collapsed = f"{residue_id}{atom_numbers}".replace(" ", "")
+
+            # Merge all occurrences
+            occurrences = [self.envpartners[_id].occurrences for _id in ids_to_be_collapsed]
+            occurrences = pd.DataFrame(occurrences)
+            # If frame 1 in any environmental partner, set to 1 in collapsed environmental partner
+            occurrences = occurrences.sum().apply(lambda x: 1 if x > 0 else 0)
+
+            occurrences_dict[id_collapsed] = occurrences
+
+        occurrences = pd.DataFrame(occurrences_dict, dtype="int32")
+
+        return occurrences
