@@ -136,3 +136,28 @@ class TestsSuperFeature:
 
         frequency = pd.Series(frequency, index=envpartner_ids)
         assert all(superfeature.frequency == frequency)
+
+    @pytest.mark.parametrize(
+        "count, frequency, envpartner_ids",
+        [
+            (
+                [1001, 1001, 57],
+                [99.90, 99.90, 5.69],
+                [
+                    "any",
+                    "ILE-10-A[169,171,172]",
+                    "PHE-82-A[1245,1246,1247,1248,1249,1250]",
+                ],
+            )
+        ],
+    )
+    def test_count_frequency_collapsed(self, superfeature, count, frequency, envpartner_ids):
+        """
+        Test class property.
+        """
+
+        count = pd.Series(count, index=envpartner_ids)
+        assert all(superfeature.count_collapsed == count)
+
+        frequency = pd.Series(frequency, index=envpartner_ids)
+        assert all(superfeature.frequency_collapsed == frequency)

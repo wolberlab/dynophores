@@ -166,10 +166,39 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
+        return self._count(self.envpartners_occurrences)
+
+    @property
+    def count_collapsed(self):
+        """
+        Get number of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature count: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return self._count(self.envpartners_occurrences_collapsed)
+
+    def _count(self, property_envpartners_occurrences):
+        """
+        Get number of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature count: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
         superfeature_count = pd.Series(
-            {"any": (self.envpartners_occurrences.sum(axis=1) != 0).sum()}
+            {"any": (property_envpartners_occurrences.sum(axis=1) != 0).sum()}
         )
-        envpartners_count = self.envpartners_occurrences.sum()
+        envpartners_count = property_envpartners_occurrences.sum()
 
         return superfeature_count.append(envpartners_count)
 
@@ -186,7 +215,37 @@ class SuperFeature:
             environmental partner as well as any environmental partner.
         """
 
-        return self.count.apply(lambda x: round(x / self.n_frames * 100, 2))
+        return self._frequency(self.count)
+
+    @property
+    def frequency_collapsed(self):
+        """
+        Get frequency of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature frequency: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return self._frequency(self.count_collapsed)
+
+
+    def _frequency(self, property_count):
+        """
+        Get frequency of frames in which the superfeature occurs, including the superfeature's
+        environmental partners occurrences.
+
+        Returns
+        -------
+        pandas.Series
+            Superfeature frequency: The Series shows interactions (yes/no) to each single
+            environmental partner as well as any environmental partner.
+        """
+
+        return property_count.apply(lambda x: round(x / self.n_frames * 100, 2))
 
     def _data(self, type="occurrences"):
         """
