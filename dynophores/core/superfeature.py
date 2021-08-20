@@ -172,7 +172,7 @@ class SuperFeature:
     def count_collapsed(self):
         """
         Get number of frames in which the superfeature occurs, including the superfeature's
-        environmental partners occurrences.
+        environmental partners occurrences (collapsed if they share the same residue!).
 
         Returns
         -------
@@ -185,8 +185,14 @@ class SuperFeature:
 
     def _count(self, property_envpartners_occurrences):
         """
-        Get number of frames in which the superfeature occurs, including the superfeature's
-        environmental partners occurrences.
+        Count the occurrence of the superfeature's environmental partners.
+
+        Parameter
+        ---------
+        property : property_envpartners_occurrences
+            If you want un-collapsed environmental partners, use `self.envpartners_occurrences`.
+            If you want collapsed environmental partners, use 
+            `self.envpartners_occurrences_collapsed`.
 
         Returns
         -------
@@ -221,7 +227,7 @@ class SuperFeature:
     def frequency_collapsed(self):
         """
         Get frequency of frames in which the superfeature occurs, including the superfeature's
-        environmental partners occurrences.
+        environmental partners occurrences (collapsed if they share the same residue!).
 
         Returns
         -------
@@ -235,8 +241,13 @@ class SuperFeature:
 
     def _frequency(self, property_count):
         """
-        Get frequency of frames in which the superfeature occurs, including the superfeature's
-        environmental partners occurrences.
+        Get the frequency of the occurrence of the superfeature's environmental partners.
+
+        Parameter
+        ---------
+        property : property_count
+            If you want un-collapsed environmental partners, use `self.count`.
+            If you want collapsed environmental partners, use `self.count_collapsed`.
 
         Returns
         -------
