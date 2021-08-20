@@ -64,13 +64,7 @@ class SuperFeature:
             Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
         """
 
-        occurrences = self._data(type="occurrences").astype("int32")
-
-        # Sort columns by superfeature occurrence
-        sorted_columns = occurrences.sum().sort_values(ascending=False).index
-        occurrences = occurrences[sorted_columns]
-
-        return occurrences
+        return self._envpartners_occurrences(self._data(type="occurrences"))
 
     @property
     def envpartners_occurrences_collapsed(self):
@@ -87,37 +81,24 @@ class SuperFeature:
             Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
         """
 
-        # List of environmental partner IDs (e.g. ILE-10-A[169,171,172])
-        ids = self.envpartners_occurrences.columns
-        # Unique list of residue IDs (e.g. ILE-10-A)
-        residue_ids = [envpartner.residue_id for _, envpartner in self.envpartners.items()]
-        residue_ids = list(set(residue_ids))
+        return self._envpartners_occurrences(self._data_collapsed())
 
-        occurrences_dict = {}
+    def _envpartners_occurrences(self, method_data):
+        """
+        Get the superfeature's environmental partners' occurrences per environmental partner and
+        frame.
 
-        # For each unique residue ID,
-        # we want to aggregate data for all environmental partners that belong to the same residue
-        for residue_id in residue_ids:
+        Returns
+        -------
+        pandas.DataFrame
+            Occurrences (0=no, 1=yes) of an environmental partner (columns) in each frame (row).
+        """
 
-            # Get all environmental partner IDs that belong to this residue
-            ids_to_be_collapsed = [_id for _id in ids if _id.startswith(residue_id)]
+        occurrences = method_data.astype("int32")
 
-            # Merge all atom numbers
-            atom_numbers = []
-            for _id in ids_to_be_collapsed:
-                atom_numbers.extend(self.envpartners[_id].atom_numbers)
-            atom_numbers = sorted(list(set(atom_numbers)))
-            id_collapsed = f"{residue_id}{atom_numbers}".replace(" ", "")
-
-            # Merge all occurrences
-            occurrences = [self.envpartners[_id].occurrences for _id in ids_to_be_collapsed]
-            occurrences = pd.DataFrame(occurrences)
-            # If frame 1 in any environmental partner, set to 1 in collapsed environmental partner
-            occurrences = occurrences.sum().apply(lambda x: 1 if x > 0 else 0)
-
-            occurrences_dict[id_collapsed] = occurrences
-
-        occurrences = pd.DataFrame(occurrences_dict, dtype="int32")
+        # Sort columns by superfeature occurrence
+        sorted_columns = occurrences.sum().sort_values(ascending=False).index
+        occurrences = occurrences[sorted_columns]
 
         return occurrences
 
@@ -286,3 +267,42 @@ class SuperFeature:
                 for envpartner_id, envpartner in self.envpartners.items()
             }
         )
+
+    def _data_collapsed(self):
+        """TODO"""
+
+
+
+        # List of environmental partner IDs (e.g. ILE-10-A[169,171,172])
+        ids = self.envpartners_occurrences.columns
+        # Unique list of residue IDs (e.g. ILE-10-A)
+        residue_ids = [envpartner.residue_id for _, envpartner in self.envpartners.items()]
+        residue_ids = list(set(residue_ids))
+
+        occurrences_dict = {}
+
+        # For each unique residue ID,
+        # we want to aggregate data for all environmental partners that belong to the same residue
+        for residue_id in residue_ids:
+
+            # Get all environmental partner IDs that belong to this residue
+            ids_to_be_collapsed = [_id for _id in ids if _id.startswith(residue_id)]
+
+            # Merge all atom numbers
+            atom_numbers = []
+            for _id in ids_to_be_collapsed:
+                atom_numbers.extend(self.envpartners[_id].atom_numbers)
+            atom_numbers = sorted(list(set(atom_numbers)))
+            id_collapsed = f"{residue_id}{atom_numbers}".replace(" ", "")
+
+            # Merge all occurrences
+            occurrences = [self.envpartners[_id].occurrences for _id in ids_to_be_collapsed]
+            occurrences = pd.DataFrame(occurrences)
+            # If frame 1 in any environmental partner, set to 1 in collapsed environmental partner
+            occurrences = occurrences.sum().apply(lambda x: 1 if x > 0 else 0)
+
+            occurrences_dict[id_collapsed] = occurrences
+
+        occurrences = pd.DataFrame(occurrences_dict, dtype="int32")
+
+        return occurrences
