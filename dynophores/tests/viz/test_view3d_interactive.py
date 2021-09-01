@@ -18,7 +18,7 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
 
 
 @pytest.mark.parametrize(
-    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range",
+    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, frame_range",
     [
         (PATH_TEST_DATA / "in/startframe.pdb", None, "spheres", False, None),
         (
@@ -33,7 +33,7 @@ PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
     ],
 )
 def test_show(
-    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range
+    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, frame_range
 ):
     view3d.show(
         dynophore,
@@ -41,12 +41,12 @@ def test_show(
         dcd_path=dcd_path,
         visualization_type=visualization_type,
         color_cloud_by_frame=color_cloud_by_frame,
-        select_cloud_range=select_cloud_range,
+        frame_range=frame_range,
     )
 
 
 @pytest.mark.parametrize(
-    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range",
+    "pdb_path, dcd_path, visualization_type, color_cloud_by_frame, frame_range",
     [
         (PATH_TEST_DATA / "in/startframe.pdb", None, "xxx", None, None),  # Unknown viz type
         (
@@ -66,7 +66,7 @@ def test_show(
     ],
 )
 def test_show_raises(
-    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, select_cloud_range
+    dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, frame_range
 ):
 
     with pytest.raises(ValueError):
@@ -76,5 +76,5 @@ def test_show_raises(
             dcd_path=dcd_path,
             visualization_type=visualization_type,
             color_cloud_by_frame=color_cloud_by_frame,
-            select_cloud_range=select_cloud_range,
+            frame_range=frame_range,
         )
