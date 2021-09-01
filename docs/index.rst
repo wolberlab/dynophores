@@ -33,15 +33,16 @@ This Python library offers visualization schemes for dynophore data generated wi
 ``DynophoreApp`` in a single Jupyter Notebook 
 (`template dynophore notebook <https://dynophores.readthedocs.io/en/latest/tutorials/dynophore.html>`_).  
 
-- 3D view of the dynophore's point clouds (one cloud per superfeature) using `nglview` allows easy visual inspection of the dynamic macromolecule-ligand interactions. Point clouds are rendered alongside the topology and (optionally) the trajectory underlying the dynophore. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_view3d.html>`_.
-- Statistics cover the occurrence of superfeatures and their environmental partners as well as distances between them. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_plots.html>`_.
-- Dynophore data can be further analyzed conveniently right there in the same notebook by working with the `Dynophore` class. See details in `this tutorial <https://dynophores.readthedocs.io/en/latest/tutorials/explore_data.html>`_.
+- 3D view of the dynophore's point clouds (one cloud per superfeature) using `nglview` allows easy visual inspection of the dynamic macromolecule-ligand interactions. Point clouds are rendered alongside the topology and (optionally) the trajectory underlying the dynophore. See details in `this tutorial on 3D views <https://dynophores.readthedocs.io/en/latest/tutorials/explore_view3d.html>`_.
+- Statistics cover the occurrence of superfeatures and their environmental partners as well as distances between them. See details in `this tutorial on plotting options <https://dynophores.readthedocs.io/en/latest/tutorials/explore_plots.html>`_.
+- Dynophore data can be further analyzed conveniently right there in the same notebook by working with the `Dynophore` class. See details in `this tutorial on the dynophore data structure <https://dynophores.readthedocs.io/en/latest/tutorials/explore_data.html>`_.
 
 
 .. toctree::
    :maxdepth: 1
    :caption: User guide
 
+   getting-started
    installing
    tutorials/dynophore
 
