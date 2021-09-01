@@ -33,7 +33,7 @@ You have different options what to do next:
 
 a. Take a look at a demo notebook showing the dynophore from an MD simulation for ligand-bound kinase CDK2 (PDB ID: 1KE7)::
 
-    dynoviz demo
+    dynoviz demo path/to/some/folder
 
 b. Explore your own dynophore data in a new notebook::
 
