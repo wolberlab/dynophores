@@ -158,8 +158,7 @@ def _add_dynophore(
                     f"but is {frame_range}."
                 )
             cloud = cloud[
-                (cloud["frame_ix"] >= frame_range[0])
-                & (cloud["frame_ix"] <= frame_range[1])
+                (cloud["frame_ix"] >= frame_range[0]) & (cloud["frame_ix"] <= frame_range[1])
             ]
 
         # Use color saturation to indicate frame index per point
