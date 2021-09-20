@@ -1,6 +1,4 @@
 """
-dynophores.core.superfeature
-
 Handles the SuperFeature class, which describes one superfeature for one dynophore.
 """
 

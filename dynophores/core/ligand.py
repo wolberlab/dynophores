@@ -1,6 +1,4 @@
 """
-dynophores.core.ligand
-
 Handles the Ligand class, which contains information on a macromolecule-bound ligand.
 """
 

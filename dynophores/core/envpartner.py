@@ -1,6 +1,4 @@
 """
-dynophores.core.envpartner
-
 Handles the EnvPartner class, which describes one environmental partner for one superfeature.
 """
 

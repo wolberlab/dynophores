@@ -1,6 +1,4 @@
 """
-dynophores.core.dynophore
-
 Handles the Dynophore class, describing a dynophore with its superfeatures and environmental
 partners.
 """

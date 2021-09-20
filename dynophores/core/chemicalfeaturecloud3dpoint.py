@@ -1,6 +1,4 @@
 """
-dynophores.core.chemicalfeaturecloud3dpoint
-
 Handles the ChemicalFeatureCloud3DPoint class, which describes a point in a superfeature cloud.
 """
 
