@@ -9,11 +9,11 @@ Dynophores
 Dynamic pharmacophore modeling of molecular interactions
 
 .. image::
-   https://github.com/dominiquesydow/dynophores/workflows/CI/badge.svg
-   :target: https://github.com/dominiquesydow/dynophores/actions
+   https://github.com/wolberlab/dynophores/workflows/CI/badge.svg
+   :target: https://github.com/wolberlab/dynophores/actions
 .. image::
-   https://codecov.io/gh/dominiquesydow/dynophores/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/dominiquesydow/dynophores/branch/master
+   https://codecov.io/gh/wolberlab/dynophores/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/wolberlab/dynophores/branch/master
 .. image::
    https://readthedocs.org/projects/dynophores/badge/?version=latest
    :target: https://dynophores.readthedocs.io/en/latest/

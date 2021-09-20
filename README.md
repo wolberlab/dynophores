@@ -2,8 +2,8 @@ Dynophores
 ==========
 
 [//]: # (Badges)
-[![GitHub Actions Build Status](https://github.com/dominiquesydow/dynophores/workflows/CI/badge.svg)](https://github.com/dominiquesydow/dynophores/actions?query=branch%3Amaster)
-[![codecov](https://codecov.io/gh/dominiquesydow/dynophores/branch/master/graph/badge.svg)](https://codecov.io/gh/dominiquesydow/dynophores/branch/master)
+[![GitHub Actions Build Status](https://github.com/wolberlab/dynophores/workflows/CI/badge.svg)](https://github.com/wolberlab/dynophores/actions?query=branch%3Amaster)
+[![codecov](https://codecov.io/gh/wolberlab/dynophores/branch/master/graph/badge.svg)](https://codecov.io/gh/wolberlab/dynophores/branch/master)
 [![Documentation Status](https://readthedocs.org/projects/dynophores/badge/?version=latest)](https://dynophores.readthedocs.io)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/dynophores.svg)](https://anaconda.org/conda-forge/dynophores)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)

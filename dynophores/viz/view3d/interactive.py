@@ -228,7 +228,7 @@ def _js_point_buffer(buffer, superfeature_id, opacity):
     """
     Create JavaScript string generating a point buffer from buffer parameters.
     TODO: Visualization contains artifacts:
-    - https://github.com/dominiquesydow/dynophores/issues/27
+    - https://github.com/wolberlab/dynophores/issues/27
     - https://github.com/nglviewer/ngl/issues/868
 
     Parameters

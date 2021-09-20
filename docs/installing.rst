@@ -26,12 +26,12 @@ Install from the conda package
 Install from the latest development snapshot
 --------------------------------------------
 
-Install the latest development snapshot from the `GitHub repository's master branch <https://github.com/dominiquesydow/dynophores>`_.
+Install the latest development snapshot from the `GitHub repository's master branch <https://github.com/wolberlab/dynophores>`_.
 
 
 1. Create a new conda environment called ``dyno``::
 
-    mamba env create -f https://raw.githubusercontent.com/dominiquesydow/dynophores/master/devtools/conda-envs/test_env.yaml -n dyno
+    mamba env create -f https://raw.githubusercontent.com/wolberlab/dynophores/master/devtools/conda-envs/test_env.yaml -n dyno
 
 2. Activate the new conda environment::
 
@@ -39,7 +39,7 @@ Install the latest development snapshot from the `GitHub repository's master bra
 
 3. Install ``dynophores`` package via pip::
 
-    pip install https://github.com/dominiquesydow/dynophores/archive/refs/heads/master.zip
+    pip install https://github.com/wolberlab/dynophores/archive/refs/heads/master.zip
 
 4. Test that your installation works::
 
