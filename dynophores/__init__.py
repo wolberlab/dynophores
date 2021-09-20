@@ -1,5 +1,14 @@
-"""
-Dynophores: Dynamic pharmacophore modeling of molecular interactions
+r"""
+Welcome to dynophores! Below you will find the submodules exposed by the API
+
+.. autosummary::
+   :toctree: autosummary
+   :nosignatures:
+
+    Dynophore
+    plot
+    view2d
+    view3d
 """
 
 # Add imports here
