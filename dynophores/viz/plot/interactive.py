@@ -1,17 +1,16 @@
 """
 Contains interactive plotting functions for Jupyter notebooks.
-
-IPyWidgets are amazing!
-
-Resources:
-- Great IPyWidgets documentation
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html#interactive
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html
-  - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Styling.html
-- Big thanks to @jaimergp for this getting-started notebook
-  - https://github.com/volkamerlab/teachopencadd/blob/1fd1de46b66c5acbb4cdb8ef6083171cd84fb50f/
-    teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
 """
+
+# IPyWidgets are amazing!
+# Resources:
+# - Great IPyWidgets documentation
+#   - https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html#interactive
+#   - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20List.html
+#   - https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Styling.html
+# - Big thanks to @jaimergp for this getting-started notebook
+#   - https://github.com/volkamerlab/teachopencadd/blob/1fd1de46b66c5acbb4cdb8ef6083171cd84fb50f/
+#     teachopencadd/talktorials/T017_advanced_nglview_usage/talktorial.ipynb
 
 import math
 
