@@ -1,6 +1,5 @@
 """
-Dynophores
-Dynamic pharmacophore modeling of molecular interactions
+Dynophores: Dynamic pharmacophore modeling of molecular interactions
 """
 
 # Add imports here

@@ -1,6 +1,5 @@
 """
-Dynophores
-Dynamic pharmacophore modeling of molecular interactions
+Dynophore 2D view to show superfeatures mapped onto a 2D representation of the ligand.
 """
 
 from . import static
