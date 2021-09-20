@@ -1,5 +1,5 @@
 """
-Plotting functions to show statistics on the occurrence of superfeatures and their environmental 
+Plotting functions to show statistics on the occurrence of superfeatures and their environmental
 partners as well as distances between them.
 
 .. autosummary::
