@@ -71,7 +71,7 @@ jobs:
         pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
 
     - name: CodeCov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
       with:
         file: ./coverage.xml
         flags: unittests
