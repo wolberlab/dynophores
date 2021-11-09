@@ -4,8 +4,8 @@ Contains utility functions.
 
 import logging
 from pathlib import Path
+import urllib
 
-import wget
 import numpy as np
 from matplotlib import colors
 
@@ -34,7 +34,7 @@ def _download_file(target_url, target_path):
     else:
         _logger.warning(f"Download from: {target_url}")
         _logger.warning(f"Download to: {target_path.parent}")
-        wget.download(target_url, str(target_path.parent))
+        urllib.request.urlretrieve(target_url, target_path)
 
 
 def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
