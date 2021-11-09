@@ -4,7 +4,6 @@ Command Line Interface for the project.
 
 import argparse
 from pathlib import Path
-from shutil import copyfile
 import subprocess
 
 from . import _version

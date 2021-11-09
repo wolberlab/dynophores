@@ -1,13 +1,9 @@
 """
+Python API to visualize demo dynophore data.
 """
 
-import json
 from pathlib import Path
-from shutil import copyfile
-import subprocess
 
-
-from .. import _version
 from .utils import _copy_notebook, _update_paths_in_notebook, _open_notebook
 
 PATH_TEST_DATA = Path(__file__).parent / ".." / "tests" / "data"
