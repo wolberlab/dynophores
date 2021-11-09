@@ -3,94 +3,108 @@ Command Line Interface for the project.
 """
 
 import argparse
-import json
 from pathlib import Path
 from shutil import copyfile
 import subprocess
 
 from . import _version
+from . import api
+
 
 PATH_TEST_DATA = Path(__file__).parent / "tests" / "data"
 
 
 def main():
     """
-    Main CLI function with the following signatures:
-
-    dynoviz create
-      --dyno path/to/dyno/folder
-      --pdb path/to/pdb/file
-      --dcd path/to/dcd/file
-      --workspace path/to/workspace/folder
-
-    dynoviz open
-      --notebook path/to/existing/notebook
-
-    dynoviz demo
+    Main CLI function for the following commands:
+    - dynophore create
+    - dynophore visualize
+    - dynophore demo
     """
-
-    _greet()
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     create_subparser = subparsers.add_parser("create")
-    open_subparser = subparsers.add_parser("open")
+    visualize_subparser = subparsers.add_parser("visualize")
     demo_subparser = subparsers.add_parser("demo")
 
-    # Arguments and function to be called for sub-command create
-    create_subparser.add_argument(
-        "-i",
-        "--dyno",
-        type=str,
-        help="Path to DynophoreApp output folder",
-        required=True,
-    )
-    create_subparser.add_argument(
-        "-w",
-        "--workspace",
-        type=str,
-        help="Path to workspace folder",
-        required=True,
-    )
+    # Arguments and function to balled for sub-command create
     create_subparser.add_argument(
         "-p",
-        "--pdb",
+        "--pmz",
         type=str,
-        help="Path to pdb (topology) file from trajectory, e.g. first frame",
+        help="Path to input .PDB or .PMZ file containing a PDB or LigandScout binding site",
         required=True,
     )
     create_subparser.add_argument(
         "-d",
         "--dcd",
         type=str,
+        help="Path to input .DCD file containing the molecular dynamics trajectory",
+        required=True,
+    )
+    create_subparser.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        help="Path to output location for DynophoreApp output folder, must end with /",
+        required=True,
+    )
+    create_subparser.add_argument(
+        "-n", "--name", type=str, help="Name for dynophore", required=True
+    )
+    create_subparser.add_argument(
+        "-f",
+        "--feature-def-file",
+        type=str,
+        help="Chemical feature definitions file ",
+        required=False,
+    )
+    create_subparser.add_argument(
+        "-3", "--three-letter-code", type=str, help="Ligand 3-letter code", required=False
+    )
+    create_subparser.add_argument("-c", "--chain", type=str, help="Ligand chain", required=False)
+    create_subparser.set_defaults(func=_create)
+
+    # Arguments and function to be called for sub-command visualize
+    visualize_subparser.add_argument(
+        "-i",
+        "--dyno",
+        type=str,
+        help="Path to DynophoreApp output folder",
+        required=True,
+    )
+    visualize_subparser.add_argument(
+        "-p",
+        "--pdb",
+        type=str,
+        help="Path to pdb (topology) file from trajectory, e.g. first frame",
+        required=True,
+    )
+    visualize_subparser.add_argument(
+        "-d",
+        "--dcd",
+        type=str,
         help="Path to dcd (trajectory) file",
         required=False,
     )
-    create_subparser.set_defaults(func=_create_viz)
-
-    # Arguments and function to be called for sub-command open
-    open_subparser.add_argument(
-        "notebook",
-        type=str,
-        help="Path to dynophore notebook file",
-    )
-    open_subparser.set_defaults(func=_open_viz)
+    visualize_subparser.set_defaults(func=_visualize)
 
     # Arguments and function to be called for sub-command demo
     demo_subparser.add_argument(
-        "workspace",
+        "out",
         type=str,
-        help="Path to workspace folder",
+        help="Path to target output folder",
     )
-    demo_subparser.set_defaults(func=_demo_viz)
+    demo_subparser.set_defaults(func=_demo)
 
     args = parser.parse_args()
     try:
         args.func(args)
     except AttributeError:
         # Run help if no arguments were given
-        subprocess.run(["dynoviz", "-h"])
+        subprocess.run(["dynophore", "-h"])
 
 
 def _greet():
@@ -105,168 +119,46 @@ def _greet():
     print(f"\n{title_str:^64}")
 
 
-def _create_viz(args):
+def _create(args):
     """
-    Create visualization notebook based on command line arguments.
+    Helper function for CLI to create dynophore data: `dynophore create` subcommand
     """
 
-    new_notebook_path = Path(args.workspace) / "dynophore.ipynb"
+    pmz_or_pdb_path = Path(args.pmz)
+    dcd_path = Path(args.dcd)
+    out_path = Path(args.out)
+    name = args.name
+    if args.feature_def_file is not None:
+        feature_def_path = Path(args.feature_def_file)
+    else:
+        feature_def_path = None
+    three_letter_code = args.three_letter_code
+    chain = args.chain
+
+    api.create.create(
+        pmz_or_pdb_path, dcd_path, out_path, name, feature_def_path, three_letter_code, chain
+    )
+
+
+def _visualize(args):
+    """
+    Helper function for CLI to visualize dynophore data: `dynophore visualize` subcommand
+    """
 
     dyno_path = Path(args.dyno)
-    if not dyno_path.is_dir():
-        raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
-
     pdb_path = Path(args.pdb)
-    if not pdb_path.is_file():
-        raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
-
     if args.dcd is not None:
         dcd_path = Path(args.dcd)
-        if not dcd_path.is_file():
-            raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
     else:
         dcd_path = None
 
-    _copy_notebook(new_notebook_path)
-    _update_paths_in_notebook(new_notebook_path, dyno_path, pdb_path, dcd_path)
-    _open_notebook(new_notebook_path)
+    api.visualize.visualize(dyno_path, pdb_path, dcd_path)
 
 
-def _open_viz(args):
+def _demo(args):
     """
-    Open visualization notebook based on command line arguments.
+    Helper function for CLI to visualize dynophore data: `dynophore demo` subcommand
     """
 
-    _open_notebook(args.notebook)
-
-
-def _demo_viz(args):
-    """
-    Create and open demo visualization notebook based.
-    """
-
-    new_notebook_path = Path(args.workspace) / "dynophore_demo.ipynb"
-    _copy_notebook(new_notebook_path)
-    _update_paths_in_notebook(
-        new_notebook_path,
-        (PATH_TEST_DATA / "out").absolute(),
-        (PATH_TEST_DATA / "in/startframe.pdb").absolute(),
-        (PATH_TEST_DATA / "in/trajectory.dcd").absolute(),
-    )
-    _open_notebook(new_notebook_path)
-
-
-def _copy_notebook(new_notebook_path):
-    """
-    Copy template dynophore notebook to user-defined workspace.
-    """
-
-    # Set template notebook
-    template_notebook_path = Path(_version.__file__).parent / "notebooks/dynophore.ipynb"
-
-    # Set user notebook filepath
-    new_notebook_path = Path(new_notebook_path)
-    if new_notebook_path.suffix != ".ipynb":
-        raise RuntimeError(
-            f"Input file path must have suffix `.ipynb`. "
-            f"Your input: `{new_notebook_path.absolute()}`"
-        )
-    if not new_notebook_path.exists():
-        new_notebook_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Copy template notebook to user-defined workspace
-    if template_notebook_path.exists():
-        print("\nCopy dynophore notebook to user workspace...")
-        copyfile(template_notebook_path, new_notebook_path)
-        if new_notebook_path.exists():
-            print(f"Dynophore notebook location: `{new_notebook_path.absolute()}`")
-        else:
-            raise RuntimeError(
-                f"Could not create dynophore notebook at selected location "
-                f"`{new_notebook_path.absolute()}`"
-            )
-    else:
-        raise RuntimeError(
-            f"Could not find dynophore notebook at expected location "
-            f"`{template_notebook_path.absolute()}`."
-        )
-
-
-def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path=None):
-    """
-    Read notebook file as string, replace all search instances (filepaths), and overwrite notebook
-    file with this updated string.
-    """
-
-    notebook_path = Path(notebook_path)
-    if not notebook_path.is_file():
-        raise RuntimeError(f"Input is no file or does not exist: `{notebook_path.absolute()}`")
-
-    dyno_path = Path(dyno_path)
-    if not dyno_path.is_dir():
-        raise RuntimeError(f"Input is no file or file does not exist: `{dyno_path.absolute()}`")
-
-    pdb_path = Path(pdb_path)
-    if not pdb_path.is_file():
-        raise RuntimeError(f"Input is no file or file does not exist: `{pdb_path.absolute()}`")
-
-    if dcd_path is not None:
-        dcd_path = Path(dcd_path)
-        if not dcd_path.is_file():
-            raise RuntimeError(f"Input is no file or file does not exist: `{dcd_path.absolute()}`")
-
-    # Replace template filepaths in notebook with user-defined filepaths
-    print("\nUpdate filepaths in notebook to user filepaths...")
-
-    search_replace_tuples = [
-        ("../tests/data/out", str(dyno_path.absolute())),
-        ("../tests/data/in/startframe.pdb", str(pdb_path.absolute())),
-    ]
-
-    if dcd_path is not None:
-        search_replace_tuples.append(("../tests/data/in/trajectory.dcd", str(dcd_path.absolute())))
-    else:
-        search_replace_tuples.append(
-            (
-                json.dumps('dcd_path = Path("../tests/data/in/trajectory.dcd")'),
-                json.dumps("dcd_path = None"),
-            )
-        )
-
-    # Read in the file
-    with open(notebook_path, "r") as f:
-        filedata = f.read()
-
-    # Replace the target string
-    for (search_str, replace_str) in search_replace_tuples:
-        filedata = filedata.replace(search_str, replace_str)
-
-    # Write the file out again
-    with open(notebook_path, "w") as f:
-        f.write(filedata)
-
-
-def _open_notebook(notebook_path):
-    """
-    Open input notebook with Jupyter Lab.
-
-    Notes
-    -----
-    Same behaviour like `jupyter lab notebook_path`.
-    """
-
-    print("_open_notebook")
-
-    notebook_path = Path(notebook_path)
-
-    if not notebook_path.exists():
-        raise RuntimeError(f"Input path does not exist: `{notebook_path.absolute()}`")
-    if not notebook_path.is_file():
-        raise RuntimeError(f"Input path is not a file: `{notebook_path.absolute()}`")
-    if notebook_path.suffix != ".ipynb":
-        raise RuntimeError(
-            f"Input file path must have suffix `.ipynb`. Your input: `{notebook_path.absolute()}`"
-        )
-
-    print("Open dynophore notebook with Jupyter Lab...")
-    subprocess.run(["jupyter", "lab", str(notebook_path.absolute())])
+    out_path = Path(args.out)
+    api.demo.demo(out_path)
