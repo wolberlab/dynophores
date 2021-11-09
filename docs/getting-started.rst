@@ -1,48 +1,38 @@
 Getting started
 ===============
 
-Generate dynophores
--------------------
+The ``dynophores`` package will generate the following dynophore data::
 
-Download
-^^^^^^^^
-
-TBA
-
-Usage
-^^^^^
-
-TBA
-
-
-Visualize dynophores
---------------------
-
-Dynophores can be easily visualized in Jupyter Notebooks with the ``dynophores`` Python package.
-
+    dynophore_out/
+    ├── dynophore.pml     # Point cloud data
+    ├── dynophore.cgo     # Point cloud data as PyMol script
+    ├── dynophore.json    # Statistics
+    └── dynophore.ipynb   # Visualization notebook
 
 Installation
-^^^^^^^^^^^^
+------------
 
 Install the ``dynophores`` package as described `here <https://dynophores.readthedocs.io/en/latest/installing.html>`_.
 
 Usage
-^^^^^
-
-You have different options what to do next:
+-----
 
 a. Take a look at a demo notebook showing the dynophore from an MD simulation for ligand-bound kinase CDK2 (PDB ID: 1KE7)::
 
-    dynoviz demo path/to/some/folder
+    dynophore demo path/to/some/folder
 
-b. Explore your own dynophore data in a new notebook::
+b. If you have an input PDB (topology) and DCD (trajectory) file, run::
 
-    dynoviz create --dyno path/to/dyno/folder --pdb path/to/pdb/file --dcd path/to/dcd/file --workspace path/to/workspace/folder
+    dynophore create -p path/to/pdb/file -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
 
-c. If you already have set up your dynophore notebook (i.e. if you want to revisit a notebook created with option b), run::
+c. If you have an input PDB (topology) and DCD (trajectory) file *and* you want to specify the chain or ligand to be used for the binding site definiton, run::
 
-    dynoviz open path/to/your/dyno/notebook
+    dynophore create -p path/to/pdb/file -c chain_id -3 three_letter_ligand_code -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
 
-   Note: This command is equivalent to::
-    
-    jupyter lab path/to/your/dyno/notebook
+d. If you have an input PMZ (topology of binding site) and DCD (trajectory) file, run::
+
+    dynophore create -p path/to/pmz/file -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
+
+e. If you already have a dynophore data folder::
+
+    dynophore visualize -d path/to/dynophore/folder -p path/to/pdb/file -d path/to/dcd/file
