@@ -1,5 +1,5 @@
 """
-Unit tests for Command Line Interface.
+Unit tests for the dynophore CLI.
 """
 
 from pathlib import Path
@@ -10,6 +10,28 @@ import pytest
 from dynophores import cli
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
+
+
+def capture(command):
+    """
+    Run input command as subprocess and caputure the subprocess' exit code, stdout and stderr.
+    Parameters
+    ----------
+    command : list of str
+        Command to be run as subprocess.
+    Returns
+    -------
+    out : str
+        Standard output message.
+    err : str
+        Standard error message.
+    exitcode : int
+        Exit code.
+    """
+
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    out, err = proc.communicate()
+    return out, err, proc.returncode
 
 
 @pytest.mark.parametrize(
@@ -60,82 +82,3 @@ def test_subprocess_raises(args):
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(args, check=True)
 
-
-@pytest.mark.parametrize(
-    "new_notebook_path",
-    [PATH_TEST_DATA / "copied_notebook.ipynb"],
-)
-def test_copy_notebook(new_notebook_path):
-    """
-    Test if copied notebook file exists.
-    """
-
-    cli._copy_notebook(new_notebook_path)
-    assert new_notebook_path.is_file()
-    # Remove copy again (not needed)
-    new_notebook_path.unlink()
-
-
-@pytest.mark.parametrize(
-    "new_notebook_path",
-    ["xxx"],
-)
-def test_copy_notebook_raises(new_notebook_path):
-    """
-    Test if error raised if input path does not have suffix ".ipynb".
-    """
-
-    with pytest.raises(RuntimeError):
-        cli._copy_notebook(new_notebook_path)
-
-
-@pytest.mark.parametrize(
-    "notebook_path, dyno_path, pdb_path, dcd_path",
-    [
-        (
-            str(PATH_TEST_DATA / "test.ipynb"),  # Not a file
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
-        ),
-        (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
-            "is_not_dir",  # Not a directory
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
-        ),
-        (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
-            str(PATH_TEST_DATA / "out"),
-            "doesnt_exist.pdb",  # Does not exist
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
-        ),
-        (
-            str(PATH_TEST_DATA / "test.ipynb"),
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            "doesnt_exist.dcd",  # Does not exist
-        ),
-    ],
-)
-def test_update_paths_in_notebook_raises(notebook_path, dyno_path, pdb_path, dcd_path):
-    """
-    Test if error is raised if input paths do not exist.
-    """
-
-    with pytest.raises(RuntimeError):
-        cli._update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path)
-
-
-@pytest.mark.parametrize(
-    "notebook",
-    [
-        PATH_TEST_DATA / "xxx.ipynb",  # Path does not exist
-        PATH_TEST_DATA,  # Path is not a file
-        PATH_TEST_DATA / "dynophore.iiipynb",  # Incorrect file suffix
-    ],
-)
-def test_open_notebook_raises(notebook):
-
-    with pytest.raises(RuntimeError):
-        cli._open_notebook(notebook)
