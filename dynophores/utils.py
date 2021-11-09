@@ -2,8 +2,39 @@
 Contains utility functions.
 """
 
+import logging
+from pathlib import Path
+
+import wget
 import numpy as np
 from matplotlib import colors
+
+_logger = logging.getLogger(__name__)
+
+
+def _download_file(target_url, target_path):
+    """
+    Download a file from target URL to be saved as defined in the target path.
+
+    Parameters
+    ----------
+    target_url : str
+        Target URL.
+    target_path : str or pathlib.Path
+        Path to target file.
+    """
+
+    target_path = Path(target_path)
+
+    if target_path.name != Path(target_url).name:
+        raise ValueError("File name in target URL and target path must be the same.")
+
+    if Path(target_path).exists():
+        _logger.warning("Dynophore installer already available. Continue.")
+    else:
+        _logger.warning(f"Download from: {target_url}")
+        _logger.warning(f"Download to: {target_path.parent}")
+        wget.download(target_url, str(target_path.parent))
 
 
 def hex_to_rgb_saturation_sequence(hex, sequence_length, min_saturation=0.2):
