@@ -75,7 +75,7 @@ d. If you have an input PMZ (topology) and DCD (trajectory) file, run::
 
 e. If you already have a dynophore data folder, run::
 
-    dynophore visualize -d path/to/dynophore/folder -p path/to/pdb/file -d path/to/dcd/file
+    dynophore visualize -i path/to/dynophore/folder -p path/to/pdb/file -d path/to/dcd/file
 
    Adds the dynophore notebook to the dynophore data files at  
    ``path/to/dynophore/folder/dynophore.ipynb``.
