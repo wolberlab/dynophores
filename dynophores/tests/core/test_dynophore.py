@@ -219,7 +219,7 @@ class TestsDynophore:
         self, dynophore, count_sum, frequency_sum, superfeature_ids, envpartner_names
     ):
 
-        # TODO remove this when fixed in DynophoreApp json export
+        # FIXME remove this when fixed in DynophoreApp json export
         envpartner_names = [i.replace("_", "-") for i in envpartner_names]
 
         # Count

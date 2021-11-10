@@ -216,13 +216,13 @@ def test_copy_notebook_raises(new_notebook_path):
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
+            str(PATH_TEST_DATA / "test.ipynb"),
             "is_not_dir",  # Not a directory
             str(PATH_TEST_DATA / "in/startframe.pdb"),
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
         ),
         (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
+            str(PATH_TEST_DATA / "test.ipynb"),
             str(PATH_TEST_DATA / "out"),
             "doesnt_exist.pdb",  # Does not exist
             str(PATH_TEST_DATA / "in/trajectory.dcd"),
