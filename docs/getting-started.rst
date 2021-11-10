@@ -77,6 +77,5 @@ Usage
 
     dynophore visualize -i path/to/dynophore/folder -p path/to/pdb/file -d path/to/dcd/file
 
-  Adds the dynophore notebook to the dynophore data files at  
-   ``path/to/dynophore/folder/dynophore.ipynb``.
+  Adds the dynophore notebook to the dynophore data files at ``path/to/dynophore/folder/dynophore.ipynb``.
 
