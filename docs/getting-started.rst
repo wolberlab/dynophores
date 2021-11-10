@@ -48,35 +48,35 @@ Install the ``dynophores`` package as described `here <https://dynophores.readth
 Usage
 -----
 
-a. Take a look at a demo notebook showing the dynophore from an MD simulation for ligand-bound kinase CDK2 (PDB ID: 1KE7)::
+* Take a look at a demo notebook showing the dynophore from an MD simulation for ligand-bound kinase CDK2 (PDB ID: 1KE7)::
 
     dynophore demo path/to/output/folder
 
-   Generates a dynophore demo notebook at ``path/to/output/folder/dynophore.ipynb``.
+  Generates a dynophore demo notebook at ``path/to/output/folder/dynophore.ipynb``.
 
-b. If you have an input PDB (topology) and DCD (trajectory) file, run::
+* If you have an input PDB (topology) and DCD (trajectory) file, run::
 
     dynophore create -p path/to/pdb/file -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
 
-   Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``, which contains the dynophore notebook.
+  Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``, which contains the dynophore notebook.
 
-c. If you have an input PDB (topology) and DCD (trajectory) file *and* you want to specify the chain or ligand to be used for the binding site definiton, run::
+* If you have an input PDB (topology) and DCD (trajectory) file *and* you want to specify the chain or ligand to be used for the binding site definiton, run::
 
     dynophore create -p path/to/pdb/file -c chain_id -3 three_letter_ligand_code -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
 
-   Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``, which contains the dynophore notebook.
+  Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``, which contains the dynophore notebook.
 
-d. If you have an input PMZ (topology) and DCD (trajectory) file, run::
+* If you have an input PMZ (topology) and DCD (trajectory) file, run::
 
     dynophore create -p path/to/pmz/file -d path/to/dcd/file -o path/to/output/folder -n dynophore_name
 
-   Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``. 
-   To generate the corresponding dynophore notebook, run ``dynophore visualize``.
+  Generates dynophore data at ``path/to/output/folder/dynophore_out_YYYY-MM-DD_hh-mm-ss``. 
+  To generate the corresponding dynophore notebook, run ``dynophore visualize``.
 
-e. If you already have a dynophore data folder, run::
+* If you already have a dynophore data folder, run::
 
     dynophore visualize -i path/to/dynophore/folder -p path/to/pdb/file -d path/to/dcd/file
 
-   Adds the dynophore notebook to the dynophore data files at  
+  Adds the dynophore notebook to the dynophore data files at  
    ``path/to/dynophore/folder/dynophore.ipynb``.
 
