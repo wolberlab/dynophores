@@ -30,10 +30,10 @@ def _download_file(target_url, target_path):
         raise ValueError("File name in target URL and target path must be the same.")
 
     if Path(target_path).exists():
-        _logger.warning("Dynophore installer already available. Continue.")
+        _logger.debug("Dynophore installer already available. Continue.")
     else:
-        _logger.warning(f"Download from: {target_url}")
-        _logger.warning(f"Download to: {target_path.parent}")
+        _logger.debug(f"Download from: {target_url}")
+        _logger.debug(f"Download to: {target_path.parent}")
         urllib.request.urlretrieve(target_url, target_path)
 
 
