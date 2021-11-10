@@ -11,6 +11,7 @@ import shutil
 import pytest
 
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
+PATH_DATA = Path(__name__).parent / "dynophores" / "data"
 
 
 def capture(command):
@@ -69,19 +70,7 @@ def test_cli_demo(command):
             "-n",
             "test",
         ],
-        [  # Create output from PDB
-            "dynophore",
-            "create",
-            "-p",
-            PATH_TEST_DATA / "in/startframe.pdb",
-            "-d",
-            PATH_TEST_DATA / "in/trajectory.dcd",
-            "-o",
-            PATH_TEST_DATA / "out",
-            "-n",
-            "test",
-        ],
-        [  # Create output from PDB with user-defined chain and ligand
+        [  # Create output from PDB // with user-defined chain, ligand, and feature definitions
             "dynophore",
             "create",
             "-p",
@@ -96,8 +85,9 @@ def test_cli_demo(command):
             "A",
             "-3",
             "LS3",
+            "-f",
+            PATH_DATA / "custom-chemicalfeature-definitions.xml",
         ],
-        # TODO feature definitions
     ],
 )
 def test_cli_create(command):
@@ -115,6 +105,9 @@ def test_cli_create(command):
     assert (
         err
         == "jar:file:/home/dominique/Documents/GitHub/dynophores/dynophores/generate/dynophore-20201007.jar!/com/inteligand/ilib/fonts/mini.flf\n"
+    ) or (
+        err
+        == "jar:file:/home/dominique/Documents/GitHub/dynophores/dynophores/generate/dynophore-20201007.jar!/com/inteligand/ilib/fonts/mini.flf\nChecking chemical feature definitions override ...\n"
     )
 
     # Clean up output
@@ -233,7 +226,6 @@ def test_cli_visualize(command):
             ],
             "ERROR: No contained ligand matches given specification",
         ),
-        # TODO feature definitions
     ],
 )
 def test_cli_create_raises(command, out_substring):

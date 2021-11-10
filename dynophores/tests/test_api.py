@@ -61,18 +61,9 @@ def test_create_from_pmz(
             None,
             None,
         ),
-        (
-            PATH_TEST_DATA / "in/startframe.pmz",
-            PATH_TEST_DATA / "in/trajectory.dcd",
-            PATH_TEST_DATA / "out",
-            "test",
-            None,
-            "LS3",
-            "A",
-        ),
     ],
 )
-def test_create_from_pdb_xxx(
+def test_create_from_pdb(
     pdb_path, dcd_path, out_path, name, feature_def_path, three_letter_code, chain
 ):
     """
@@ -107,7 +98,7 @@ def test_create_from_pdb_xxx(
             None,
         ),
         (
-            PATH_TEST_DATA / "in/startframe.pmz",
+            PATH_TEST_DATA / "in/startframe.pdb",
             PATH_TEST_DATA / "in/trajectory.dcd",
             PATH_TEST_DATA / "out",
             "test",
@@ -131,10 +122,10 @@ def test_create_from_pdb_invalid(
     # Check output files
     dyno_paths = sorted(glob.glob(str(out_path / "dynophore_out_*")), reverse=True)
     dyno_path = Path(dyno_paths[0])
+    assert (dyno_path / f"{name}_input_filepaths.txt").exists()
     assert not (dyno_path / f"{name}_dynophore.cgo").exists()
     assert not (dyno_path / f"{name}_dynophore.json").exists()
     assert not (dyno_path / f"{name}_dynophore.pml").exists()
-    assert not (dyno_path / f"{name}_input_filepaths.txt").exists()
     assert not (dyno_path / f"dynophore.ipynb").exists()
     shutil.rmtree(dyno_path)
 
