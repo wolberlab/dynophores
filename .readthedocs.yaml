@@ -4,8 +4,13 @@
 # Required
 version: 2
 
-sphinx:
-  configuration: docs/conf.py
+# Default
+formats: []
+
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "mambaforge-4.10"
 
 conda:
   environment: devtools/conda-envs/test_env.yaml
