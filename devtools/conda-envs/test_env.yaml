@@ -12,7 +12,8 @@ dependencies:
   - seaborn
   - jupyter
   - jupyterlab>=3
-  - ipywidgets>=7.5
+  # https://github.com/wolberlab/dynophores/issues/59
+  - ipywidgets<8
   - ipympl
   - nglview>=3
   - rdkit
