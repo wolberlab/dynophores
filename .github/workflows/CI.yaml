@@ -28,7 +28,7 @@ jobs:
         python-version: [3.8, 3.9, "3.10"]
 
     steps:
-    - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
     - name: Additional info about the build
       shell: bash
@@ -85,8 +85,7 @@ jobs:
         python-version: [3.8]
 
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # More info on options: https://github.com/conda-incubator/setup-miniconda
       - uses: conda-incubator/setup-miniconda@v2
@@ -140,8 +139,7 @@ jobs:
         python-version: [3.8]
 
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # More info on options: https://github.com/conda-incubator/setup-miniconda
       - uses: conda-incubator/setup-miniconda@v2
