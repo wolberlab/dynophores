@@ -24,7 +24,6 @@ dependencies:
   - pytest-cov
   - nbval
   - shyaml
-  - pytest-cov
   - codecov
   # Docs
   - sphinx
