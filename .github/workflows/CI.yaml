@@ -19,22 +19,13 @@ on:
     - cron: "0 3 10 * *"
 
 jobs:
-
   test:
-    name: Pytest
-    runs-on: ${{ matrix.cfg.os }}
+    name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        cfg:
-          - os: ubuntu-latest
-            python-version: "3.7"
-          - os: ubuntu-latest
-            python-version: "3.9"
-          - os: macos-latest
-            python-version: "3.7"
-          - os: windows-latest
-            python-version: "3.7"
+        os: [macOS-latest, ubuntu-latest, windows-latest]
+        python-version: [3.8, 3.9, "3.10"]
 
     steps:
     - uses: actions/checkout@v1
@@ -85,13 +76,13 @@ jobs:
         flags: unittests
         name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
 
-
   lint-format:
-    runs-on: ubuntu-latest
-    env:
-      CI_OS: ubuntu-latest
-      PACKAGE: "dynophores"
-      PYVER: "3.7"
+    name: Lint/format test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.8]
 
     steps:
       - name: Checkout the code
@@ -140,13 +131,13 @@ jobs:
           flake8-nb --config setup.cfg docs/tutorials/*.ipynb
           flake8-nb --config setup.cfg dynophores/notebooks/*.ipynb
 
-
   docs:
-    runs-on: ubuntu-latest
-    env:
-      CI_OS: ubuntu-latest
-      PACKAGE: "dynophores"
-      PYVER: "3.7"
+    name: Docs test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.8]
 
     steps:
       - name: Checkout the code
