@@ -30,12 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-    - name: Additional info about the build
-      shell: bash
-      run: |
-        uname -a
-        df -h
-        ulimit -a
+      - name: Additional info about the build
+        shell: bash
+        run: |
+          uname -a
+          df -h
+          ulimit -a
 
       # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
       - uses: mamba-org/provision-with-micromamba@main
@@ -46,24 +46,23 @@ jobs:
           extra-specs: |
             python=${{ matrix.python-version }}
 
-    - name: Install package
-      # conda setup requires this special shell
-      shell: bash -l {0}
-      run: |
-        python -m pip install . --no-deps
-        conda list
-  
-    - name: Run package tests
-      shell: bash -l {0}
-      run: |
-        pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
+      - name: Install package
+        shell: bash -l {0}
+        run: |
+          python -m pip install . --no-deps
+          micromamba list
 
-    - name: Run docs notebooks tests
-      shell: bash -l {0}
-      run: |
-        PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
-        pytest $PYTEST_ARGS docs/tutorials/*.ipynb -vvv
-        pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
+
+      - name: Run docs notebooks tests
+        shell: bash -l {0}
+        run: |
+          PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
+          pytest $PYTEST_ARGS docs/tutorials/*.ipynb -vvv
+          pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
 
       - name: CodeCov
         uses: codecov/codecov-action@v1
@@ -95,13 +94,10 @@ jobs:
       - name: Install linter and formatter
         shell: bash -l {0}
         run: |
-          conda install -y flake8 black
-          python -m pip install black-nb shyaml
-          python -m pip install flake8-nb
+          python -m pip install shyaml flake8 black black-nb flake8-nb
 
       - name: Run black check
         shell: bash -l {0}
-        if: always()
         run: |
           black --check -l 99 dynophores
 
@@ -112,7 +108,6 @@ jobs:
 
       - name: Run black-nb check
         shell: bash -l {0}
-        if: always()
         run: |
           black-nb --check -l 99 docs/tutorials/*.ipynb
           black-nb --check -l 99 dynophores/notebooks/*.ipynb
@@ -147,7 +142,7 @@ jobs:
         shell: bash -l {0}
         run: |
           python -m pip install . --no-deps
-          conda list
+          micromamba list
 
       - name: Run sphinx
         shell: bash -l {0}
