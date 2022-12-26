@@ -3,27 +3,27 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-    # Base depends
-  - python>=3.6
+  # Base depends
+  - python>=3.8
   - pip
   - numpy
-  - pandas  
+  - pandas
   - matplotlib
   - seaborn
   - jupyter
   - jupyterlab>=3
-  - ipywidgets>=7.5
+  # https://github.com/wolberlab/dynophores/issues/59
+  - ipywidgets<8
   - ipympl
   - nglview>=3
   - rdkit
   - mdanalysis
   # Testing
-  - pytest 5.*
+  - pytest
   - pytest-xdist
   - pytest-cov
   - nbval
   - shyaml
-  - pytest-cov
   - codecov
   # Docs
   - sphinx
@@ -33,8 +33,5 @@ dependencies:
   - black
   - flake8
   - pip:
-    - black-nb
-    - flake8-nb
-
-## For Jupyter lab extensions, run:
-# jupyter labextension install @jupyter-widgets/jupyterlab-manager nglview-js-widgets @ijmbarr/jupyterlab_spellchecker @jupyter-widgets/html-manager
+      - black-nb
+      - flake8-nb
