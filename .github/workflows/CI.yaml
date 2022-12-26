@@ -16,109 +16,97 @@ on:
     # Nightly tests run on master by default:
     #   Scheduled workflows run on the latest commit on the default or base branch.
     #   (from https://help.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule)
-    - cron: "0 3 * * 1"
+    - cron: "0 3 10 * *"
 
 jobs:
-
   test:
-    name: Pytest
+    name: Test on ${{ matrix.cfg.os }}, Python ${{ matrix.cfg.python-version }}
     runs-on: ${{ matrix.cfg.os }}
     strategy:
-      fail-fast: false
       matrix:
         cfg:
           - os: ubuntu-latest
-            python-version: "3.7"
+            python-version: "3.8"
           - os: ubuntu-latest
             python-version: "3.9"
+          - os: ubuntu-latest
+            python-version: "3.10"
           - os: macos-latest
-            python-version: "3.7"
+            python-version: "3.8"
           - os: windows-latest
-            python-version: "3.7"
+            python-version: "3.8"
 
     steps:
-    - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-    - name: Additional info about the build
-      shell: bash
-      run: |
-        uname -a
-        df -h
-        ulimit -a
+      - name: Additional info about the build
+        shell: bash
+        run: |
+          uname -a
+          df -h
+          ulimit -a
 
-    # More info on options: https://github.com/conda-incubator/setup-miniconda
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        environment-file: devtools/conda-envs/test_env.yaml
+      # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: devtools/conda-envs/test_env.yaml
+          environment-name: test
+          channels: conda-forge,defaults
+          extra-specs: |
+            python=${{ matrix.python-version }}
 
-        channels: conda-forge,defaults
+      - name: Install package
+        shell: bash -l {0}
+        run: |
+          python -m pip install . --no-deps
+          micromamba list
 
-        activate-environment: test
-        auto-update-conda: false
-        auto-activate-base: false
-        show-channel-urls: true
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
 
-    - name: Install package
-      # conda setup requires this special shell
-      shell: bash -l {0}
-      run: |
-        python -m pip install . --no-deps
-        conda list
-  
-    - name: Run package tests
-      shell: bash -l {0}
-      run: |
-        pytest -v --cov=dynophores --cov-report=xml --color=yes dynophores/tests/
+      - name: Run docs notebooks tests
+        shell: bash -l {0}
+        run: |
+          PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
+          pytest $PYTEST_ARGS docs/tutorials/*.ipynb -vvv
+          pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
 
-    - name: Run docs notebooks tests
-      shell: bash -l {0}
-      run: |
-        PYTEST_ARGS="--nbval-lax --current-env --nbval-cell-timeout=900"
-        pytest $PYTEST_ARGS docs/tutorials/*.ipynb -vvv
-        pytest $PYTEST_ARGS dynophores/notebooks/*.ipynb -vvv
-
-    - name: CodeCov
-      uses: codecov/codecov-action@v2
-      with:
-        files: ./coverage.xml
-        flags: unittests
-        name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
-
+      - name: CodeCov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
 
   lint-format:
-    runs-on: ubuntu-latest
-    env:
-      CI_OS: ubuntu-latest
-      PACKAGE: "dynophores"
-      PYVER: "3.7"
+    name: Lint/format test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.8]
 
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      # More info on options: https://github.com/conda-incubator/setup-miniconda
-      - uses: conda-incubator/setup-miniconda@v2
+      # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
+      - uses: mamba-org/provision-with-micromamba@main
         with:
-          python-version: ${{ matrix.python-version }}
           environment-file: devtools/conda-envs/test_env.yaml
-          channels: conda-forge,defaults,bioconda
-          activate-environment: test
-          auto-update-conda: true
-          auto-activate-base: false
-          show-channel-urls: true
-          # mamba-version: "*"
+          environment-name: test
+          channels: conda-forge,defaults
+          extra-specs: |
+            python=${{ matrix.python-version }}
 
       - name: Install linter and formatter
         shell: bash -l {0}
         run: |
-          conda install -y flake8 black
-          python -m pip install black-nb shyaml
-          python -m pip install flake8-nb
+          python -m pip install shyaml flake8 black black-nb flake8-nb
 
       - name: Run black check
         shell: bash -l {0}
-        if: always()
         run: |
           black --check -l 99 dynophores
 
@@ -129,7 +117,6 @@ jobs:
 
       - name: Run black-nb check
         shell: bash -l {0}
-        if: always()
         run: |
           black-nb --check -l 99 docs/tutorials/*.ipynb
           black-nb --check -l 99 dynophores/notebooks/*.ipynb
@@ -140,35 +127,31 @@ jobs:
           flake8-nb --config setup.cfg docs/tutorials/*.ipynb
           flake8-nb --config setup.cfg dynophores/notebooks/*.ipynb
 
-
   docs:
-    runs-on: ubuntu-latest
-    env:
-      CI_OS: ubuntu-latest
-      PACKAGE: "dynophores"
-      PYVER: "3.7"
+    name: Docs test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.8]
 
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      # More info on options: https://github.com/conda-incubator/setup-miniconda
-      - uses: conda-incubator/setup-miniconda@v2
+      # More info on options: https://github.com/marketplace/actions/provision-with-micromamba
+      - uses: mamba-org/provision-with-micromamba@main
         with:
-          python-version: ${{ matrix.python-version }}
           environment-file: devtools/conda-envs/test_env.yaml
-          channels: conda-forge,defaults,bioconda
-          activate-environment: test
-          auto-update-conda: true
-          auto-activate-base: false
-          show-channel-urls: true
-          # mamba-version: "*"
+          environment-name: test
+          channels: conda-forge,defaults
+          extra-specs: |
+            python=${{ matrix.python-version }}
 
       - name: Install package
         shell: bash -l {0}
         run: |
           python -m pip install . --no-deps
-          conda list
+          micromamba list
 
       - name: Run sphinx
         shell: bash -l {0}
