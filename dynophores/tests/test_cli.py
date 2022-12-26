@@ -1,141 +1,307 @@
 """
-Unit tests for Command Line Interface.
+Unit tests for the dynophore CLI.
 """
 
 from pathlib import Path
 import subprocess
+import warnings
+import glob
+import shutil
 
 import pytest
 
-from dynophores import cli
-
 PATH_TEST_DATA = Path(__name__).parent / "dynophores" / "tests" / "data"
+PATH_DATA = Path(__name__).parent / "dynophores" / "data"
+
+
+def capture(command):
+    """
+    Run input command as subprocess and caputure the subprocess' exit code, stdout and stderr.
+    Parameters
+    ----------
+    command : list of str
+        Command to be run as subprocess.
+    Returns
+    -------
+    out : str
+        Standard output message.
+    err : str
+        Standard error message.
+    exitcode : int
+        Exit code.
+    """
+
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    out, err = proc.communicate()
+    return out, err, proc.returncode
 
 
 @pytest.mark.parametrize(
-    "args",
+    "command",
     [
-        "dynoviz demo",
-        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
-        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'} "
-        f"--dcd {PATH_TEST_DATA / 'in/trajectory.dcd'}",
-        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
-        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'}",
-        f"dynoviz open {PATH_TEST_DATA / 'dynophore.ipynb'}",
+        ["dynophore", "demo", PATH_TEST_DATA],
     ],
 )
-def test_subprocess(args):
+def test_cli_demo(command):
     """
-    TODO how to catch errors?
+    Test CLI.
     """
 
-    args = args.split()
-    process = subprocess.Popen(
-        args,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+    _, err, exitcode = capture(command)
+    assert exitcode == 0
+    assert not err
+
+    # Clean up output
+    (PATH_TEST_DATA / "dynophore_demo.ipynb").unlink()
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        [  # Create output from PMZ
+            "dynophore",
+            "create",
+            "-p",
+            PATH_TEST_DATA / "in/startframe.pmz",
+            "-d",
+            PATH_TEST_DATA / "in/trajectory.dcd",
+            "-o",
+            PATH_TEST_DATA / "out",
+            "-n",
+            "test",
+        ],
+        [  # Create output from PDB // with user-defined chain, ligand, and feature definitions
+            "dynophore",
+            "create",
+            "-p",
+            PATH_TEST_DATA / "in/startframe.pdb",
+            "-d",
+            PATH_TEST_DATA / "in/trajectory.dcd",
+            "-o",
+            PATH_TEST_DATA / "out",
+            "-n",
+            "test",
+            "-c",
+            "A",
+            "-3",
+            "LS3",
+            "-f",
+            PATH_DATA / "custom-chemicalfeature-definitions.xml",
+        ],
+    ],
+)
+def test_cli_create(command):
+    """
+    Test CLI.
+    """
+
+    _, err, exitcode = capture(command)
+
+    assert exitcode == 0
+
+    # assert not err
+    # FIXME at the moment there is a warning in stderr
+    # Uncomment lines above once this is fixed
+    assert (
+        err
+        == "jar:file:/home/dominique/Documents/GitHub/dynophores/dynophores/generate/dynophore-20201007.jar!/com/inteligand/ilib/fonts/mini.flf\n"
+    ) or (
+        err
+        == "jar:file:/home/dominique/Documents/GitHub/dynophores/dynophores/generate/dynophore-20201007.jar!/com/inteligand/ilib/fonts/mini.flf\nChecking chemical feature definitions override ...\n"
     )
-    process.terminate()
+
+    # Clean up output
+    dyno_paths = sorted(glob.glob(str(PATH_TEST_DATA / "out" / "dynophore_out_*")), reverse=True)
+    dyno_path = Path(dyno_paths[0])
+    shutil.rmtree(dyno_path)
 
 
 @pytest.mark.parametrize(
-    "args",
+    "command",
     [
-        "dynoviz cook",
-        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace xxx --pdb xxx --dcd xxx",
-        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
-        f"--pdb xxx --dcd xxx",
-        f"dynoviz create --dyno {PATH_TEST_DATA / 'out'} --workspace {PATH_TEST_DATA} "
-        f"--pdb {PATH_TEST_DATA / 'in/startframe.pdb'} --dcd xxx",
-        f"dynoviz open {PATH_TEST_DATA / 'xxx.ipynb'}",
+        [  # Visualize dynophore with PDB _and_ DCD
+            "dynophore",
+            "visualize",
+            "-i",
+            PATH_TEST_DATA / "out",
+            "-p",
+            PATH_TEST_DATA / "in/startframe.pdb",
+            "-d",
+            PATH_TEST_DATA / "in/trajectory.dcd",
+        ],
     ],
 )
-def test_subprocess_raises(args):
+def test_cli_visualize(command):
     """
-    Test invalid CLI args for create subprocess.
+    Test CLI.
     """
 
-    args = args.split()
-    with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run(args, check=True)
+    _, err, exitcode = capture(command)
+    assert exitcode == 0
+    assert not err
+
+    # Clean up output
+    (PATH_TEST_DATA / "out" / "dynophore.ipynb").unlink()
 
 
 @pytest.mark.parametrize(
-    "new_notebook_path",
-    [PATH_TEST_DATA / "copied_notebook.ipynb"],
-)
-def test_copy_notebook(new_notebook_path):
-    """
-    Test if copied notebook file exists.
-    """
-
-    cli._copy_notebook(new_notebook_path)
-    assert new_notebook_path.is_file()
-    # Remove copy again (not needed)
-    new_notebook_path.unlink()
-
-
-@pytest.mark.parametrize(
-    "new_notebook_path",
-    ["xxx"],
-)
-def test_copy_notebook_raises(new_notebook_path):
-    """
-    Test if error raised if input path does not have suffix ".ipynb".
-    """
-
-    with pytest.raises(RuntimeError):
-        cli._copy_notebook(new_notebook_path)
-
-
-@pytest.mark.parametrize(
-    "notebook_path, dyno_path, pdb_path, dcd_path",
+    "command, out_substring",
     [
         (
-            str(PATH_TEST_DATA / "test.ipynb"),  # Not a file
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
+            [  # Input PMZ unknown
+                "dynophore",
+                "create",
+                "-p",
+                PATH_TEST_DATA / "in/xxx.pmz",
+                "-d",
+                PATH_TEST_DATA / "in/trajectory.dcd",
+                "-o",
+                PATH_TEST_DATA / "out",
+                "-n",
+                "test",
+            ],
+            "file not found",
         ),
         (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
-            "is_not_dir",  # Not a directory
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
+            [  # Input PDB unknown
+                "dynophore",
+                "create",
+                "-p",
+                PATH_TEST_DATA / "in/xxx.pdb",
+                "-d",
+                PATH_TEST_DATA / "in/trajectory.dcd",
+                "-o",
+                PATH_TEST_DATA / "out",
+                "-n",
+                "test",
+            ],
+            "file not found",
         ),
         (
-            str(PATH_TEST_DATA / "test.ipynb"),  # TODO
-            str(PATH_TEST_DATA / "out"),
-            "doesnt_exist.pdb",  # Does not exist
-            str(PATH_TEST_DATA / "in/trajectory.dcd"),
+            [  # Input DCD unknown
+                "dynophore",
+                "create",
+                "-p",
+                PATH_TEST_DATA / "in/startframe.pmz",
+                "-d",
+                PATH_TEST_DATA / "in/xxx.dcd",
+                "-o",
+                PATH_TEST_DATA / "out",
+                "-n",
+                "test",
+            ],
+            "file not found",
         ),
         (
-            str(PATH_TEST_DATA / "test.ipynb"),
-            str(PATH_TEST_DATA / "out"),
-            str(PATH_TEST_DATA / "in/startframe.pdb"),
-            "doesnt_exist.dcd",  # Does not exist
+            [  # Input chain unknown
+                "dynophore",
+                "create",
+                "-p",
+                PATH_TEST_DATA / "in/startframe.pdb",
+                "-d",
+                PATH_TEST_DATA / "in/trajectory.dcd",
+                "-o",
+                PATH_TEST_DATA / "out",
+                "-n",
+                "test",
+                "-c",
+                "X",
+            ],
+            "ERROR: No contained ligand matches given specification",
+        ),
+        (
+            [  # Input ligand unknown
+                "dynophore",
+                "create",
+                "-p",
+                PATH_TEST_DATA / "in/startframe.pdb",
+                "-d",
+                PATH_TEST_DATA / "in/trajectory.dcd",
+                "-o",
+                PATH_TEST_DATA / "out",
+                "-n",
+                "test",
+                "-3",
+                "XXX",
+            ],
+            "ERROR: No contained ligand matches given specification",
         ),
     ],
 )
-def test_update_paths_in_notebook_raises(notebook_path, dyno_path, pdb_path, dcd_path):
+def test_cli_create_raises(command, out_substring):
     """
-    Test if error is raised if input paths do not exist.
+    Test CLI errors.
     """
 
-    with pytest.raises(RuntimeError):
-        cli._update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path)
+    out, err, exitcode = capture(command)
+    # Since the dynophore is generated running a JAR file,
+    # we won't see errors from our Python program
+    assert exitcode == 0
+
+    # assert not err
+    # FIXME at the moment there is a warning in stderr
+    # Uncomment lines above once this is fixed
+    assert (
+        err
+        == "jar:file:/home/dominique/Documents/GitHub/dynophores/dynophores/generate/dynophore-20201007.jar!/com/inteligand/ilib/fonts/mini.flf\n"
+    )
+    assert out_substring in out
+
+    # Clean up output
+    dyno_paths = sorted(glob.glob(str(PATH_TEST_DATA / "out" / "dynophore_out_*")), reverse=True)
+    dyno_path = Path(dyno_paths[0])
+    shutil.rmtree(dyno_path)
 
 
 @pytest.mark.parametrize(
-    "notebook",
+    "command",
     [
-        PATH_TEST_DATA / "xxx.ipynb",  # Path does not exist
-        PATH_TEST_DATA,  # Path is not a file
-        PATH_TEST_DATA / "dynophore.iiipynb",  # Incorrect file suffix
+        [  # Dynophore folder unknown
+            "dynophore",
+            "visualize",
+            "-i",
+            PATH_TEST_DATA / "xxx",
+            "-p",
+            PATH_TEST_DATA / "in/startframe.pdb",
+        ],
+        [  # Input PDB unknown
+            "dynophore",
+            "visualize",
+            "-i",
+            PATH_TEST_DATA / "out",
+            "-p",
+            PATH_TEST_DATA / "in/xxx.pdb",
+        ],
+        [  # Input DCD unknown
+            "dynophore",
+            "visualize",
+            "-i",
+            PATH_TEST_DATA / "out",
+            "-p",
+            PATH_TEST_DATA / "in/startframe.pdb",
+            "-d",
+            PATH_TEST_DATA / "in/xxx.dcd",
+        ],
     ],
 )
-def test_open_notebook_raises(notebook):
+def test_cli_visualize_raises(command):
+    """
+    Test CLI errors.
+    """
 
-    with pytest.raises(RuntimeError):
-        cli._open_notebook(notebook)
+    _, _, exitcode = capture(command)
+    assert exitcode == 1
+
+
+def test_jlab_import():
+    """
+    Add warning if JupyterLab cannot be imported.
+    """
+
+    try:
+        import jupyterlab
+    except ImportError:
+        warnings.warn(
+            "JupyterLab cannot be imported; install with `mamba install jupyterlab`.",
+            ImportWarning,
+        )

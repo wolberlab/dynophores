@@ -351,7 +351,6 @@ class Dynophore:
     def _superfeature_ids_frequencies_strings(self, superfeature_ids):
         """
         Get superfeature IDs with frequencies as strings (useful for plotting).
-        TODO unit test
 
         Parameters
         ----------
@@ -374,7 +373,19 @@ class Dynophore:
 
     def _envpartner_names_frequencies_strings(self, superfeature_id, envpartners_names):
         """
-        TODO docstring + unit test
+        Get enpartner names for a superfeature with frequencies as strings (useful for plotting).
+
+        Parameters
+        ----------
+        superfeature_id : str
+            Superfeature.
+        envpartners_names : list of str
+            List of envpartners involved in that superfeature.
+
+        Returns
+        -------
+        list of str
+            Envpartners with frequencies.
         """
 
         envpartners_occurrences = self.envpartners_occurrences[superfeature_id]

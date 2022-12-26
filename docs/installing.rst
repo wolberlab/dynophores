@@ -22,7 +22,7 @@ Install from the conda package
 
 3. Test that your installation works::
 
-    dynoviz -h
+    dynophore -h
 
 
 Install from the latest development snapshot
@@ -45,4 +45,4 @@ Install the latest development snapshot from the `GitHub repository's master bra
 
 4. Test that your installation works::
 
-    dynoviz -h
+    dynophore -h
