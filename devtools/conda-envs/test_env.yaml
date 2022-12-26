@@ -3,11 +3,11 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-    # Base depends
+  # Base depends
   - python>=3.6
   - pip
   - numpy
-  - pandas  
+  - pandas
   - matplotlib
   - seaborn
   - jupyter
@@ -19,7 +19,7 @@ dependencies:
   - rdkit
   - mdanalysis
   # Testing
-  - pytest 5.*
+  - pytest
   - pytest-xdist
   - pytest-cov
   - nbval
@@ -34,8 +34,5 @@ dependencies:
   - black
   - flake8
   - pip:
-    - black-nb
-    - flake8-nb
-
-## For Jupyter lab extensions, run:
-# jupyter labextension install @jupyter-widgets/jupyterlab-manager nglview-js-widgets @ijmbarr/jupyterlab_spellchecker @jupyter-widgets/html-manager
+      - black-nb
+      - flake8-nb
