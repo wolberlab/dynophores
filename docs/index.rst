@@ -61,6 +61,7 @@ This Python library offers visualization schemes for dynophore data generated wi
    getting-started
    installing
    tutorials/dynophore
+   save-figures
 
 .. toctree::
    :maxdepth: 1
