@@ -184,7 +184,6 @@ def envpartners_occurrences(
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
-
         if len(superfeature_ids) > 1:
             ax = axes[i]
         else:
@@ -207,7 +206,6 @@ def envpartners_occurrences(
             ax.set_yticks([0])
             ax.set_yticklabels([""])
         else:
-
             # Get frame indices with events
             events_dict = {
                 envpartner_id: envpartner[envpartner == 1].index.to_list()
@@ -285,7 +283,6 @@ def envpartners_distances(
     )
 
     for i, superfeature_id in enumerate(superfeature_ids):
-
         if len(superfeature_ids) > 1:
             ax = axes[i]
         else:
@@ -311,14 +308,12 @@ def envpartners_distances(
             ax.set_yticks([0])
             ax.set_yticklabels([""])
         else:
-
             # Add % to environmental partners
             data.columns = dynophore._envpartner_names_frequencies_strings(
                 superfeature_id, data.columns.to_list()
             )
 
             if kind == "line":
-
                 # Plot all distances as line plot
                 data.plot(kind="line", ax=ax, linewidth=0.5)
 
@@ -333,7 +328,6 @@ def envpartners_distances(
                 ax.legend(labels=legend_labels, loc=6, bbox_to_anchor=(1, 0.5))
 
             elif kind == "hist":
-
                 # TODO or use min/max in full dataset instead of per superfeature?
                 value_floor = int(np.floor(data_interaction_frames.min().min()))
                 value_ceil = int(np.ceil(data_interaction_frames.max().max()))
@@ -508,7 +502,6 @@ def _prepare_envpartner_plotting_data(
     occurrence_min=0,
     collapse_residues=False,
 ):
-
     """
     Prepare envpartner data for plotting.
 

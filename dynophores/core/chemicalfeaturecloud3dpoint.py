@@ -24,7 +24,6 @@ class ChemicalFeatureCloud3DPoint:
     """
 
     def __init__(self, x, y, z, frame_ix, weight, **kwargs):
-
         self.x = x
         self.y = y
         self.z = z

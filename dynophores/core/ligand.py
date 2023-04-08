@@ -30,7 +30,6 @@ class Ligand:
         atom_serials,
         **kwargs,
     ):
-
         self.name = name
         self.smiles = smiles
         self.mdl_mol_buffer = mdl_mol_buffer

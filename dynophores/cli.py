@@ -238,7 +238,7 @@ def _update_paths_in_notebook(notebook_path, dyno_path, pdb_path, dcd_path=None)
         filedata = f.read()
 
     # Replace the target string
-    for (search_str, replace_str) in search_replace_tuples:
+    for search_str, replace_str in search_replace_tuples:
         filedata = filedata.replace(search_str, replace_str)
 
     # Write the file out again

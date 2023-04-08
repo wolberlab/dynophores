@@ -28,7 +28,6 @@ class EnvPartner:
     def __init__(
         self, id, residue_name, residue_number, chain, atom_numbers, occurrences, distances
     ):
-
         if len(occurrences) != len(distances):
             raise ValueError("Occurrences and distances must be of same length.")
 

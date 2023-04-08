@@ -29,12 +29,10 @@ def test_show(dynophore, show_superfeatures, show_pdb_serial_numbers):
 
     @pytest.mark.parametrize("show_pdb_serial_numbers", [False, True])
     def test_view2d(self, ligand, show_pdb_serial_numbers):
-
         mol = ligand.view2d(show_pdb_serial_numbers)
         assert isinstance(mol, Chem.rdchem.Mol)
 
     @pytest.mark.parametrize("show_pdb_serial_numbers", [False, True])
     def test_view2d_superfeatures(self, ligand, show_pdb_serial_numbers):
-
         img = ligand.view2d_superfeatures(show_pdb_serial_numbers)
         assert isinstance(img, Image)

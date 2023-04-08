@@ -21,7 +21,6 @@ class TestsEnvPartner:
     """
 
     def test_init(self):
-
         dynophore_dict = parsers._json_pml_to_dict(
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",
@@ -64,7 +63,6 @@ class TestsEnvPartner:
         ],
     )
     def test_init_raises(self, envpartner_dict):
-
         with pytest.raises(ValueError):
             EnvPartner(**envpartner_dict)
 

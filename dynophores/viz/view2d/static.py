@@ -134,7 +134,6 @@ def _get_superfeatures_drawing_data(mol, superfeatures_atom_serials, superfeatur
     mol_rings = mol.GetRingInfo().AtomRings()
 
     for superfeature_id, atom_serials in superfeatures_atom_serials.items():
-
         # Map PDB atom IDs to RDKit atom IDs
         rdkit_atom_idx = [
             atom.GetIdx()
@@ -151,7 +150,6 @@ def _get_superfeatures_drawing_data(mol, superfeatures_atom_serials, superfeatur
                 rings.append((ring, color))
 
         for atom_idx in rdkit_atom_idx:
-
             # Highlight information for atoms
             highlight_atoms[atom_idx].append(color)
             highlight_radius[atom_idx] = 0.4
@@ -216,7 +214,7 @@ def _draw_superfeatures(
     )
     d2d.ClearDrawing()
     conf = mol.GetConformer()
-    for (ring, color) in rings:
+    for ring, color in rings:
         positions = []
         for atom_idx in ring:
             position = Geometry.Point2D(conf.GetAtomPosition(atom_idx))
