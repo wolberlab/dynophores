@@ -37,7 +37,6 @@ class Dynophore:
         superfeatures,
         **kwargs,
     ):
-
         self.id = id
         self.ligand = ligand if isinstance(ligand, Ligand) else Ligand(**ligand)
         self.superfeatures = {
@@ -66,7 +65,6 @@ class Dynophore:
         dynophore_path = Path(dynophore_path)
 
         if dynophore_path.is_dir():
-
             # Set JSON path
             json_path = list(dynophore_path.glob("*.json"))
             if len(json_path) == 1:

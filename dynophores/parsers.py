@@ -83,7 +83,6 @@ def _pml_to_dict(pml_path):
 
     feature_clouds = dynophore3d_xml.findall("featureCloud")
     for feature_cloud in feature_clouds:
-
         # Superfeature ID
         superfeature_feature_name = feature_cloud.get("name")
         superfeature_atom_numbers = feature_cloud.get("involvedAtomSerials")

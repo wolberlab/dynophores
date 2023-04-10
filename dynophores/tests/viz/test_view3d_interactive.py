@@ -68,7 +68,6 @@ def test_show(
 def test_show_raises(
     dynophore, pdb_path, dcd_path, visualization_type, color_cloud_by_frame, frame_range
 ):
-
     with pytest.raises(ValueError):
         view3d.show(
             dynophore,

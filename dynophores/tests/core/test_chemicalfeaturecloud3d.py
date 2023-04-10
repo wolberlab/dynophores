@@ -22,7 +22,6 @@ class TestsChemicalFeatureCloud3D:
     """
 
     def test_init(self):
-
         dynophore_dict = parsers._json_pml_to_dict(
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",

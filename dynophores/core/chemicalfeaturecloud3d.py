@@ -20,7 +20,6 @@ class ChemicalFeatureCloud3D:
     """
 
     def __init__(self, center, points, **kwargs):
-
         self.center = center
         self.points = [
             point

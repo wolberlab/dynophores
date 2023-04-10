@@ -34,7 +34,6 @@ class SuperFeature:
     """
 
     def __init__(self, id, feature_type, atom_numbers, occurrences, envpartners, color, cloud):
-
         self.id = id
         self.feature_type = feature_type
         self.atom_numbers = atom_numbers
@@ -185,7 +184,7 @@ class SuperFeature:
         )
         envpartners_count = property_envpartners_occurrences.sum()
 
-        return superfeature_count.append(envpartners_count)
+        return pd.concat([superfeature_count, envpartners_count])
 
     @property
     def frequency(self):
@@ -279,7 +278,6 @@ class SuperFeature:
         # For each unique residue ID,
         # we want to aggregate data for all environmental partners that belong to the same residue
         for residue_id in residue_ids:
-
             # Get all environmental partner IDs that belong to this residue
             ids_to_be_collapsed = [_id for _id in ids if _id.startswith(residue_id)]
 

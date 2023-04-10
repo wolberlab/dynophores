@@ -25,7 +25,6 @@ class TestsDynophore:
 
     @pytest.mark.parametrize("id", ["dynophore_1KE7"])
     def test_attributes(self, dynophore, id):
-
         dynophore_dict = parsers._json_pml_to_dict(
             PATH_TEST_DATA / "out/1KE7_dynophore.json",
             PATH_TEST_DATA / "out/1KE7_dynophore.pml",
@@ -48,12 +47,10 @@ class TestsDynophore:
 
     @pytest.mark.parametrize("filepath", [PATH_TEST_DATA / "out"])
     def test_from_dir(self, filepath):
-
         dynophore = Dynophore.from_dir(filepath)
         assert isinstance(dynophore, Dynophore)
 
     def test_clouds_and_cloud_by_superfeature(self, dynophore):
-
         # Property `cloud`
         assert isinstance(dynophore.clouds, dict)
         assert list(dynophore.clouds.keys()) == list(dynophore.superfeatures.keys())
@@ -88,7 +85,6 @@ class TestsDynophore:
         ],
     )
     def test_superfeatures_occurrences(self, dynophore, column_names, counts_sum):
-
         data = dynophore.superfeatures_occurrences
         assert data.columns.to_list() == column_names
         assert data.index.to_list() == list(range(0, dynophore.n_frames))
@@ -115,7 +111,6 @@ class TestsDynophore:
     def test_envpartners_occurrences_and_envpartners_occurrences_by_superfeature(
         self, dynophore, counts_sum_dict
     ):
-
         # Test `envpartners_occurrences`
         assert sorted(list(dynophore.envpartners_occurrences.keys())) == sorted(
             list(counts_sum_dict.keys())
@@ -150,7 +145,6 @@ class TestsDynophore:
         ],
     )
     def test_envpartners_distances(self, dynophore, distances_sum_dict):
-
         assert sorted(list(dynophore.envpartners_distances.keys())) == sorted(
             list(distances_sum_dict.keys())
         )
@@ -161,12 +155,10 @@ class TestsDynophore:
 
     @pytest.mark.parametrize("n_superfeatures", [10])
     def test_n_superfeatures(self, dynophore, n_superfeatures):
-
         assert dynophore.n_superfeatures == n_superfeatures
 
     @pytest.mark.parametrize("n_frames", [1002])
     def test_n_frames(self, dynophore, n_frames):
-
         assert dynophore.n_frames == n_frames
 
     @pytest.mark.parametrize(
@@ -218,7 +210,6 @@ class TestsDynophore:
     def test_count_frequency(
         self, dynophore, count_sum, frequency_sum, superfeature_ids, envpartner_names
     ):
-
         # TODO remove this when fixed in DynophoreApp json export
         envpartner_names = [i.replace("_", "-") for i in envpartner_names]
 
@@ -240,7 +231,6 @@ class TestsDynophore:
     def test_raise_keyerror_if_invalid_superfeature_id(
         self, dynophore, valid_superfeature, superfeature_id
     ):
-
         if valid_superfeature:
             assert dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id) is None
         else:
@@ -248,14 +238,12 @@ class TestsDynophore:
                 dynophore._raise_keyerror_if_invalid_superfeature_id(superfeature_id)
 
     def test_superfeatures_atom_serials(self, dynophore):
-
         atom_serials = dynophore.superfeatures_atom_serials
         assert isinstance(atom_serials, dict)
         assert list(atom_serials) == list(dynophore.superfeatures)
         assert isinstance(next(iter(atom_serials.values()))[0], int)
 
     def test_superfeatures_colors(self, dynophore):
-
         colors = dynophore.superfeatures_colors
         assert isinstance(colors, dict)
         assert list(colors) == list(dynophore.superfeatures)

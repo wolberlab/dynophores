@@ -136,6 +136,5 @@ def test_update_paths_in_notebook_raises(notebook_path, dyno_path, pdb_path, dcd
     ],
 )
 def test_open_notebook_raises(notebook):
-
     with pytest.raises(RuntimeError):
         cli._open_notebook(notebook)
