@@ -184,7 +184,7 @@ class SuperFeature:
         )
         envpartners_count = property_envpartners_occurrences.sum()
 
-        return superfeature_count.append(envpartners_count)
+        return pd.concat([superfeature_count, envpartners_count])
 
     @property
     def frequency(self):
