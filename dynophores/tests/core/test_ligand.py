@@ -4,7 +4,6 @@ Unit tests for dynophore.core.ligand.Ligand class.
 Uses fixture tests.conftest.envpartner.
 """
 
-
 from pathlib import Path
 
 from dynophores import parsers

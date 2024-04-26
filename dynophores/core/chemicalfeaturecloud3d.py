@@ -22,9 +22,11 @@ class ChemicalFeatureCloud3D:
     def __init__(self, center, points, **kwargs):
         self.center = center
         self.points = [
-            point
-            if isinstance(point, ChemicalFeatureCloud3DPoint)
-            else ChemicalFeatureCloud3DPoint(**point)
+            (
+                point
+                if isinstance(point, ChemicalFeatureCloud3DPoint)
+                else ChemicalFeatureCloud3DPoint(**point)
+            )
             for point in points
         ]
 
