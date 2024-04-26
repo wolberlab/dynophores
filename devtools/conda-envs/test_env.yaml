@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   # Base depends
-  - python>=3.8
+  - python>=3.12
   - pip
   - numpy
   - pandas
@@ -32,6 +32,3 @@ dependencies:
   # Developement
   - black
   - flake8
-  - pip:
-      - black-nb
-      - flake8-nb

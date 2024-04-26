@@ -39,9 +39,9 @@ class SuperFeature:
         self.atom_numbers = atom_numbers
         self.occurrences = occurrences
         self.envpartners = {
-            envpartner_id: envpartner
-            if isinstance(envpartner, EnvPartner)
-            else EnvPartner(**envpartner)
+            envpartner_id: (
+                envpartner if isinstance(envpartner, EnvPartner) else EnvPartner(**envpartner)
+            )
             for envpartner_id, envpartner in envpartners.items()
         }
         self.color = color

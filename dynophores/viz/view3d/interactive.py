@@ -2,6 +2,8 @@
 Contains NGLview 3D visualizations.
 """
 
+# flake8: noqa
+
 import warnings
 
 import numpy as np

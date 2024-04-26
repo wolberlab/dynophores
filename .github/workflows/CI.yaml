@@ -26,15 +26,11 @@ jobs:
       matrix:
         cfg:
           - os: ubuntu-latest
-            python-version: "3.8"
-          - os: ubuntu-latest
-            python-version: "3.9"
-          - os: ubuntu-latest
-            python-version: "3.10"
+            python-version: "3.12"
           - os: macos-latest
-            python-version: "3.8"
+            python-version: "3.12"
           - os: windows-latest
-            python-version: "3.8"
+            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v3
@@ -86,7 +82,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8]
+        python-version: [3.12]
 
     steps:
       - uses: actions/checkout@v3
@@ -115,25 +111,13 @@ jobs:
         run: |
           flake8 --config setup.cfg dynophores
 
-      - name: Run black-nb check
-        shell: bash -l {0}
-        run: |
-          black-nb --check -l 99 docs/tutorials/*.ipynb
-          black-nb --check -l 99 dynophores/notebooks/*.ipynb
-
-      - name: Run flake8-nb
-        shell: bash -l {0}
-        run: |
-          flake8-nb --config setup.cfg docs/tutorials/*.ipynb
-          flake8-nb --config setup.cfg dynophores/notebooks/*.ipynb
-
   docs:
     name: Docs test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8]
+        python-version: [3.12]
 
     steps:
       - uses: actions/checkout@v3

@@ -1,6 +1,7 @@
 """
 Contains RDKit ligand 2D visualizations (static).
 """
+
 from collections import defaultdict
 
 from rdkit import Geometry

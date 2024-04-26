@@ -10,7 +10,11 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import seaborn as sns
 
-plt.style.use("seaborn")
+try:
+    plt.style.use("seaborn")
+except OSError:
+    # Needed for matplotlib>=3.8.0
+    plt.style.use("seaborn-v0_8")
 
 
 def superfeatures_vs_envpartners(dynophore, superfeature_ids="all", annotate_heatmap=False):

@@ -40,9 +40,11 @@ class Dynophore:
         self.id = id
         self.ligand = ligand if isinstance(ligand, Ligand) else Ligand(**ligand)
         self.superfeatures = {
-            superfeature_id: superfeature
-            if isinstance(superfeature, SuperFeature)
-            else SuperFeature(**superfeature)
+            superfeature_id: (
+                superfeature
+                if isinstance(superfeature, SuperFeature)
+                else SuperFeature(**superfeature)
+            )
             for superfeature_id, superfeature in superfeatures.items()
         }
 
