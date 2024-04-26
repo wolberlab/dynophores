@@ -32,6 +32,3 @@ dependencies:
   # Developement
   - black
   - flake8
-  - pip:
-      - black-nb
-      - flake8-nb
